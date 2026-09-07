@@ -157,7 +157,10 @@ jobs:
         uses: actions/cache@v5
         with:
           path: |
-            TMessagesProj/jni/tlottie_lib
+            TMessagesProj/jni/prebuild/arm64-v8a/libtlottie.a
+            TMessagesProj/jni/prebuild/armeabi-v7a/libtlottie.a
+            TMessagesProj/jni/prebuild/x86/libtlottie.a
+            TMessagesProj/jni/prebuild/x86_64/libtlottie.a
           key: ${{ hashFiles('tlottie_status') }}
       - name: Setup Android SDK Tools
         uses: android-actions/setup-android@v2
@@ -179,6 +182,43 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
           ./run init libs tlottie
+  h264:
+    name: Native Build (openh264)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+      - name: Fetch Status
+        run: git submodule status TMessagesProj/jni/third_party/openh264 > openh264_status
+      - name: tlottie Cache
+        id: cache
+        uses: actions/cache@v5
+        with:
+          path: |
+            TMessagesProj/jni/prebuild/arm64-v8a/libopenh264.a
+            TMessagesProj/jni/prebuild/armeabi-v7a/libopenh264.a
+            TMessagesProj/jni/prebuild/x86/libopenh264.a
+            TMessagesProj/jni/prebuild/x86_64/libopenh264.a
+          key: ${{ hashFiles('openh264_status') }}
+      - name: Setup Android SDK Tools
+        uses: android-actions/setup-android@v2
+        if: steps.cache.outputs.cache-hit != 'true'
+      - name: Install NDK
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          SDK_MANAGER=$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager
+          if [ ! -f "$SDK_MANAGER" ]; then
+            SDK_MANAGER=$ANDROID_HOME/tools/bin/sdkmanager
+          fi
+          yes | sudo $SDK_MANAGER --install "ndk;27.2.12479018" --sdk_root=${ANDROID_SDK_ROOT}
+          echo "sdk.dir=${ANDROID_HOME}" > local.properties
+          echo "ndk.dir=${ANDROID_HOME}/ndk/27.2.12479018" >> local.properties
+      - name: Native Build
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          ./run init libs h264
   tdlib:
     name: Native Build (TDLib)
     runs-on: ubuntu-latest
@@ -234,6 +274,7 @@ jobs:
       - ffmpeg
       - tdlib
       - tlottie
+      - h264
     strategy:
       matrix:
         flavor:
@@ -254,6 +295,7 @@ jobs:
           git submodule status TMessagesProj/jni/third_party/ffmpeg > ffmpeg_status
           git submodule status TMessagesProj/jni/third_party/libvpx > libvpx_status
           git submodule status TMessagesProj/jni/third_party/dav1d > dav1d_status
+          git submodule status TMessagesProj/jni/third_party/openh264 > openh264_status
           git submodule status TMessagesProj/jni/boringssl > boringssl_status
           git submodule status TMessagesProj/jni/tdlib > tdlib_status
           git submodule status TMessagesProj/jni/tlottie > tlottie_status
@@ -263,7 +305,7 @@ jobs:
         with:
           path: |
             TMessagesProj/src/main/libs
-          key: ${{ hashFiles('TMessagesProj/jni/**', 'ffmpeg_status', 'libvpx_status', 'boringssl_status', 'dav1d_status', 'tdlib_status') }}-${{ matrix.flavor }}
+          key: ${{ hashFiles('TMessagesProj/jni/**', 'ffmpeg_status', 'libvpx_status', 'boringssl_status', 'dav1d_status', 'tdlib_status', 'openh264_status') }}-${{ matrix.flavor }}
       - name: Checkout Library
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
@@ -299,8 +341,21 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         with:
           path: |
-            TMessagesProj/jni/tlottie_lib
+            TMessagesProj/jni/prebuild/arm64-v8a/libtlottie.a
+            TMessagesProj/jni/prebuild/armeabi-v7a/libtlottie.a
+            TMessagesProj/jni/prebuild/x86/libtlottie.a
+            TMessagesProj/jni/prebuild/x86_64/libtlottie.a
           key: ${{ hashFiles('tlottie_status') }}
+      - name: openh264 Cache
+        uses: actions/cache@v5
+        if: steps.cache.outputs.cache-hit != 'true'
+        with:
+          path: |
+            TMessagesProj/jni/prebuild/arm64-v8a/libopenh264.a
+            TMessagesProj/jni/prebuild/armeabi-v7a/libopenh264.a
+            TMessagesProj/jni/prebuild/x86/libopenh264.a
+            TMessagesProj/jni/prebuild/x86_64/libopenh264.a
+          key: ${{ hashFiles('openh264_status') }}
       - name: Setup Android SDK Tools
         uses: android-actions/setup-android@v2
         if: steps.cache.outputs.cache-hit != 'true'
@@ -424,7 +479,10 @@ jobs:
         uses: actions/cache@v5
         with:
           path: |
-            TMessagesProj/jni/tlottie_lib
+            TMessagesProj/jni/prebuild/arm64-v8a/libtlottie.a
+            TMessagesProj/jni/prebuild/armeabi-v7a/libtlottie.a
+            TMessagesProj/jni/prebuild/x86/libtlottie.a
+            TMessagesProj/jni/prebuild/x86_64/libtlottie.a
           key: ${{ hashFiles('tlottie_status') }}
       - name: Fix Gradle Memory
         run: |
