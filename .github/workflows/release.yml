@@ -218,6 +218,8 @@ jobs:
       - name: Native Build
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
+          sudo apt-get update
+          sudo apt-get install yasm nasm meson ninja-build -y || true
           ./run init libs h264
   tdlib:
     name: Native Build (TDLib)
