@@ -8591,6 +8591,8 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                                 }
                             }
                         }
+                        if (topicsFragment != null) topicsFragment.setMainTabsActivityController(mainTabsActivityController);
+                        checkUi_mainTabsVisible();
                     } else if (ChatObject.isCommunity(chat)) {
                         args = new Bundle();
                         args.putLong("community_id", chat.id);
@@ -14557,8 +14559,8 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
 
     private void checkUi_mainTabsVisible() {
         final boolean mainTabsVisible = !searching && (blurredView == null || blurredView.getBackground() == null || blurredView.getAlpha() < 0.01f || blurredView.getVisibility() == View.GONE);
-        if (mainTabsActivityController != null) {
-            mainTabsActivityController.setTabsVisible(mainTabsVisible);
+        if (mainTabsActivityController != null || slidingTopicListOpened()) {
+            mainTabsActivityController.setTabsVisible(mainTabsVisible && !slidingTopicListOpened());
         }
     }
 

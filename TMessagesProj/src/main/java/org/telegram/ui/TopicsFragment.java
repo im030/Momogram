@@ -1740,6 +1740,7 @@ public class TopicsFragment extends BaseFragment implements NotificationCenter.N
         @Override
         protected void onDetachedFromWindow() {
             super.onDetachedFromWindow();
+            toggleBottomTab(true);
         }
 
         @Override
@@ -3305,6 +3306,13 @@ public class TopicsFragment extends BaseFragment implements NotificationCenter.N
         if (actionBar != null) {
             actionBar.closeSearchField();
         }
+        toggleBottomTab(true);
+    }
+
+    @Override
+    public void onBecomeFullyVisible() {
+        super.onBecomeFullyVisible();
+        toggleBottomTab(false);
     }
 
     private class EmptyViewContainer extends FrameLayout {
@@ -4269,5 +4277,14 @@ public class TopicsFragment extends BaseFragment implements NotificationCenter.N
     @Override
     public void onParentScrollToTop() {
         recyclerListView.smoothScrollToPosition(0);
+    }
+
+    MainTabsActivityController mainTabsActivityController;
+    public void setMainTabsActivityController(MainTabsActivityController controller) {
+        mainTabsActivityController = controller;
+    }
+    private void toggleBottomTab(boolean visible) {
+        if (mainTabsActivityController == null) return;
+        mainTabsActivityController.setTabsVisible(visible);
     }
 }
