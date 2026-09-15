@@ -4,7 +4,7 @@ apply plugin: "com.android.application"
 apply plugin: "kotlin-android"
 
 def verName = APP_VERSION_NAME
-def verCode = 11519
+def verCode = 11529
 
 def gitHashProc = new ProcessBuilder("git", "log", "--pretty=format:'%h'", "-n", "1").redirectErrorStream(true).start()
 def gitHashBuf = new byte[16]
