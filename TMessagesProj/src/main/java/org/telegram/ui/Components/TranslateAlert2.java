@@ -85,6 +85,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
+import moe.hx030.momogram.MomoConfig;
+import moe.hx030.momogram.transtale.Translator;
+import moe.hx030.momogram.transtale.TranslatorKt;
+
 public class TranslateAlert2 extends BottomSheet implements NotificationCenter.NotificationCenterDelegate {
 
     private Integer reqId;
@@ -311,6 +315,35 @@ public class TranslateAlert2 extends BottomSheet implements NotificationCenter.N
         if (reqId != null) {
             ConnectionsManager.getInstance(currentAccount).cancelRequest(reqId, true);
             reqId = null;
+        }
+
+        if (MomoConfig.translationProvider.Int() != Translator.providerTelegram && reqRichMessage == null && !reqSum) {
+            Translator.translate(TranslatorKt.getCode2Locale(toLanguage), reqText == null ? "" : reqText.toString(), new Translator.Companion.TranslateCallBack() {
+                @Override
+                public void onSuccess(@NonNull String translation) {
+                    AndroidUtilities.runOnUIThread(() -> {
+                        firstTranslation = false;
+                        textView.setText(preprocessText(translation));
+                        adapter.updateMainView(textViewContainer);
+                    });
+                }
+
+                @Override
+                public void onFailed(boolean unsupported, @NonNull String message) {
+                    AndroidUtilities.runOnUIThread(() -> {
+                        if (isDismissed()) return;
+                        if (firstTranslation) {
+                            dismiss();
+                            NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.showBulletin, Bulletin.TYPE_ERROR, LocaleController.getString(R.string.TranslationFailedAlert2));
+                        } else {
+                            BulletinFactory.of((FrameLayout) containerView, resourcesProvider).createErrorBulletin(LocaleController.getString(R.string.TranslationFailedAlert2)).show();
+                            headerView.toLanguageTextView.setText(languageName(toLanguage = prevToLanguage));
+                            adapter.updateMainView(textViewContainer);
+                        }
+                    });
+                }
+            });
+            return;
         }
 
         final String method = MessagesController.getInstance(currentAccount).translationsManualEnabled;
