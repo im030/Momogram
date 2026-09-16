@@ -5,7 +5,7 @@ source "bin/init/env.sh"
 export NINJA_PATH="$(command -v ninja)"
 export PATH=$(echo "$ANDROID_HOME"/cmake/*/bin):$PATH
 
-cd TMessagesProj/jni || exit 1
+cd TMessagesProj/jni/third_party || exit 1
 git submodule update --init boringssl
 
 cd boringssl

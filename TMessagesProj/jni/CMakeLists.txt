@@ -44,10 +44,10 @@ add_library(swscale STATIC IMPORTED)
 set_target_properties(swscale PROPERTIES IMPORTED_LOCATION ${CMAKE_HOME_DIRECTORY}/ffmpeg/${ANDROID_ABI}/libswscale.a)
 
 add_library(crypto STATIC IMPORTED)
-set_target_properties(crypto PROPERTIES IMPORTED_LOCATION ${CMAKE_HOME_DIRECTORY}/boringssl/build/${ANDROID_ABI}/crypto/libcrypto.a)
+set_target_properties(crypto PROPERTIES IMPORTED_LOCATION ${CMAKE_HOME_DIRECTORY}/third_party/boringssl/build/${ANDROID_ABI}/crypto/libcrypto.a)
 
 add_library(ssl STATIC IMPORTED)
-set_target_properties(ssl PROPERTIES IMPORTED_LOCATION ${CMAKE_HOME_DIRECTORY}/boringssl/build/${ANDROID_ABI}/ssl/libssl.a)
+set_target_properties(ssl PROPERTIES IMPORTED_LOCATION ${CMAKE_HOME_DIRECTORY}/third_party/boringssl/build/${ANDROID_ABI}/ssl/libssl.a)
 
 add_library(libvpx STATIC IMPORTED)
 set_target_properties(libvpx PROPERTIES IMPORTED_LOCATION ${CMAKE_HOME_DIRECTORY}/ffmpeg/${ANDROID_ABI}/libvpx.a)
@@ -92,7 +92,7 @@ set_target_properties(tgnet PROPERTIES
 target_compile_definitions(tgnet PUBLIC
         HAVE_PTHREAD)
 target_include_directories(tgnet PUBLIC
-        boringssl/include/)
+        third_party/boringssl/include/)
 target_link_libraries(tgnet
         crypto)
 
@@ -219,7 +219,7 @@ target_include_directories(${NATIVE_LIB} PUBLIC
         third_party/xiph/opusfile/include
         third_party/xiph/ogg/include
         third_party/libyuv/include
-        boringssl/include
+        third_party/boringssl/include
         third_party/ffmpeg/
         third_party/ffmpeg/build/${ANDROID_ABI}/include
         third_party/libvpx/build/${ANDROID_ABI}/include

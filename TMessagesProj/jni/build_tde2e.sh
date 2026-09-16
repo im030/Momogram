@@ -5,9 +5,9 @@ set -eu
 declare -r app_filename="$([ -n "${BASH_SOURCE}" ] && realpath "${BASH_SOURCE[0]}" || realpath "${0}")"
 declare -r app_directory="$(dirname "${app_filename}")"
 
-declare -r source_directory="${app_directory}/tdlib"
-declare -r build_directory="${app_directory}/tdlib/build"
-declare -r install_directory="${app_directory}/tdlib/build/install"
+declare -r source_directory="${app_directory}/td"
+declare -r build_directory="${app_directory}/td/build"
+declare -r install_directory="${app_directory}/td/build/install"
 
 declare -ra architectures=(
 	'armeabi-v7a'
@@ -19,7 +19,7 @@ declare -ra architectures=(
 function checkPreRequisites {
 
 	if ! [ -d "${source_directory}" ] || ! [ "$(ls -A "${source_directory}")" ]; then
-		echo -e "\033[31mFailed! Submodule 'tdlib' not found!\033[0m"
+		echo -e "\033[31mFailed! Submodule 'td' not found!\033[0m"
 		echo -e "\033[31mTry to run: 'git submodule init && git submodule update'\033[0m"
 		exit 1
 	fi
