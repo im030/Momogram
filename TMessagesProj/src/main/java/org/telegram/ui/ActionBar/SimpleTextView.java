@@ -855,10 +855,12 @@ public class SimpleTextView extends View implements Drawable.Callback {
         layoutX = 0;
         layoutY = 0;
 
+        final boolean isRtl = layout != null && layout.getParagraphDirection(0) < 0;
+        final int scrollingTranslation = isRtl ? (int) scrollingOffset : -(int) scrollingOffset;
         boolean fade = scrollNonFitText && (textDoesNotFit || scrollingOffset != 0);
         totalWidth = textWidth;
         if (leftDrawable != null && !leftDrawableOutside) {
-            int x = (int) -scrollingOffset;
+            int x = scrollingTranslation;
             if ((gravity & Gravity.HORIZONTAL_GRAVITY_MASK) == Gravity.CENTER_HORIZONTAL) {
                 x += offsetX;
             }
@@ -878,7 +880,7 @@ public class SimpleTextView extends View implements Drawable.Callback {
             textOffsetX += drawablePadding + leftDrawable.getIntrinsicWidth();
         }
         if (replacedDrawable != null && replacedText != null) {
-            int x = (int) (-scrollingOffset + replacingDrawableTextOffset);
+            int x = (int) (scrollingTranslation + replacingDrawableTextOffset);
             if ((gravity & Gravity.HORIZONTAL_GRAVITY_MASK) == Gravity.CENTER_HORIZONTAL) {
                 x += offsetX;
             }
@@ -899,7 +901,7 @@ public class SimpleTextView extends View implements Drawable.Callback {
         }
 
         if (rightDrawable != null && !rightDrawableHidden && rightDrawableScale > 0 && !rightDrawableOutside && !rightDrawableInside) {
-            int x = textOffsetX + textWidth + drawablePadding + (int) -scrollingOffset;
+            int x = textOffsetX + textWidth + drawablePadding + scrollingTranslation;
             if ((gravity & Gravity.HORIZONTAL_GRAVITY_MASK) == Gravity.CENTER_HORIZONTAL ||
                     (gravity & Gravity.HORIZONTAL_GRAVITY_MASK) == Gravity.RIGHT) {
                 x += offsetX;
@@ -919,7 +921,7 @@ public class SimpleTextView extends View implements Drawable.Callback {
             totalWidth += drawablePadding + dw;
         }
         if (rightDrawable2 != null && !rightDrawableHidden && rightDrawableScale > 0 && !rightDrawableOutside && !rightDrawableInside) {
-            int x = textOffsetX + textWidth + drawablePadding + (int) -scrollingOffset;
+            int x = textOffsetX + textWidth + drawablePadding + scrollingTranslation;
             if (rightDrawable != null) {
                 x += (int) (rightDrawable.getIntrinsicWidth() * rightDrawableScale) + drawablePadding;
             }
@@ -940,10 +942,11 @@ public class SimpleTextView extends View implements Drawable.Callback {
             totalWidth += drawablePadding + dw;
         }
         int nextScrollX = totalWidth + dp(DIST_BETWEEN_SCROLLING_TEXT);
+        int repeatedTextTranslation = isRtl ? -nextScrollX : nextScrollX;
 
         if (scrollingOffset != 0) {
             if (leftDrawable != null && !leftDrawableOutside) {
-                int x = (int) -scrollingOffset + nextScrollX;
+                int x = scrollingTranslation + repeatedTextTranslation;
                 int y;
                 if ((gravity & Gravity.VERTICAL_GRAVITY_MASK) == Gravity.CENTER_VERTICAL) {
                     y = (getMeasuredHeight() - leftDrawable.getIntrinsicHeight()) / 2 + leftDrawableTopPadding;
@@ -956,7 +959,7 @@ public class SimpleTextView extends View implements Drawable.Callback {
             if (rightDrawable != null && !rightDrawableOutside) {
                 int dw = (int) (rightDrawable.getIntrinsicWidth() * rightDrawableScale);
                 int dh = (int) (rightDrawable.getIntrinsicHeight() * rightDrawableScale);
-                int x = textOffsetX + textWidth + drawablePadding + (int) -scrollingOffset + nextScrollX;
+                int x = textOffsetX + textWidth + drawablePadding + scrollingTranslation + repeatedTextTranslation;
                 int y;
                 if ((gravity & Gravity.VERTICAL_GRAVITY_MASK) == Gravity.CENTER_VERTICAL) {
                     y = (getMeasuredHeight() - dh) / 2 + rightDrawableTopPadding;
@@ -971,7 +974,7 @@ public class SimpleTextView extends View implements Drawable.Callback {
             if (rightDrawable2 != null && !rightDrawableOutside) {
                 int dw = (int) (rightDrawable2.getIntrinsicWidth() * rightDrawableScale);
                 int dh = (int) (rightDrawable2.getIntrinsicHeight() * rightDrawableScale);
-                int x = textOffsetX + textWidth + drawablePadding + (int) -scrollingOffset + nextScrollX;
+                int x = textOffsetX + textWidth + drawablePadding + scrollingTranslation + repeatedTextTranslation;
                 if (rightDrawable != null) {
                     x += (int) (rightDrawable.getIntrinsicWidth() * rightDrawableScale) + drawablePadding;
                 }
@@ -993,7 +996,7 @@ public class SimpleTextView extends View implements Drawable.Callback {
             }
             Emoji.emojiDrawingUseAlpha = usaAlphaForEmoji;
             if (wrapBackgroundDrawable != null) {
-                int cx = (int) (offsetX + textOffsetX - scrollingOffset) + textWidth / 2;
+                int cx = offsetX + textOffsetX + scrollingTranslation + textWidth / 2;
                 int w = Math.max(textWidth + getPaddingLeft() + getPaddingRight(), minWidth);
                 int x = cx - w / 2;
                 wrapBackgroundDrawable.setBounds(x, 0, x + w, getMeasuredHeight());
@@ -1001,8 +1004,8 @@ public class SimpleTextView extends View implements Drawable.Callback {
             }
             if (offsetX + textOffsetX != 0 || offsetY != 0 || scrollingOffset != 0) {
                 canvas.save();
-                canvas.translate(offsetX + textOffsetX - scrollingOffset, offsetY);
-                layoutX += offsetX + textOffsetX - scrollingOffset;
+                canvas.translate(offsetX + textOffsetX + scrollingTranslation, offsetY);
+                layoutX += offsetX + textOffsetX + scrollingTranslation;
                 layoutY += offsetY;
             }
             drawLayout(canvas);
@@ -1033,14 +1036,14 @@ public class SimpleTextView extends View implements Drawable.Callback {
                 textPaint.setAlpha(prevAlpha);
             }
             if (scrollingOffset != 0) {
-                canvas.translate(nextScrollX, 0);
+                canvas.translate(repeatedTextTranslation, 0);
                 drawLayout(canvas);
             }
             if (offsetX + textOffsetX != 0 || offsetY != 0 || scrollingOffset != 0) {
                 canvas.restore();
             }
             if (rightDrawable != null && !rightDrawableHidden && rightDrawableScale > 0 && !rightDrawableOutside && rightDrawableInside) {
-                int x = textOffsetX + textWidth + drawablePadding + (int) -scrollingOffset;
+                int x = textOffsetX + textWidth + drawablePadding + scrollingTranslation;
                 if ((gravity & Gravity.HORIZONTAL_GRAVITY_MASK) == Gravity.CENTER_HORIZONTAL ||
                         (gravity & Gravity.HORIZONTAL_GRAVITY_MASK) == Gravity.RIGHT) {
                     x += offsetX;
@@ -1060,7 +1063,7 @@ public class SimpleTextView extends View implements Drawable.Callback {
                 totalWidth += drawablePadding + dw;
             }
             if (rightDrawable2 != null && !rightDrawableHidden && rightDrawableScale > 0 && !rightDrawableOutside && rightDrawableInside) {
-                int x = textOffsetX + textWidth + drawablePadding + (int) -scrollingOffset;
+                int x = textOffsetX + textWidth + drawablePadding + scrollingTranslation;
                 if (rightDrawable != null) {
                     x += (int) (rightDrawable.getIntrinsicWidth() * rightDrawableScale) + drawablePadding;
                 }
@@ -1081,13 +1084,14 @@ public class SimpleTextView extends View implements Drawable.Callback {
                 totalWidth += drawablePadding + dw;
             }
             if (fade) {
+                (isRtl ? fadePaint : fadePaintBack).setAlpha(255);
                 if (scrollingOffset < dp(10)) {
-                    fadePaint.setAlpha((int) (255 * (scrollingOffset / dp(10))));
+                    (isRtl ? fadePaintBack : fadePaint).setAlpha((int) (255 * (scrollingOffset / dp(10))));
                 } else if (scrollingOffset > totalWidth + dp(DIST_BETWEEN_SCROLLING_TEXT) - dp(10)) {
                     float dist = scrollingOffset - (totalWidth + dp(DIST_BETWEEN_SCROLLING_TEXT) - dp(10));
-                    fadePaint.setAlpha((int) (255 * (1.0f - dist / dp(10))));
+                    (isRtl ? fadePaintBack : fadePaint).setAlpha((int) (255 * (1.0f - dist / dp(10))));
                 } else {
-                    fadePaint.setAlpha(255);
+                    (isRtl ? fadePaintBack : fadePaint).setAlpha(255);
                 }
                 canvas.drawRect(textOffsetX, 0, textOffsetX + dp(6), getMeasuredHeight(), fadePaint);
                 canvas.save();

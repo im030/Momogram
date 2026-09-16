@@ -16,6 +16,8 @@ import androidx.core.math.MathUtils;
 
 import org.telegram.messenger.AndroidUtilities;
 
+import moe.hx030.momogram.utils.StrUtil;
+
 @SuppressLint("AppCompatCustomView")
 public class MarqueeTextView extends TextView {
     private static final int BORDER_DP = 10;
@@ -28,6 +30,7 @@ public class MarqueeTextView extends TextView {
     private boolean needMarquee;
     private boolean marqueeIsStarted;
     private float scrollX;
+    private boolean isRTL;
 
     public MarqueeTextView(Context context) {
         super(context);
@@ -51,6 +54,7 @@ public class MarqueeTextView extends TextView {
     public void setText(CharSequence text, BufferType type) {
         super.setText(text, type);
         stopMarqueeInternal();
+        isRTL = StrUtil.isRTLString(text.toString());
     }
 
     private void invalidateGradient() {
@@ -87,6 +91,7 @@ public class MarqueeTextView extends TextView {
     protected void onDraw(@NonNull Canvas canvas) {
         final int textWidth = getMeasuredWidth();
         final int textMargin = dp(MARGIN_DP);
+        final float textTranslation = isRTL ? getWidth() - textWidth + scrollX : -scrollX;
 
         final float shadowVisibility;
         if (scrollX < textWidth) {
@@ -98,18 +103,20 @@ public class MarqueeTextView extends TextView {
         gradientMatrix.reset();
         gradientMatrix.postScale(1 + ((float) dp(BORDER_DP) / originalWidth) * (1f - shadowVisibility), 1f, originalWidth, 0);
         gradientMatrix.postScale(1 - ((float) rightPadding / originalWidth), 1, 0, 0);
-        gradientMatrix.postTranslate(scrollX, 0);
+        gradientMatrix.postTranslate(-textTranslation, 0);
         gradient.setLocalMatrix(gradientMatrix);
         canvas.save();
-        canvas.translate(-scrollX, 0);
+        canvas.translate(textTranslation, 0);
         super.onDraw(canvas);
         canvas.restore();
 
-        if (textWidth > 0 && scrollX > 0 && scrollX + getWidth() > textWidth && needMarquee && marqueeIsStarted) {
-            gradientMatrix.postTranslate(-scrollX - (-scrollX + textWidth + textMargin), 0);
+        final boolean drawRepeatedText = isRTL ? textTranslation > 0 : scrollX > 0 && scrollX + getWidth() > textWidth;
+        if (textWidth > 0 && drawRepeatedText && needMarquee && marqueeIsStarted) {
+            final float repeatedTextTranslation = isRTL ? textTranslation - textWidth - textMargin : textTranslation + textWidth + textMargin;
+            gradientMatrix.postTranslate(textTranslation - repeatedTextTranslation, 0);
             gradient.setLocalMatrix(gradientMatrix);
             canvas.save();
-            canvas.translate(-scrollX + textWidth + textMargin, 0);
+            canvas.translate(repeatedTextTranslation, 0);
             super.onDraw(canvas);
             canvas.restore();
         }
@@ -174,4 +181,3 @@ public class MarqueeTextView extends TextView {
         invalidate();
     }
 }
-

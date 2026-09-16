@@ -958,9 +958,9 @@ public class ChatAvatarContainer extends FrameLayout implements FactorAnimator.T
             value = Emoji.replaceEmoji(value, titleTextView.getPaint().getFontMetricsInt(), false);
         }
         titleTextView.setText(value);
-        if (MomoConfig.marqueeForLongChatTitles.Bool()) {
-            titleTextView.setScrollNonFitText(!isRTLString(String.valueOf(value)));
-        }
+//        if (MomoConfig.marqueeForLongChatTitles.Bool()) {
+//            titleTextView.setScrollNonFitText(!isRTLString(String.valueOf(value)));
+//        }
 
         rightDrawableIsScam = false;
         if (scam || fake) {

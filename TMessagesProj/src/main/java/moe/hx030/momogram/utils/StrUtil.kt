@@ -162,7 +162,7 @@ object StrUtil {
         }
 
         for (i in str.indices) {
-            val c: Char = str[i]
+            val c = str.codePointAt(i)
             val directionality = Character.getDirectionality(c)
             if (directionality == Character.DIRECTIONALITY_RIGHT_TO_LEFT ||
                 directionality == Character.DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC
