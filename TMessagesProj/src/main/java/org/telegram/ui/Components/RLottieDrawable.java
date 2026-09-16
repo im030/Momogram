@@ -336,7 +336,7 @@ public class RLottieDrawable extends BitmapDrawable implements Animatable, Bitma
                 return LOAD_FRAME_RESULT_ERROR;
             }
 
-            nativePtr = RLottieNative.createFromRawJson(jsonString, args.name, metaData, args.colorReplacement, layerColors);
+            nativePtr = RLottieNative.createFromRawJson(jsonString, metaData, args.colorReplacement, layerColors);
             pendingNativeInit = false;
         }
 
@@ -470,10 +470,10 @@ public class RLottieDrawable extends BitmapDrawable implements Animatable, Bitma
                         return;
                     }
                     args.json = jsonString;
-                    replacement = RLottieNative.createFromRawJson(jsonString, args.name, metaData,
+                    replacement = RLottieNative.createFromRawJson(jsonString, metaData,
                             args.colorReplacement, layerColors);
                 } else {
-                    replacement = RLottieNative.createFromRawJson(args.json, args.name, metaData,
+                    replacement = RLottieNative.createFromRawJson(args.json, metaData,
                             args.colorReplacement, layerColors);
                 }
                 if (replacement != null) {
@@ -589,17 +589,16 @@ public class RLottieDrawable extends BitmapDrawable implements Animatable, Bitma
         this.onAnimationEndListener = onAnimationEndListener;
     }
 
-    public RLottieDrawable(@RawRes int rawRes, String name, int w, int h) {
-        this(rawRes, name, w, h, true, null);
+    public RLottieDrawable(@RawRes int rawRes, int w, int h) {
+        this(rawRes, w, h, true, null);
     }
 
-    public RLottieDrawable(@RawRes int rawRes, String name, int w, int h, boolean startDecode, int[] colorReplacement) {
+    public RLottieDrawable(@RawRes int rawRes, int w, int h, boolean startDecode, int[] colorReplacement) {
         width = w;
         height = h;
         autoRepeat = 0;
         getPaint().setFlags(Paint.FILTER_BITMAP_FLAG);
         args = new NativePtrArgs();
-        args.name = name;
         args.colorReplacement = colorReplacement == null ? null : colorReplacement.clone();
 
         final long found = ResLottieMeta.find(rawRes);
@@ -623,7 +622,7 @@ public class RLottieDrawable extends BitmapDrawable implements Animatable, Bitma
                 return;
             }
             args.json = jsonString;
-            nativePtr = RLottieNative.createFromRawJson(jsonString, name, metaData, args.colorReplacement, layerColors);
+            nativePtr = RLottieNative.createFromRawJson(jsonString, metaData, args.colorReplacement, layerColors);
         }
 
         if (isSingleChannel) {
@@ -1018,7 +1017,7 @@ public class RLottieDrawable extends BitmapDrawable implements Animatable, Bitma
 
 
     @UiThread
-    private void setCurrentFrame(long now, boolean force) {
+    private void setCurrentFrame(boolean force) {
         backgroundBitmap = renderingBitmap;
         swapBuffers();
         if (isDice == 2) {
@@ -1133,14 +1132,11 @@ public class RLottieDrawable extends BitmapDrawable implements Animatable, Bitma
     @UiThread
     public void updateCurrentFrame(long time, boolean updateInBackground) {
         checkChoreographerAfterDrawCall();
-        updateCurrentFrameInternal(time, updateInBackground);
+        updateCurrentFrameInternal();
     }
 
     @UiThread
-    private void updateCurrentFrameInternal(long time, boolean updateInBackground) {
-        final long now = time == 0 ? System.currentTimeMillis() : time;
-        //final boolean canSwapBuffers = timeDiff >= timeCheck;
-
+    private void updateCurrentFrameInternal() {
         final boolean canSwapBuffers = swapBuffersAllowedByChoreographer
             || !isRunning && decodeSingleFrame;
 
@@ -1149,10 +1145,10 @@ public class RLottieDrawable extends BitmapDrawable implements Animatable, Bitma
                 scheduleNextGetFrame();
             } else if (nextRenderingBitmap != null && (renderingBitmap == null || (canSwapBuffers && !skipFrameUpdate))) {
                 performVibration();
-                setCurrentFrame(now, false);
+                setCurrentFrame(false);
             }
         } else if ((forceFrameRedraw || decodeSingleFrame && canSwapBuffers) && nextRenderingBitmap != null) {
-            setCurrentFrame(now, true);
+            setCurrentFrame(true);
         }
     }
 
@@ -1279,7 +1275,6 @@ public class RLottieDrawable extends BitmapDrawable implements Animatable, Bitma
         public @RawRes int resId;
         File file;
         String json;
-        String name;
     }
 
     public final void setAllowDrawFramesWhileCacheGenerating(boolean allow) {

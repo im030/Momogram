@@ -38,16 +38,21 @@ void setupPlay(boolean beta) {
     }
 }
 
-apply plugin: 'org.telegram.lottie-meta'
 apply plugin: 'idea'
 
 idea {
     module {
         excludeDirs += [
-            file('jni/third_party'),
-            file('jni/ffmpeg'),
+            file('jni/td'),
+            file('jni/third_party/boringssl'),
+            file('jni/third_party/dav1d'),
+            file('jni/third_party/ffmpeg'),
+            file('jni/third_party/libvpx'),
+            file('jni/third_party/libyuv'),
+            file('jni/third_party/openh264'),
+            file('jni/third_party/xiph'),
             file('jni/tlottie'),
-            file('jni/boringssl'),
+            file('jni/voip/webrtc'),
             file('jni/sqlite')
         ]
     }
@@ -346,6 +351,7 @@ dependencies {
     implementation "androidx.sharetarget:sharetarget:1.2.0"
     implementation 'androidx.interpolator:interpolator:1.0.0'
     implementation 'androidx.biometric:biometric:1.1.0'
+    implementation 'androidx.webkit:webkit:1.14.0'
 
     implementation 'javax.annotation:javax.annotation-api:1.3.2'
     implementation "com.github.spotbugs:spotbugs-annotations:4.9.8"
@@ -406,7 +412,12 @@ dependencies {
     implementation("io.noties.markwon:ext-latex:4.6.2") {
         exclude group: 'ru.noties', module: 'jlatexmath-android'
     }
-    api project(':TMessagesProj:lib:jlatexmath')
+    api project(":TMessagesProj_Modules:media3:media-lib-exoplayer")
+    api project(":TMessagesProj_Modules:media3:media-lib-exoplayer-dash")
+    api project(":TMessagesProj_Modules:media3:media-lib-exoplayer-hls")
+    api project(":TMessagesProj_Modules:media3:media-lib-decoder-ffmpeg")
+    api project(":TMessagesProj_Modules:media3:media-lib-session")
+    api project(':jlatexmath')
 
     compileOnly 'org.yaml:snakeyaml:2.6'
 //    fullImplementation 'org.yaml:snakeyaml:2.3'
@@ -439,6 +450,7 @@ dependencies {
 
     implementation "androidx.credentials:credentials:1.6.0-alpha04"
 //    implementation "androidx.credentials:credentials-play-services-auth:1.6.0-alpha04" // required for older devices but anyway
+
 
 //    implementation 'com.google.mlkit:translate:17.0.3'
 
