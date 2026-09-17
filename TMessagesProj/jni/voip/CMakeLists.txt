@@ -52,7 +52,7 @@ target_include_directories(tgvoip PUBLIC
         third_party/xiph/opus/silk/fixed
         third_party/xiph/opus/celt
         third_party/xiph/opus
-        boringssl/include
+        third_party/boringssl/include
         voip/webrtc
         voip/tgcalls
         voip/libtgvoip
@@ -342,7 +342,8 @@ target_compile_definitions(tgcalls_tp PUBLIC
 target_include_directories(tgcalls_tp PUBLIC
         ./
         voip
-        boringssl/include/
+        third_party/boringssl/include/
+        openssl/include/
         voip/tgcalls/
         voip/webrtc/
         third_party/xiph/opus/include
@@ -1707,7 +1708,8 @@ target_compile_definitions(tgcalls PUBLIC
 target_include_directories(tgcalls PUBLIC
         ./
         voip
-        boringssl/include
+        third_party/boringssl/include
+        openssl/include
         voip/tgcalls
         voip/rnnoise/include
         voip/webrtc
@@ -1892,7 +1894,7 @@ target_include_directories(voipandroid PUBLIC
         ./
         voip
         rlottie/src/lottie
-        boringssl/include
+        third_party/boringssl/include
         voip/tgcalls
         voip/webrtc
         third_party/xiph/opus/include

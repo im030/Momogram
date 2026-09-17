@@ -66,6 +66,7 @@ set_target_properties(tdutils PROPERTIES IMPORTED_LOCATION ${CMAKE_HOME_DIRECTOR
 
 #tgnet
 add_library(tgnet STATIC
+        openssl/aes_ige.c
         tgnet/ApiScheme.cpp
         tgnet/BuffersStorage.cpp
         tgnet/ByteArray.cpp
@@ -92,7 +93,8 @@ set_target_properties(tgnet PROPERTIES
 target_compile_definitions(tgnet PUBLIC
         HAVE_PTHREAD)
 target_include_directories(tgnet PUBLIC
-        third_party/boringssl/include/)
+        third_party/boringssl/include/
+        openssl/include)
 target_link_libraries(tgnet
         crypto)
 
@@ -220,6 +222,7 @@ target_include_directories(${NATIVE_LIB} PUBLIC
         third_party/xiph/ogg/include
         third_party/libyuv/include
         third_party/boringssl/include
+        openssl/include
         third_party/ffmpeg/
         third_party/ffmpeg/build/${ANDROID_ABI}/include
         third_party/libvpx/build/${ANDROID_ABI}/include
@@ -229,7 +232,7 @@ target_include_directories(${NATIVE_LIB} PUBLIC
         tlottie/include
         tgcalls/
         webrtc/
-        tde2e/include
+        td/include
 )
 
 target_link_options(${NATIVE_LIB} PRIVATE "-Wl,-z,max-page-size=16384")

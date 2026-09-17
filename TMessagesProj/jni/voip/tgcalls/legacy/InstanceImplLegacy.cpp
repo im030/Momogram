@@ -5,6 +5,7 @@
 extern "C" {
 #include <openssl/sha.h>
 #include <openssl/aes.h>
+#include <openssl/aes_ige.h>
 #ifndef OPENSSL_IS_BORINGSSL
 #include <openssl/modes.h>
 #endif

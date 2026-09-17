@@ -14,4 +14,7 @@ git clean -fdx
 cd ..
 
 #./patch_boringssl.sh || exit 1
+pwd
+cp -fv ../openssl/include/openssl/aes_ige.h boringssl/include/openssl/ || exit 1
+cp -fv ../openssl/aes_ige.c boringssl/crypto/fipsmodule/aes/ || exit 1
 ./build_boringssl.sh
