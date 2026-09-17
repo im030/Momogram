@@ -14559,7 +14559,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
 
     private void checkUi_mainTabsVisible() {
         final boolean mainTabsVisible = !searching && (blurredView == null || blurredView.getBackground() == null || blurredView.getAlpha() < 0.01f || blurredView.getVisibility() == View.GONE);
-        if (mainTabsActivityController != null || slidingTopicListOpened()) {
+        if (mainTabsActivityController != null && slidingTopicListOpened()) {
             mainTabsActivityController.setTabsVisible(mainTabsVisible && !slidingTopicListOpened());
         }
     }
