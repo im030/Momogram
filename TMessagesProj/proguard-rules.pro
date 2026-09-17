@@ -123,3 +123,4 @@
 }
 
 -keepattributes SourceFile,LineNumberTable
+-keep class org.telegram.tgnet.** { *; }
