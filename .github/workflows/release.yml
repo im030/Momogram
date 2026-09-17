@@ -42,6 +42,8 @@ jobs:
       - name: Setup Android SDK Tools
         uses: android-actions/setup-android@v3
         if: steps.cache.outputs.cache-hit != 'true'
+        with:
+          packages: ''
       - name: Install NDK
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
@@ -90,6 +92,8 @@ jobs:
       - name: Setup Android SDK Tools
         uses: android-actions/setup-android@v3
         if: steps.cache.outputs.cache-hit != 'true'
+        with:
+          packages: ''
       - name: Install NDK
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
@@ -125,8 +129,10 @@ jobs:
             TMessagesProj/jni/boringssl/build
           key: ${{ hashFiles('boringssl_status') }}
       - name: Setup Android SDK Tools
-        uses: android-actions/setup-android@v2
+        uses: android-actions/setup-android@v3
         if: steps.cache.outputs.cache-hit != 'true'
+        with:
+          packages: ''
       - name: Install NDK
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
@@ -163,8 +169,10 @@ jobs:
             TMessagesProj/jni/prebuild/x86_64/libtlottie.a
           key: ${{ hashFiles('tlottie_status') }}
       - name: Setup Android SDK Tools
-        uses: android-actions/setup-android@v2
+        uses: android-actions/setup-android@v3
         if: steps.cache.outputs.cache-hit != 'true'
+        with:
+          packages: ''
       - name: Install NDK & Rust
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
@@ -203,8 +211,10 @@ jobs:
             TMessagesProj/jni/prebuild/x86_64/libopenh264.a
           key: ${{ hashFiles('openh264_status') }}
       - name: Setup Android SDK Tools
-        uses: android-actions/setup-android@v2
+        uses: android-actions/setup-android@v3
         if: steps.cache.outputs.cache-hit != 'true'
+        with:
+          packages: ''
       - name: Install NDK
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
@@ -244,8 +254,10 @@ jobs:
             TMessagesProj/jni/tdlib/build
           key: ${{ hashFiles('boringssl_status', 'tdlib_status') }}-03030
       - name: Setup Android SDK Tools
-        uses: android-actions/setup-android@v2
+        uses: android-actions/setup-android@v3
         if: steps.cache.outputs.cache-hit != 'true'
+        with:
+          packages: ''
       - name: Install NDK and gperf
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
@@ -359,8 +371,10 @@ jobs:
             TMessagesProj/jni/prebuild/x86_64/libopenh264.a
           key: ${{ hashFiles('openh264_status') }}
       - name: Setup Android SDK Tools
-        uses: android-actions/setup-android@v2
+        uses: android-actions/setup-android@v3
         if: steps.cache.outputs.cache-hit != 'true'
+        with:
+          packages: ''
       - name: Install NDK
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
@@ -413,7 +427,10 @@ jobs:
         with:
           submodules: recursive
       - name: Setup Android SDK Tools
-        uses: android-actions/setup-android@v2
+        uses: android-actions/setup-android@v3
+        if: steps.cache.outputs.cache-hit != 'true'
+        with:
+          packages: ''
       - name: Install NDK
         run: |
           SDK_MANAGER=$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager
