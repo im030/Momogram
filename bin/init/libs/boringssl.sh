@@ -13,5 +13,5 @@ git reset --hard
 git clean -fdx
 cd ..
 
-./patch_boringssl.sh || exit 1
+#./patch_boringssl.sh || exit 1
 ./build_boringssl.sh
