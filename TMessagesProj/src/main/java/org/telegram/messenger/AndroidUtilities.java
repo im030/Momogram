@@ -4810,9 +4810,7 @@ public class AndroidUtilities {
                 }
             } else {
                 NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.showBulletin, Bulletin.TYPE_SUCCESS, getString(R.string.ProxyAddedSuccess));
-                info = new SharedConfig.ProxyInfo(address, p, "", "", secret);
             }
-            info.setRemarks(remarks);
             SharedConfig.setCurrentProxy(SharedConfig.addProxy(info));
             NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.proxySettingsChanged);
             dismiss.run();

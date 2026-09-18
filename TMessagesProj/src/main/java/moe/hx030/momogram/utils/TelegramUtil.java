@@ -10,6 +10,7 @@ import org.telegram.messenger.FileLog;
 import org.telegram.messenger.MessageObject;
 import org.telegram.messenger.SharedConfig;
 import org.telegram.messenger.UserConfig;
+import org.telegram.proxy.ProxySettings;
 import org.telegram.tgnet.ConnectionsManager;
 import org.telegram.ui.LaunchActivity;
 
@@ -111,7 +112,10 @@ public class TelegramUtil {
         }
         ++proxyToggleCount;
         if (SharedConfig.proxyList.isEmpty()) {
-            SharedConfig.addProxy(new SharedConfig.ProxyInfo("dummyProxy", 1080, "", "", ""));
+            SharedConfig.addProxy(new SharedConfig.ProxyInfo(ProxySettings.builder()
+                    .setAddress("dummyProxy")
+                    .setPort(1080)
+                    .build()));
         }
         toggleProxyOnOffThread = new Thread(toggleProxyOnOffRunnable);
         toggleProxyOnOffThread.start();

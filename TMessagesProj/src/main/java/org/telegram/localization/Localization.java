@@ -1,6 +1,7 @@
 package org.telegram.localization;
 
 import android.content.Context;
+import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
 
@@ -37,13 +38,26 @@ public class Localization {
         }
 
         if (rawResBindings == null) {
-            rawResBindings = loadStringResBindings(context);
+            try {
+                rawResBindings = loadStringResBindings(context);
+                Log.e("030-dbg", "bindings loaded size=" + rawResBindings.size());
+            } catch (RuntimeException e) {
+                Log.e("030-dbg", "bindings LOAD FAILED", e);
+                throw e;
+            }
         }
         final int hash = rawResBindings.get(resId);
         if (hash == 0) {
+            Log.e("030-dbg", String.format("no binding for resId=0x%x size=%d", resId, rawResBindings.size()));
             return null;
         }
-        return get(hash);
+        final String v = get(hash);
+        if (v == null) {
+            Log.e("030-dbg", String.format("localizations MISS hash=0x%x resId=0x%x size=%d", hash, resId, localizations.size()));
+        } else {
+            Log.e("030-dbg", String.format("hit resId=0x%x hash=0x%x -> %s", resId, hash, v));
+        }
+        return v;
     }
 
     public String getByResName(String resName) {
@@ -115,6 +129,7 @@ public class Localization {
                 context.getAssets().open(localizationAssetPath))) {
             final SerializedData data = new SerializedData(stream);
             final int count = data.readInt32(true);
+            Log.e("030-dbg", "load " + localizationAssetPath + " count=" + count + " bytes=" + context.getAssets().open(localizationAssetPath).available());
             if (result == null) {
                 result = new SparseArray<>(count);
                 for (int a = 0; a < count; a++) {

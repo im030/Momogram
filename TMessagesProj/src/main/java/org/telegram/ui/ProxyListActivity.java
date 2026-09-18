@@ -1122,7 +1122,7 @@ public class ProxyListActivity extends BaseFragment implements NotificationCente
     }
 
     public void checkSingleProxy(SharedConfig.ProxyInfo proxyInfo, int repeat, Runnable callback) {
-        proxyInfo.proxyCheckPingId = ConnectionsManager.getInstance(currentAccount).checkProxy(proxyInfo.address, proxyInfo.port, proxyInfo.username, proxyInfo.password, proxyInfo.secret, time -> AndroidUtilities.runOnUIThread(() -> {
+        ConnectionsManager.getInstance(currentAccount).checkProxy(proxyInfo.settings, time -> AndroidUtilities.runOnUIThread(() -> {
             if (time == -1) {
                 if (repeat > 0) {
                     checkSingleProxy(proxyInfo, repeat - 1, callback);

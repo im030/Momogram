@@ -108,8 +108,9 @@ function build_one {
 	make -j$COMPILATION_PROC_COUNT
 	make install
 
-	mkdir -p ../../ffmpeg/$LIB_ARCH
-	cp -fv build/$LIB_ARCH/lib/*.a ../../ffmpeg/$LIB_ARCH/
+	# mkdir -p ../../ffmpeg/$LIB_ARCH
+	# cp -fv build/$LIB_ARCH/lib/*.a ../../ffmpeg/$LIB_ARCH/
+	cp -fv build/$LIB_ARCH/lib/*.a ../../prebuild/lib/$LIB_ARCH/
 }
 
 function setCurrentPlatform {

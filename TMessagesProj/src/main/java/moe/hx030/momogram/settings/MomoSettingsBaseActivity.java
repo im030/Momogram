@@ -14,8 +14,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import com.google.android.exoplayer2.util.Consumer;
-
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.ui.ActionBar.BaseFragment;
 import org.telegram.ui.ActionBar.SimpleTextView;
@@ -27,6 +25,7 @@ import org.telegram.ui.Cells.TextSettingsCell;
 import org.telegram.ui.Components.RecyclerListView;
 
 import java.lang.reflect.Field;
+import java.util.function.Consumer;
 
 import moe.hx030.momogram.config.ConfigItem;
 import moe.hx030.momogram.util.ReflectUtil;

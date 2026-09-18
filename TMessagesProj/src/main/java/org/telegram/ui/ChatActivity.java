@@ -3618,9 +3618,6 @@ public class ChatActivity extends BaseFragment implements
             AndroidUtilities.cancelRunOnUIThread(chatInviteRunnable);
             chatInviteRunnable = null;
         }
-        if (PhotoViewer.getPipInstance() == null) {
-            Player.videoListeners.clear();
-        }
         getNotificationCenter().removePostponeNotificationsCallback(postponeNotificationsWhileLoadingCallback);
         getMessagesController().setLastCreatedDialogId(dialog_id, chatMode == MODE_SCHEDULED, false);
 

@@ -3,8 +3,6 @@ package moe.hx030.momogram.util;
 import android.content.DialogInterface;
 import android.util.Log;
 
-import com.google.android.exoplayer2.util.Consumer;
-
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.LocaleController;
 import org.telegram.messenger.MessagesController;
@@ -25,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
+import java.util.function.Consumer;
 
 import moe.hx030.momogram.MomoConfig;
 import moe.hx030.momogram.utils.StrUtil;

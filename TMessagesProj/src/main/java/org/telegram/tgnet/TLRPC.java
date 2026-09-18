@@ -68,7 +68,6 @@ import me.vkryl.core.BitwiseUtils;
 
 import moe.hx030.momogram.util.ArrayUtil;
 import moe.hx030.momogram.MomoConfig;
-import moe.hx030.momogram.MomoConfig;
 import moe.hx030.momogram.NekoXConfig;
 import moe.hx030.momogram.ui.MessageHelper;
 import moe.hx030.momogram.utils.PGPUtil;

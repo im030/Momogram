@@ -2,6 +2,8 @@ import java.nio.charset.StandardCharsets
 
 apply plugin: "com.android.application"
 apply plugin: "kotlin-android"
+apply plugin: "org.telegram.build-plugin"
+apply plugin: "org.telegram.build-app-plugin"
 
 def verName = APP_VERSION_NAME
 def verCode = 11539

@@ -75,7 +75,7 @@
     java.lang.Object readResolve();
 }
 
--keep class moe.hx030.momogram.transtale.** { *; }
+-keep class moe.hx030.** { *; }
 
 #-keep class java.beans.Transient { *; }
 #-keep class java.lang.management.** { *; }
@@ -110,8 +110,8 @@
 -dontwarn org.scilab.forge.jlatexmath.**
 
 # Use -keep to explicitly keep any other classes shrinking would remove
--dontoptimize
--dontobfuscate
+#-dontoptimize
+#-dontobfuscate
 
 # MapLibre
 -dontwarn org.maplibre.**

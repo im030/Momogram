@@ -529,7 +529,7 @@ public class SharedConfig {
             UIUtil.runOnUIThread(() -> NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.proxySettingsChanged));
         } else {
             if (currentProxy != null) {
-                ConnectionsManager.setProxySettings(true, currentProxy.settings.getAddress(), currentProxy.settings.getPort(), currentProxy.settings.getUser(), currentProxy.settings.getPassword(), currentProxy.settings.getSecret());
+                ConnectionsManager.setProxySettings(true, currentProxy.settings);
                 UIUtil.runOnUIThread(() -> NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.proxySettingsChanged));
             }
         }
@@ -1580,26 +1580,24 @@ public class SharedConfig {
         ProxyInfo info;
         switch (obj.optString("type", "null")) {
             case "socks5": {
-                info = new ProxyInfo(
-                        obj.optString("address", ""),
-                        obj.optInt("port", 443),
-                        obj.optString("username", ""),
-                        obj.optString("password", ""),
-                        "");
-                info.group = obj.optInt("group", 0);
+                info = new ProxyInfo(ProxySettings.builder()
+                        .setType(ProxySettings.Type.SOCKS5)
+                        .setAddress(obj.optString("address", ""))
+                        .setPort(obj.optInt("port", 443))
+                        .setUser(obj.optString("username", ""))
+                        .setPassword(obj.optString("password", ""))
+                        .build());
                 info.setRemarks(obj.optString("remarks"));
                 break;
             }
             case "mtproto": {
-                info = new ProxyInfo(
-                        obj.optString("address", ""),
-                        obj.optInt("port", 443),
-                        "",
-                        "",
-                        obj.optString("secret", "")
-                );
+                info = new ProxyInfo(ProxySettings.builder()
+                        .setType(ProxySettings.Type.MTPROTO)
+                        .setAddress(obj.optString("address", ""))
+                        .setPort(obj.optInt("port", 443))
+                        .setSecret(obj.optString("secret", ""))
+                        .build());
                 info.setRemarks(obj.optString("remarks"));
-                info.group = obj.optInt("group", 0);
                 break;
             }
             default: {
@@ -1730,11 +1728,9 @@ public class SharedConfig {
                 url.startsWith("https://t.me/socks")) {
             Uri lnk = Uri.parse(url);
             if (lnk == null) return null;
-            ProxyInfo info = new ProxyInfo(lnk.getQueryParameter("server"),
-                    Utilities.parseInt(lnk.getQueryParameter("port")),
-                    lnk.getQueryParameter("user"),
-                    lnk.getQueryParameter("pass"),
-                    lnk.getQueryParameter("secret"));
+            ProxySettings settings = ProxySettings.fromUri(lnk);
+            if (settings == null || !settings.isValid()) return null;
+            ProxyInfo info = new ProxyInfo(settings);
             if (StringUtils.isNotBlank(lnk.getFragment())) {
                 info.setRemarks(lnk.getFragment());
             }

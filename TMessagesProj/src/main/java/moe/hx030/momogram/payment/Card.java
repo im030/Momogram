@@ -3,7 +3,7 @@ package moe.hx030.momogram.payment;
 
 import android.os.AsyncTask;
 
-import com.google.android.exoplayer2.util.Log;
+import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;

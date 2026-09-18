@@ -30,6 +30,7 @@ import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.text.format.DateUtils;
+import android.util.Log;
 import android.util.SparseArray;
 import android.util.Xml;
 import android.view.Gravity;
@@ -1537,6 +1538,7 @@ public class LocaleController {
             }
         }
         if (value == null || "".equals(value)) {
+            Log.e("030-dbg", String.format("LOC_ERR key=%s res=0x%x", key, res));
             value = "LOC_ERR:" + key;
             if (getFallbackResources() != null)
                 value = getFallbackResources().getString(res);
@@ -1568,6 +1570,16 @@ public class LocaleController {
             }
         }
         return value;
+    }
+
+    // tmp
+    public static String safeGetString(@StringRes int res) {
+        try {
+            return getString(null, res);
+        } catch (Exception e) {
+            Log.e("030-loc", "getString", e);
+            return "LOC_ERR: " + e.getMessage();
+        }
     }
 
     public static String getString(@StringRes int res) {
