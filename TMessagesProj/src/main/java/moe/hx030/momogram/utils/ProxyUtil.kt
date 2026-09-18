@@ -14,6 +14,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
+import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.view.Gravity
@@ -28,9 +29,9 @@ import com.google.zxing.qrcode.QRCodeReader
 import com.google.zxing.qrcode.QRCodeWriter
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
 import moe.hx030.momogram.MomoConfig
-import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import org.telegram.messenger.*
 import org.telegram.messenger.browser.Browser
+import org.telegram.proxy.ProxySettings
 import moe.hx030.momogram.ui.BottomBuilder
 import moe.hx030.momogram.utils.AlertUtil.showToast
 import java.io.File
@@ -43,14 +44,9 @@ object ProxyUtil {
     @JvmStatic
     fun importProxy(ctx: Activity, link: String): Boolean {
         runCatching {
-            val url = link.replace("tg://", "https://t.me/").toHttpUrlOrNull()!!
-            AndroidUtilities.showProxyAlert(ctx,
-                    url.queryParameter("server") ?: return false,
-                    url.queryParameter("port") ?: return false,
-                    url.queryParameter("user"),
-                    url.queryParameter("pass"),
-                    url.queryParameter("secret"),
-                    url.fragment)
+            val settings = ProxySettings.fromUri(Uri.parse(link)) ?: return false
+            if (!settings.isValid) return false
+            AndroidUtilities.showProxyAlert(ctx, settings)
             return true
         }.onFailure {
             FileLog.e(it)
