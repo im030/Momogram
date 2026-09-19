@@ -25,3 +25,4 @@ TMessagesProj/jni/tdlib/build/
 TMessagesProj/jni/ffmpeg/*/*.a
 TMessagesProj/jni/prebuild/tlottie-build
 TMessagesProj/jni/prebuild/*/*.a
+TMessagesProj/jni/prebuild/*/*/*.a
