@@ -41,6 +41,7 @@ import androidx.annotation.StringRes;
 
 import org.telegram.localization.Localization;
 import org.telegram.localization.LocalizationUtils;
+import org.telegram.localization.NamespaceLocalizationUtils;
 import org.telegram.messenger.support.ArrayUtils;
 import org.telegram.messenger.time.FastDateFormat;
 import org.telegram.tgnet.Vector;
@@ -4748,6 +4749,18 @@ public class LocaleController {
                             .addResLocalization(ApplicationLoader.applicationContext, assetPath)
                             .build();
                     }
+
+                    // Overlay the namespaced string packages (strings_neko.xml,
+                    // strings_nekox.xml, ...) on top of the main localization.
+                    Localization.Builder builder = new Localization.Builder().addLocalization(localizationInternal);
+                    for (String namespace : NamespaceLocalizationUtils.getNamespaces()) {
+                        final String namespaceAsset = NamespaceLocalizationUtils.getLocalizationAsset(currentLocale, namespace);
+                        if (namespaceAsset == null) {
+                            continue;
+                        }
+                        builder.addResLocalization(ApplicationLoader.applicationContext, namespaceAsset);
+                    }
+                    localizationInternal = builder.build();
 
                     localizationInternalLastLocale = currentLocale;
                 }
