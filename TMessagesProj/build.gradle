@@ -120,6 +120,10 @@ android {
     buildFeatures.aidl = true
     buildFeatures.buildConfig = true
 
+    androidResources {
+        noCompress += "pack"
+    }
+
     defaultConfig.applicationId = APP_PACKAGE
 
 
