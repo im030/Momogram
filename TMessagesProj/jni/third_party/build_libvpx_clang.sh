@@ -67,11 +67,11 @@ function build_one {
 
   if [ "x86" = ${ARCH} ]; then
     mkdir -p ../../ffmpeg/$ARCH
-    cp -fv $PREFIX/lib/libvpx.a ../../ffmpeg/$ARCH/
+    cp -fv $PREFIX/lib/libvpx.a ../../prebuild/lib/$ARCH/
     patch -p1 -R < ../patches/libvpx_x86_fix.patch
   else
     mkdir -p ../../ffmpeg/$CPU
-    cp -fv $PREFIX/lib/libvpx.a ../../ffmpeg/$CPU/
+    cp -fv $PREFIX/lib/libvpx.a ../../prebuild/lib/$CPU/
   fi
 }
 

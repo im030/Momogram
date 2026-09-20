@@ -69,8 +69,8 @@ for arch in "${architectures[@]}"; do
 
 	mkdir --parent "${app_directory}/tde2e/${arch}"
 
-	mv "${build_directory}/tde2e/libtde2e.a" "${app_directory}/tde2e/${arch}/libtde2e.a"
-	mv "${build_directory}/tdutils/libtdutils.a" "${app_directory}/tde2e/${arch}/libtdutils.a"
+	mv "${build_directory}/tde2e/libtde2e.a" "${app_directory}/prebuild/lib/${arch}/libtde2e.a"
+	mv "${build_directory}/tdutils/libtdutils.a" "${app_directory}/prebuild/lib/${arch}/libtdutils.a"
 done
 
 echo "Done."

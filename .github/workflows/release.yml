@@ -250,9 +250,16 @@ jobs:
         uses: actions/cache@v5
         with:
           path: |
-            TMessagesProj/jni/tde2e
+            TMessagesProj/jni/prebuild/lib/arm64-v8a/libtde2e.a
+            TMessagesProj/jni/prebuild/lib/armeabi-v7a/libtde2e.a
+            TMessagesProj/jni/prebuild/lib/x86_64/libtde2e.a
+            TMessagesProj/jni/prebuild/lib/x86/libtde2e.a
+            TMessagesProj/jni/prebuild/lib/arm64-v8a/libtdutils.a
+            TMessagesProj/jni/prebuild/lib/armeabi-v7a/libtdutils.a
+            TMessagesProj/jni/prebuild/lib/x86_64/libtdutils.a
+            TMessagesProj/jni/prebuild/lib/x86/libtdutils.a
             TMessagesProj/jni/td/build
-          key: ${{ hashFiles('boringssl_status', 'tdlib_status') }}-03030
+          key: ${{ hashFiles('boringssl_status', 'tdlib_status') }}
       - name: Setup Android SDK Tools
         uses: android-actions/setup-android@v3
         if: steps.cache.outputs.cache-hit != 'true'
@@ -347,9 +354,16 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         with:
           path: |
-            TMessagesProj/jni/tde2e
+            TMessagesProj/jni/prebuild/lib/arm64-v8a/libtde2e.a
+            TMessagesProj/jni/prebuild/lib/armeabi-v7a/libtde2e.a
+            TMessagesProj/jni/prebuild/lib/x86_64/libtde2e.a
+            TMessagesProj/jni/prebuild/lib/x86/libtde2e.a
+            TMessagesProj/jni/prebuild/lib/arm64-v8a/libtdutils.a
+            TMessagesProj/jni/prebuild/lib/armeabi-v7a/libtdutils.a
+            TMessagesProj/jni/prebuild/lib/x86_64/libtdutils.a
+            TMessagesProj/jni/prebuild/lib/x86/libtdutils.a
             TMessagesProj/jni/td/build
-          key: ${{ hashFiles('boringssl_status', 'tdlib_status') }}-03030
+          key: ${{ hashFiles('boringssl_status', 'tdlib_status') }}
       - name: tlottie Cache
         uses: actions/cache@v5
         if: steps.cache.outputs.cache-hit != 'true'
@@ -398,7 +412,7 @@ jobs:
       - name: Build TDE2E
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          if ! ls TMessagesProj/jni/tde2e/*/libtde2e.a >/dev/null 2>&1; then
+          if ! ls TMessagesProj/jni/prebuild/lib/*/libtde2e.a >/dev/null 2>&1; then
             echo ">> libtde2e.a not restored from cache, building from source..."
             ./run init libs tde2e
           else
@@ -408,7 +422,14 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
           export NATIVE_TARGET="${{ matrix.flavor }}"
-          for a in arm64-v8a armeabi-v7a x86 x86_64; do mkdir -p TMessagesProj/jni/ffmpeg/$a; cp -fv TMessagesProj/jni/third_party/ffmpeg/build/$a/lib/*.a TMessagesProj/jni/ffmpeg/$a/; done 
+          run: |
+          for a in arm64-v8a armeabi-v7a x86 x86_64; do
+            mkdir -p TMessagesProj/jni/ffmpeg/$a
+            cp -fv TMessagesProj/jni/third_party/ffmpeg/build/$a/lib/*.a \
+            TMessagesProj/jni/prebuild/lib/$a/
+            cp -fv TMessagesProj/jni/third_party/libvpx/build/$a/lib/libvpx.a \
+            TMessagesProj/jni/prebuild/lib/$a/
+          done
           ./run libs native
           mkdir -p ~/apks || true
           cp -rfv TMessagesProj/build/outputs/apk ~/apks || true
@@ -491,9 +512,16 @@ jobs:
         uses: actions/cache@v5
         with:
           path: |
-            TMessagesProj/jni/tde2e
+            TMessagesProj/jni/prebuild/lib/arm64-v8a/libtde2e.a
+            TMessagesProj/jni/prebuild/lib/armeabi-v7a/libtde2e.a
+            TMessagesProj/jni/prebuild/lib/x86_64/libtde2e.a
+            TMessagesProj/jni/prebuild/lib/x86/libtde2e.a
+            TMessagesProj/jni/prebuild/lib/arm64-v8a/libtdutils.a
+            TMessagesProj/jni/prebuild/lib/armeabi-v7a/libtdutils.a
+            TMessagesProj/jni/prebuild/lib/x86_64/libtdutils.a
+            TMessagesProj/jni/prebuild/lib/x86/libtdutils.a
             TMessagesProj/jni/td/build
-          key: ${{ hashFiles('boringssl_status', 'tdlib_status') }}-03030
+          key: ${{ hashFiles('boringssl_status', 'tdlib_status') }}
       - name: tlottie Cache
         uses: actions/cache@v5
         with:
