@@ -51,13 +51,7 @@ public class Localization {
             Log.e("030-dbg", String.format("no binding for resId=0x%x size=%d", resId, rawResBindings.size()));
             return null;
         }
-        final String v = get(hash);
-        if (v == null) {
-            Log.e("030-dbg", String.format("localizations MISS hash=0x%x resId=0x%x size=%d", hash, resId, localizations.size()));
-        } else {
-            Log.e("030-dbg", String.format("hit resId=0x%x hash=0x%x -> %s", resId, hash, v));
-        }
-        return v;
+        return get(hash);
     }
 
     public String getByResName(String resName) {

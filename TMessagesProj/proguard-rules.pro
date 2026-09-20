@@ -75,7 +75,7 @@
     java.lang.Object readResolve();
 }
 
--keep class moe.hx030.momogram.transtale.** { *; }
+-keep class moe.hx030.momogram.** { *; }
 
 #-keep class java.beans.Transient { *; }
 #-keep class java.lang.management.** { *; }
