@@ -120,13 +120,13 @@ jobs:
         with:
           submodules: recursive
       - name: Fetch Status
-        run: git submodule status TMessagesProj/jni/boringssl > boringssl_status
+        run: git submodule status TMessagesProj/jni/third_party/boringssl > boringssl_status
       - name: BoringSSL Cache
         id: cache
         uses: actions/cache@v5
         with:
           path: |
-            TMessagesProj/jni/boringssl/build
+            TMessagesProj/jni/third_party/boringssl/build
           key: ${{ hashFiles('boringssl_status') }}
       - name: Setup Android SDK Tools
         uses: android-actions/setup-android@v3
@@ -163,10 +163,10 @@ jobs:
         uses: actions/cache@v5
         with:
           path: |
-            TMessagesProj/jni/prebuild/arm64-v8a/libtlottie.a
-            TMessagesProj/jni/prebuild/armeabi-v7a/libtlottie.a
-            TMessagesProj/jni/prebuild/x86/libtlottie.a
-            TMessagesProj/jni/prebuild/x86_64/libtlottie.a
+            TMessagesProj/jni/prebuild/lib/arm64-v8a/libtlottie.a
+            TMessagesProj/jni/prebuild/lib/armeabi-v7a/libtlottie.a
+            TMessagesProj/jni/prebuild/lib/x86/libtlottie.a
+            TMessagesProj/jni/prebuild/lib/x86_64/libtlottie.a
           key: ${{ hashFiles('tlottie_status') }}
       - name: Setup Android SDK Tools
         uses: android-actions/setup-android@v3
@@ -205,10 +205,10 @@ jobs:
         uses: actions/cache@v5
         with:
           path: |
-            TMessagesProj/jni/prebuild/arm64-v8a/libopenh264.a
-            TMessagesProj/jni/prebuild/armeabi-v7a/libopenh264.a
-            TMessagesProj/jni/prebuild/x86/libopenh264.a
-            TMessagesProj/jni/prebuild/x86_64/libopenh264.a
+            TMessagesProj/jni/prebuild/lib/arm64-v8a/libopenh264.a
+            TMessagesProj/jni/prebuild/lib/armeabi-v7a/libopenh264.a
+            TMessagesProj/jni/prebuild/lib/x86/libopenh264.a
+            TMessagesProj/jni/prebuild/lib/x86_64/libopenh264.a
           key: ${{ hashFiles('openh264_status') }}
       - name: Setup Android SDK Tools
         uses: android-actions/setup-android@v3
@@ -243,15 +243,15 @@ jobs:
           submodules: recursive
       - name: Fetch Status
         run: |
-          git submodule status TMessagesProj/jni/boringssl > boringssl_status
-          git submodule status TMessagesProj/jni/tdlib > tdlib_status
+          git submodule status TMessagesProj/jni/third_party/boringssl > boringssl_status
+          git submodule status TMessagesProj/jni/td > tdlib_status
       - name: TDLib Cache
         id: cache
         uses: actions/cache@v5
         with:
           path: |
             TMessagesProj/jni/tde2e
-            TMessagesProj/jni/tdlib/build
+            TMessagesProj/jni/td/build
           key: ${{ hashFiles('boringssl_status', 'tdlib_status') }}-03030
       - name: Setup Android SDK Tools
         uses: android-actions/setup-android@v3
@@ -274,7 +274,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         with:
           path: |
-            TMessagesProj/jni/boringssl/build
+            TMessagesProj/jni/third_party/boringssl/build
           key: ${{ hashFiles('boringssl_status') }}
       - name: Native Build
         if: steps.cache.outputs.cache-hit != 'true'
@@ -310,8 +310,8 @@ jobs:
           git submodule status TMessagesProj/jni/third_party/libvpx > libvpx_status
           git submodule status TMessagesProj/jni/third_party/dav1d > dav1d_status
           git submodule status TMessagesProj/jni/third_party/openh264 > openh264_status
-          git submodule status TMessagesProj/jni/boringssl > boringssl_status
-          git submodule status TMessagesProj/jni/tdlib > tdlib_status
+          git submodule status TMessagesProj/jni/third_party/boringssl > boringssl_status
+          git submodule status TMessagesProj/jni/td > tdlib_status
           git submodule status TMessagesProj/jni/tlottie > tlottie_status
       - name: Native Cache
         id: cache
@@ -340,7 +340,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         with:
           path: |
-            TMessagesProj/jni/boringssl/build
+            TMessagesProj/jni/third_party/boringssl/build
           key: ${{ hashFiles('boringssl_status') }}
       - name: TDLib Cache
         uses: actions/cache@v5
@@ -348,27 +348,27 @@ jobs:
         with:
           path: |
             TMessagesProj/jni/tde2e
-            TMessagesProj/jni/tdlib/build
+            TMessagesProj/jni/td/build
           key: ${{ hashFiles('boringssl_status', 'tdlib_status') }}-03030
       - name: tlottie Cache
         uses: actions/cache@v5
         if: steps.cache.outputs.cache-hit != 'true'
         with:
           path: |
-            TMessagesProj/jni/prebuild/arm64-v8a/libtlottie.a
-            TMessagesProj/jni/prebuild/armeabi-v7a/libtlottie.a
-            TMessagesProj/jni/prebuild/x86/libtlottie.a
-            TMessagesProj/jni/prebuild/x86_64/libtlottie.a
+            TMessagesProj/jni/prebuild/lib/arm64-v8a/libtlottie.a
+            TMessagesProj/jni/prebuild/lib/armeabi-v7a/libtlottie.a
+            TMessagesProj/jni/prebuild/lib/x86/libtlottie.a
+            TMessagesProj/jni/prebuild/lib/x86_64/libtlottie.a
           key: ${{ hashFiles('tlottie_status') }}
       - name: openh264 Cache
         uses: actions/cache@v5
         if: steps.cache.outputs.cache-hit != 'true'
         with:
           path: |
-            TMessagesProj/jni/prebuild/arm64-v8a/libopenh264.a
-            TMessagesProj/jni/prebuild/armeabi-v7a/libopenh264.a
-            TMessagesProj/jni/prebuild/x86/libopenh264.a
-            TMessagesProj/jni/prebuild/x86_64/libopenh264.a
+            TMessagesProj/jni/prebuild/lib/arm64-v8a/libopenh264.a
+            TMessagesProj/jni/prebuild/lib/armeabi-v7a/libopenh264.a
+            TMessagesProj/jni/prebuild/lib/x86/libopenh264.a
+            TMessagesProj/jni/prebuild/lib/x86_64/libopenh264.a
           key: ${{ hashFiles('openh264_status') }}
       - name: Setup Android SDK Tools
         uses: android-actions/setup-android@v3
@@ -445,8 +445,8 @@ jobs:
           git submodule status TMessagesProj/jni/third_party/ffmpeg > ffmpeg_status
           git submodule status TMessagesProj/jni/third_party/libvpx > libvpx_status
           git submodule status TMessagesProj/jni/third_party/dav1d > dav1d_status
-          git submodule status TMessagesProj/jni/boringssl > boringssl_status
-          git submodule status TMessagesProj/jni/tdlib > tdlib_status
+          git submodule status TMessagesProj/jni/third_party/boringssl > boringssl_status
+          git submodule status TMessagesProj/jni/td > tdlib_status
           git submodule status TMessagesProj/jni/tlottie > tlottie_status
       - name: Native Cache (armeabi-v7a)
         uses: actions/cache@v5
@@ -485,23 +485,23 @@ jobs:
         uses: actions/cache@v5
         with:
           path: |
-            TMessagesProj/jni/boringssl/build
+            TMessagesProj/jni/third_party/boringssl/build
           key: ${{ hashFiles('boringssl_status') }}
       - name: TDLib Cache
         uses: actions/cache@v5
         with:
           path: |
             TMessagesProj/jni/tde2e
-            TMessagesProj/jni/tdlib/build
+            TMessagesProj/jni/td/build
           key: ${{ hashFiles('boringssl_status', 'tdlib_status') }}-03030
       - name: tlottie Cache
         uses: actions/cache@v5
         with:
           path: |
-            TMessagesProj/jni/prebuild/arm64-v8a/libtlottie.a
-            TMessagesProj/jni/prebuild/armeabi-v7a/libtlottie.a
-            TMessagesProj/jni/prebuild/x86/libtlottie.a
-            TMessagesProj/jni/prebuild/x86_64/libtlottie.a
+            TMessagesProj/jni/prebuild/lib/arm64-v8a/libtlottie.a
+            TMessagesProj/jni/prebuild/lib/armeabi-v7a/libtlottie.a
+            TMessagesProj/jni/prebuild/lib/x86/libtlottie.a
+            TMessagesProj/jni/prebuild/lib/x86_64/libtlottie.a
           key: ${{ hashFiles('tlottie_status') }}
       - name: Fix Gradle Memory
         run: |
@@ -521,7 +521,7 @@ jobs:
           ./gradlew TMessagesProj:assemble${{ matrix.flavor }}
           
           # tmp
-          ls -l TMessagesProj/jni/tde2e/* TMessagesProj/jni/tdlib/build/* || true
+          ls -l TMessagesProj/jni/tde2e/* TMessagesProj/jni/td/build/* || true
 
           APK=$(find TMessagesProj/build/outputs/apk -name '*arm64-v8a*.apk')
           APK=$(dirname $APK)
