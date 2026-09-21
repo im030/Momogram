@@ -374,4 +374,5 @@
     <string name="DebugWarning">Enable debug option like this one may introduce unexpected problems, proceed?</string>
     <string name="DeleteAfterSend">Del. after send</string>
     <string name="SwipeLoopChatFilter">Loop chat folder when swiped at first/last one</string>
+    <string name="ConfirmTranslateBeforeSend">Enable translate before send for current chat? Tap this text for 10 times to skip timer.</string>
 </resources>

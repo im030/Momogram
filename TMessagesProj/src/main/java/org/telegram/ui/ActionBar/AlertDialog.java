@@ -222,6 +222,7 @@ public class AlertDialog extends Dialog implements Drawable.Callback, Notificati
     private int buttonTimeoutSec;
     private int[] buttonTimeoutTypes;
     private long buttonTimeoutUntil;
+    private int buttonTimeoutSkip = 0;
     private final Runnable buttonTimeoutRunnable = this::updateButtonTimeout;
 
     private int getDefaultMaxDialogWidth() {
@@ -1747,6 +1748,10 @@ public class AlertDialog extends Dialog implements Drawable.Callback, Notificati
         }
     }
 
+    public void setTimeoutSkippable(int count) {
+        buttonTimeoutSkip = count;
+    }
+
     public void setNeutralButton(CharSequence text, final OnButtonClickListener listener) {
         neutralButtonText = text;
         neutralButtonListener = listener;
@@ -1946,6 +1951,11 @@ public class AlertDialog extends Dialog implements Drawable.Callback, Notificati
             return this;
         }
 
+        public Builder setTimeoutSkippable(int count) {
+            alertDialog.buttonTimeoutSkip = count;
+            return this;
+        }
+
         public Builder aboveMessageView(View view) {
             alertDialog.aboveMessageView = view;
             return this;
@@ -2094,6 +2104,18 @@ public class AlertDialog extends Dialog implements Drawable.Callback, Notificati
                 if (button != null) {
                     button.setTextColor(alertDialog.getThemedColor(Theme.key_text_RedBold));
                 }
+            }
+            if (alertDialog.messageTextView != null && alertDialog.buttonTimeoutSkip > 0) {
+                alertDialog.messageTextView.setOnClickListener((v) -> {
+                    long t = System.currentTimeMillis(), to = alertDialog.buttonTimeoutUntil;
+                    if (alertDialog.buttonTimeoutSkip <= 0) {
+                        alertDialog.buttonTimeoutUntil = t;
+                        return;
+                    }
+                    to -= (to - t) / alertDialog.buttonTimeoutSkip;
+                    alertDialog.buttonTimeoutUntil = Math.max(t, to);
+                    --alertDialog.buttonTimeoutSkip;
+                });
             }
             return alertDialog;
         }

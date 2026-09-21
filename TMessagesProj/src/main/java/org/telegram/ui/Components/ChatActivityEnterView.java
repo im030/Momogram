@@ -5175,17 +5175,7 @@ public class ChatActivityEnterView extends FrameLayout implements
                 if (menuPopupWindow != null && menuPopupWindow.isShowing()) {
                     menuPopupWindow.dismiss();
                 }
-                boolean autoTranslateBeforeSend2 = !TranslateDb.getTranslateBeforeSend(dialog_id);
-
-                TranslateDb.setTranslateBeforeSend(dialog_id, autoTranslateBeforeSend2);
-                finalCell.setTextAndIcon(LocaleController.getString(R.string.AlwaysTranslateBeforeSend),
-                        autoTranslateBeforeSend2 ? R.drawable.baseline_check_24 : R.drawable.baseline_close_24);
-
-                if (autoTranslateBeforeSend2) {
-                    BulletinFactory.of(parentFragment)
-                            .createSimpleBulletin(R.raw.info, LocaleController.getString(R.string.AlwaysTranslateBeforeSendNote))
-                            .show(false);
-                }
+                toggleTranslateBeforeSend(finalCell);
             });
 
             cell.setMinimumWidth(AndroidUtilities.dp(196));
@@ -17322,6 +17312,33 @@ public class ChatActivityEnterView extends FrameLayout implements
         }
 
         invalidate();
+    }
+
+    private void toggleTranslateBeforeSend(ActionBarMenuSubItem cell) {
+        toggleTranslateBeforeSend(cell, true);
+    }
+
+    private void toggleTranslateBeforeSend(ActionBarMenuSubItem cell, boolean confirm) {
+        boolean newAutoTranslateBeforeSend = !TranslateDb.getTranslateBeforeSend(dialog_id);
+        if (newAutoTranslateBeforeSend && confirm) {
+            new AlertDialog.Builder(parentActivity)
+                    .setMessage(getString(R.string.ConfirmTranslateBeforeSend))
+                    .setPositiveButton(getString(R.string.OK), (d, i) -> toggleTranslateBeforeSend(cell, false))
+                    .setNegativeButton(getString(R.string.Cancel), null)
+                    .setTimeout(60)
+                    .setTimeoutSkippable(10)
+                    .show();
+            return;
+        }
+        TranslateDb.setTranslateBeforeSend(dialog_id, newAutoTranslateBeforeSend);
+        cell.setTextAndIcon(LocaleController.getString(R.string.AlwaysTranslateBeforeSend),
+                newAutoTranslateBeforeSend ? R.drawable.baseline_check_24 : R.drawable.baseline_close_24);
+
+        if (newAutoTranslateBeforeSend) {
+            BulletinFactory.of(parentFragment)
+                    .createSimpleBulletin(R.raw.info, LocaleController.getString(R.string.AlwaysTranslateBeforeSendNote))
+                    .show(false);
+        }
     }
 
     private void checkUi_TopViewVisibility() {
