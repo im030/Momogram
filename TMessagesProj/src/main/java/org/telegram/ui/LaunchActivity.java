@@ -173,6 +173,7 @@ import org.telegram.ui.Cells.ChatMessageCell;
 import org.telegram.ui.Cells.LanguageCell;
 import org.telegram.ui.Components.ActivityWindowEmptyBackgroundDrawable;
 import org.telegram.ui.Components.AlertsCreator;
+import org.telegram.ui.Components.AnimatedEmojiDrawable;
 import org.telegram.ui.Components.AppIconBulletinLayout;
 import org.telegram.ui.Components.AttachBotIntroTopView;
 import org.telegram.ui.Components.AudioPlayerAlert;
@@ -7063,6 +7064,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
             editorView.destroy();
         }
         FloatingDebugController.onDestroy();
+        AnimatedEmojiDrawable.dropGlobalEmojiCache();
         if (BuildVars.DEBUG_PRIVATE_VERSION) {
             LeakDetector.getInstance().stop();
         }

@@ -69,6 +69,8 @@ import org.telegram.ui.Components.Premium.PremiumPreviewBottomSheet;
 import org.telegram.ui.LaunchActivity;
 import org.telegram.ui.Stories.StoryViewer;
 import org.telegram.ui.bots.BotWebViewAttachedSheet;
+import org.telegram.ui.iv.RichCommand;
+import org.telegram.utils.glass.GlassEngine;
 
 import java.util.ArrayList;
 
@@ -262,9 +264,11 @@ public abstract class BaseFragment {
         this.fragmentView = fragmentView;
     }
 
+    protected final GlassEngine glassEngine = new GlassEngine();
+
     public View performCreateView(Context context) {
         if (!BuildVars.DEBUG_PRIVATE_VERSION) {
-            return createView(context);
+            return performCreateViewImpl(context);
         }
 
         final String className = getClass().getSimpleName();
@@ -272,10 +276,21 @@ public abstract class BaseFragment {
         final String sectionName = TextUtils.isEmpty(className) ? sectionNameBase : (sectionNameBase + className);
         Trace.beginSection(sectionName);
         try {
-            return createView(context);
+            return performCreateViewImpl(context);
         } finally {
             Trace.endSection();
         }
+    }
+
+    private View performCreateViewImpl(Context context) {
+        final View view = createView(context);
+        onViewCreated(view);
+        return view;
+    }
+
+    @CallSuper
+    protected void onViewCreated(View view) {
+        glassEngine.setRoot(view);
     }
 
     protected View createView(Context context) {

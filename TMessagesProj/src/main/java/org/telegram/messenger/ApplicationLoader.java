@@ -43,6 +43,7 @@ import com.jakewharton.processphoenix.ProcessPhoenix;
 import org.maplibre.android.MapLibre;
 import org.json.JSONObject;
 import org.telegram.messenger.BuildConfig;
+import org.telegram.messenger.utils.Choreographer60FpsContent;
 import org.telegram.messenger.voip.VideoCapturerDevice;
 import org.telegram.tgnet.ConnectionsManager;
 import org.telegram.tgnet.TLRPC;
@@ -382,7 +383,15 @@ public class ApplicationLoader extends Application {
 
         LauncherIconController.tryFixLauncherIconIfNeeded();
         ProxyRotationController.init();
+
+        //if (BuildVars.DEBUG_PRIVATE_VERSION) {
+        //    Choreographer60FpsContent.getInstance().addFrameCallback(debugEverySecondChecks, 1);
+        //}
     }
+
+    private final Runnable debugEverySecondChecks = BuildVars.DEBUG_PRIVATE_VERSION ? () -> AndroidUtilities.runOnUIThread(() -> {
+        NotificationCenter.sanitize();
+    }) : null;
 
     // Local Push Service, TFoss implementation
     public static void startPushService() {
