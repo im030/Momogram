@@ -6,7 +6,7 @@ apply plugin: "org.telegram.build-plugin"
 apply plugin: "org.telegram.build-app-plugin"
 
 def verName = APP_VERSION_NAME
-def verCode = 11559
+def verCode = 11569
 
 def gitHashProc = new ProcessBuilder("git", "log", "--pretty=format:'%h'", "-n", "1").redirectErrorStream(true).start()
 def gitHashBuf = new byte[16]
