@@ -93,7 +93,6 @@ import moe.hx030.momogram.proxynext.Utils;
 import moe.hx030.momogram.utils.DnsFactory;
 import moe.hx030.momogram.utils.TelegramUtil;
 
-@OptIn(markerClass = UnstableApi.class)
 public class ConnectionsManager extends BaseController {
 
     public final static int ConnectionTypeGeneric = 1;

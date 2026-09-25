@@ -142,9 +142,7 @@ import moe.hx030.momogram.MomoConfig;
 import moe.hx030.momogram.SaveToDownloadReceiver;
 import moe.hx030.momogram.NekoXConfig;
 import moe.hx030.momogram.utils.BufferUtil;
-import moe.hx030.momogram.utils.StrUtil;
 
-@OptIn(markerClass = UnstableApi.class)
 public class MediaController implements AudioManager.OnAudioFocusChangeListener, NotificationCenter.NotificationCenterDelegate, SensorEventListener {
 
     public static boolean hevcOverride = MomoConfig.alwaysTryHevcCodec.Bool();
