@@ -200,7 +200,7 @@ jobs:
           submodules: recursive
       - name: Fetch Status
         run: git submodule status TMessagesProj/jni/third_party/openh264 > openh264_status
-      - name: tlottie Cache
+      - name: openh264 Cache
         id: cache
         uses: actions/cache@v5
         with:
@@ -231,6 +231,47 @@ jobs:
           sudo apt-get update
           sudo apt-get install yasm nasm meson ninja-build -y || true
           ./run init libs h264
+  wamr:
+    name: Native Build (WAMR)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+      - name: Fetch Status
+        run: git submodule status TMessagesProj/jni/third_party/wamr > wamr_status
+      - name: WAMR Cache
+        id: cache
+        uses: actions/cache@v5
+        with:
+          path: |
+            TMessagesProj/jni/prebuild/lib/arm64-v8a/libiwasm.a
+            TMessagesProj/jni/prebuild/lib/armeabi-v7a/libiwasm.a
+            TMessagesProj/jni/prebuild/lib/x86/libiwasm.a
+            TMessagesProj/jni/prebuild/lib/x86_64/libiwasm.a
+          key: ${{ hashFiles('wamr_status') }}
+      - name: Setup Android SDK Tools
+        uses: android-actions/setup-android@v3
+        if: steps.cache.outputs.cache-hit != 'true'
+        with:
+          packages: ''
+      - name: Install NDK
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          SDK_MANAGER=$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager
+          if [ ! -f "$SDK_MANAGER" ]; then
+            SDK_MANAGER=$ANDROID_HOME/tools/bin/sdkmanager
+          fi
+          yes | sudo $SDK_MANAGER --install "ndk;27.2.12479018" --sdk_root=${ANDROID_SDK_ROOT}
+          echo "sdk.dir=${ANDROID_HOME}" > local.properties
+          echo "ndk.dir=${ANDROID_HOME}/ndk/27.2.12479018" >> local.properties
+      - name: Native Build
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install cmake ninja-build -y || true
+          ./run init libs wamr
   tdlib:
     name: Native Build (TDLib)
     runs-on: ubuntu-latest
@@ -296,6 +337,7 @@ jobs:
       - tdlib
       - tlottie
       - h264
+      - wamr
     strategy:
       matrix:
         flavor:
@@ -320,13 +362,14 @@ jobs:
           git submodule status TMessagesProj/jni/third_party/boringssl > boringssl_status
           git submodule status TMessagesProj/jni/td > tdlib_status
           git submodule status TMessagesProj/jni/tlottie > tlottie_status
+          git submodule status TMessagesProj/jni/third_party/wamr > wamr_status
       - name: Native Cache
         id: cache
         uses: actions/cache@v5
         with:
           path: |
             TMessagesProj/src/main/libs
-          key: ${{ hashFiles('TMessagesProj/jni/**', 'ffmpeg_status', 'libvpx_status', 'boringssl_status', 'dav1d_status', 'tdlib_status', 'openh264_status') }}-${{ matrix.flavor }}
+          key: ${{ hashFiles('TMessagesProj/jni/**', 'ffmpeg_status', 'libvpx_status', 'boringssl_status', 'dav1d_status', 'tdlib_status', 'openh264_status', 'tlottie_status', 'wamr_status') }}-${{ matrix.flavor }}
       - name: Checkout Library
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
@@ -384,6 +427,16 @@ jobs:
             TMessagesProj/jni/prebuild/lib/x86/libopenh264.a
             TMessagesProj/jni/prebuild/lib/x86_64/libopenh264.a
           key: ${{ hashFiles('openh264_status') }}
+      - name: WAMR Cache
+        uses: actions/cache@v5
+        if: steps.cache.outputs.cache-hit != 'true'
+        with:
+          path: |
+            TMessagesProj/jni/prebuild/lib/arm64-v8a/libiwasm.a
+            TMessagesProj/jni/prebuild/lib/armeabi-v7a/libiwasm.a
+            TMessagesProj/jni/prebuild/lib/x86/libiwasm.a
+            TMessagesProj/jni/prebuild/lib/x86_64/libiwasm.a
+          key: ${{ hashFiles('wamr_status') }}
       - name: Setup Android SDK Tools
         uses: android-actions/setup-android@v3
         if: steps.cache.outputs.cache-hit != 'true'
