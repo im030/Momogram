@@ -6777,7 +6777,7 @@ public class AndroidUtilities {
     }
 
     public static void printStackTrace(StackTraceElement[] elements, String tag) {
-        if (!BuildConfig.DEBUG_PRIVATE_VERSION) {
+        if (!BuildVars.DEBUG_PRIVATE_VERSION) {
             return;
         }
 

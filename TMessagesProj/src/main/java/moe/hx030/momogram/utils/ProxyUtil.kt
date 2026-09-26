@@ -31,7 +31,7 @@ import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
 import moe.hx030.momogram.MomoConfig
 import org.telegram.messenger.*
 import org.telegram.messenger.browser.Browser
-import org.telegram.proxy.ProxySettings
+import org.telegram.utils.proxy.ProxySettings
 import moe.hx030.momogram.ui.BottomBuilder
 import moe.hx030.momogram.utils.AlertUtil.showToast
 import java.io.File

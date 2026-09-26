@@ -1049,7 +1049,9 @@ public class NotificationCenter {
 
     public static void sanitize() {
         sanitizeInternal(globalInstance);
-        for (NotificationCenter notificationCenter : Instance) {
+
+        for (int i = 0; i < Instance.size(); ++i) {
+            NotificationCenter notificationCenter = Instance.get(i);
             sanitizeInternal(notificationCenter);
         }
     }

@@ -576,10 +576,9 @@ JNIEXPORT jlong JNICALL Java_org_telegram_messenger_voip_NativeInstance_makeGrou
             .videoCapture = videoCapture,
             .videoContentType = screencast ? VideoContentType::Screencast : VideoContentType::Generic,
             .initialEnableNoiseSuppression = (bool) noiseSupression,
-            .platformContext = platformContext,
             .e2eEncryptDecrypt = e2eEncryptDecrypt,
-            .isConference = (bool) conference,
             .outgoingAudioBitrateKbit = customBitrate,
+            .isConference = (bool) conference,
     };
     if (!screencast) {
         descriptor.requestAudioBroadcastPart = [platformContext](int64_t timestamp, int64_t duration, std::function<void(BroadcastPart &&)> callback) -> std::shared_ptr<BroadcastPartTask> {

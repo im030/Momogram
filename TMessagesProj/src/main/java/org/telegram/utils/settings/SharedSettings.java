@@ -1,15 +1,16 @@
 package org.telegram.utils.settings;
 
 import org.telegram.messenger.BuildConfig;
+import org.telegram.messenger.BuildVars;
 import org.telegram.utils.camera.roundvideo.RoundVideoSession;
 
 public final class SharedSettings {
 
     public static final BooleanSetting experimentalSettingsAllowed =
-        BooleanSetting.of("experimental_settings_allowed", BuildConfig.DEBUG_VERSION);
+        BooleanSetting.of("experimental_settings_allowed", BuildVars.DEBUG_VERSION);
 
     public static final BooleanSetting roundVideoCamera2Enabled =
-        BooleanSetting.of("round_video_camera2_enabled", BuildConfig.DEBUG_VERSION);
+        BooleanSetting.of("round_video_camera2_enabled", BuildVars.DEBUG_VERSION);
 
     public static final EnumSetting<RoundVideoSession.OutputResolution> roundVideoOutputResolution =
         EnumSetting.of("round_video_output_resolution", RoundVideoSession.OutputResolution.P480);
