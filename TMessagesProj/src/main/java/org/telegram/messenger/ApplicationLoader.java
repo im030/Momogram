@@ -320,6 +320,7 @@ public class ApplicationLoader extends Application {
         // AndroidUtilities must be initialized before FileLog
         final String helloWorld = AndroidUtilities.getHelloWorld();
 
+        if (BuildVars.BUILD_VERSION == 0) BuildVars.init(applicationContext);
         if (BuildVars.LOGS_ENABLED) {
             FileLog.d(helloWorld);
             FileLog.d("app start time = " + (startTime = SystemClock.elapsedRealtime()));

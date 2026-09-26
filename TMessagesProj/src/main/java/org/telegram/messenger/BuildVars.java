@@ -13,6 +13,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.util.Log;
 
 @SuppressWarnings("ConstantConditions")
 public class BuildVars {
@@ -52,7 +53,14 @@ public class BuildVars {
     public static boolean SUPPORTS_PASSKEYS = Build.VERSION.SDK_INT > 33;
 
     static {
+        try {
+            init(ApplicationLoader.applicationContext);
+        } catch (Exception e) {
+            Log.e("BuildVars", "", e);
+        }
+    }
 
+    public static void init(Context applicationContext) {
         try {
             PackageInfo info = ApplicationLoader.applicationContext.getPackageManager().getPackageInfo(ApplicationLoader.applicationContext.getPackageName(), 0);
             BUILD_VERSION = info.versionCode;

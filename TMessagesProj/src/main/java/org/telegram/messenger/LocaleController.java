@@ -19,7 +19,6 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.icu.text.RelativeDateTimeFormatter;
 import android.os.Build;
 import android.telephony.TelephonyManager;
@@ -71,7 +70,6 @@ import java.util.Objects;
 import java.util.TimeZone;
 
 import moe.hx030.momogram.MomoConfig;
-import moe.hx030.momogram.parts.LocFiltersKt;
 import moe.hx030.momogram.shamsicalendar.PersianDate;
 import moe.hx030.momogram.utils.FileUtil;
 import moe.hx030.momogram.utils.GsonUtil;
@@ -1521,30 +1519,10 @@ public class LocaleController {
 
     private String getStringInternal(String key, String fallback, int res) {
         String value = getStringV2(key, res, fallback);
-        if (value == null || "".equals(value)) {
-            Log.e("030-dbg", String.format("LOC_ERR key=%s res=0x%x", key, res));
-            value = "LOC_ERR:" + key;
-            if (getFallbackResources() != null) {
-                value = getFallbackResources().getString(res);
-                value = LocFiltersKt.filter(value);
-            }
-        } else {
+        if (value == null) {
             return "LOC_ERR:" + key;
         }
         return value;
-    }
-
-    private static Resources fallbackResources = null;
-
-    private static Resources getFallbackResources() {
-        if (fallbackResources == null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            Configuration conf = ApplicationLoader.applicationContext.getResources().getConfiguration();
-            conf = new Configuration(conf);
-            conf.setLocale(new Locale("en"));
-            Context localizedContext = ApplicationLoader.applicationContext.createConfigurationContext(conf);
-            fallbackResources = localizedContext.getResources();
-        }
-        return fallbackResources;
     }
 
     public static String getServerString(String key) {
@@ -4667,7 +4645,7 @@ public class LocaleController {
 
     private Localization localizationInternalDefault;
     private volatile Locale localizationInternalLastLocale;
-    private volatile Localization localizationInternal = Localization.EMPTY;
+    private volatile @Nullable Localization localizationInternal;
     private volatile boolean localizationInternalPending;
     private @NonNull Localization localizationExternal = Localization.EMPTY;
     private int localizationExternalSize;
@@ -4683,37 +4661,37 @@ public class LocaleController {
                 localeChanged = !Objects.equals(localizationInternalLastLocale, currentLocale);
                 if (localeChanged || localizationInternal == null) {
                     if (localizationInternalDefault == null) {
-                        localizationInternalDefault = new Localization.Builder()
-                            .addResLocalization(ApplicationLoader.applicationContext, LocalizationUtils.DEFAULT_LOCALIZATION)
-                            .build();
+                        Localization.Builder localizationInternalDefaultBuilder = new Localization.Builder()
+                            .addResLocalization(ApplicationLoader.applicationContext, LocalizationUtils.DEFAULT_LOCALIZATION);
+
+                        localizationInternalDefault = ensureCustomStrings(localizationInternalDefaultBuilder, Locale.ENGLISH).build();
                     }
 
                     final String assetPath = LocalizationUtils.getLocalizationAsset(currentLocale);
                     if (assetPath == null || TextUtils.equals(assetPath, LocalizationUtils.DEFAULT_LOCALIZATION)) {
                         localizationInternal = localizationInternalDefault;
                     } else {
-                        localizationInternal = new Localization.Builder()
+                        Localization.Builder localizationInternalDefaultBuilder = new Localization.Builder()
                             .addLocalization(localizationInternalDefault)
-                            .addResLocalization(ApplicationLoader.applicationContext, assetPath)
-                            .build();
+                            .addResLocalization(ApplicationLoader.applicationContext, assetPath);
+                        localizationInternal = ensureCustomStrings(localizationInternalDefaultBuilder, currentLocale).build();
                     }
-
-                    // Overlay the namespaced string packages (strings_neko.xml,
-                    // strings_nekox.xml, ...) on top of the main localization.
-                    Localization.Builder builder = new Localization.Builder().addLocalization(localizationInternal);
-                    for (String namespace : NamespaceLocalizationUtils.getNamespaces()) {
-                        final String namespaceAsset = NamespaceLocalizationUtils.getLocalizationAsset(currentLocale, namespace);
-                        if (namespaceAsset == null) {
-                            continue;
-                        }
-                        builder.addResLocalization(ApplicationLoader.applicationContext, namespaceAsset);
-                    }
-                    localizationInternal = builder.build();
 
                     localizationInternalLastLocale = currentLocale;
                 }
             }
             localizationInternalPending = false;
         }
+    }
+
+    private Localization.Builder ensureCustomStrings(Localization.Builder loc, Locale locale) {
+        // Overlay the namespaced string packages (strings_neko.xml,
+        // strings_nekox.xml, ...) on top of the main localization.
+        for (String namespace : NamespaceLocalizationUtils.getNamespaces()) {
+            final String namespaceAsset = NamespaceLocalizationUtils.getLocalizationAsset(locale, namespace);
+            if (namespaceAsset == null) continue;
+            loc.addResLocalization(ApplicationLoader.applicationContext, namespaceAsset);
+        }
+        return loc;
     }
 }
