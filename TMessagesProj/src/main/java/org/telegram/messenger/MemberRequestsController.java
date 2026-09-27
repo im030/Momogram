@@ -20,6 +20,8 @@ import moe.hx030.momogram.MomoConfig;
 
 public class MemberRequestsController extends BaseController {
 
+    public static final int LIMIT = 30;
+
     private static final SparseArray<MemberRequestsController> instances = new SparseArray<>();
 
     public static MemberRequestsController getInstance(int accountNum) {
@@ -48,11 +50,15 @@ public class MemberRequestsController extends BaseController {
     }
 
     public int getImporters(final long chatId, final String query, TLRPC.TL_chatInviteImporter lastImporter, LongSparseArray<TLRPC.User> users, RequestDelegate onComplete) {
+        return getImporters(chatId, query, lastImporter, users, onComplete, true);
+    }
+
+    public int getImporters(final long chatId, final String query, TLRPC.TL_chatInviteImporter lastImporter, LongSparseArray<TLRPC.User> users, RequestDelegate onComplete, boolean filter) {
         boolean isEmptyQuery = TextUtils.isEmpty(query);
         TLRPC.TL_messages_getChatInviteImporters req = new TLRPC.TL_messages_getChatInviteImporters();
         req.peer = MessagesController.getInstance(currentAccount).getInputPeer(-chatId);
         req.requested = true;
-        req.limit = 30;
+        req.limit = LIMIT;
         if (!isEmptyQuery) {
             req.q = query;
             req.flags |= 4;
@@ -67,7 +73,8 @@ public class MemberRequestsController extends BaseController {
             AndroidUtilities.runOnUIThread(() -> {
                 if (error == null) {
                     TLRPC.TL_messages_chatInviteImporters importers =
-                            ModUtil.filterJoinRequests(currentAccount, chatId, (TLRPC.TL_messages_chatInviteImporters) response);
+                        filter ? ModUtil.filterJoinRequests(currentAccount, chatId, (TLRPC.TL_messages_chatInviteImporters) response)
+                            : (TLRPC.TL_messages_chatInviteImporters) response;
 
                     if (lastImporter == null && isEmptyQuery)
                         firstImportersCache.put(chatId, importers);

@@ -78,6 +78,7 @@ import moe.hx030.momogram.database.NitritesKt;
 import moe.hx030.momogram.transtale.Translator;
 import moe.hx030.momogram.transtale.source.FirefoxLocalTranslator;
 import moe.hx030.momogram.ui.PopupBuilder;
+import moe.hx030.momogram.util.ModUtil;
 import moe.hx030.momogram.util.ReflectUtil;
 import moe.hx030.momogram.util.SessionsUtil;
 import moe.hx030.momogram.utils.FileUtil;
@@ -106,6 +107,8 @@ public class MomoAntiSpamSettingsActivity extends MomoSettingsBaseActivity {
     private final AbstractConfigCell autoDismissDummyRow = cellGroup.appendCell(new ConfigCellTextCheck(MomoConfig.autoDismissDummy));
     private final AbstractConfigCell autoDismissSuggestedChatsRow = cellGroup.appendCell(new ConfigCellSelectBox(LocaleController.getString(R.string.AutoDismissSuggestedChats),
             MomoConfig.autoDismissSuggestedChats, MomoConfig.autoDismissSuggestedChatsOptions, null));
+    private final AbstractConfigCell triggerFilterRow = cellGroup.appendCell(new ConfigCellSelectBox(LocaleController.getString(R.string.TriggerFilterForAllStoredChats), null, null,
+            () -> ModUtil.filterJoinRequestsJob(false)));
     private final AbstractConfigCell dividerAdmins = cellGroup.appendCell(new ConfigCellDivider());
 
     private final AbstractConfigCell headerDebug = cellGroup.appendCell(new ConfigCellHeader(LocaleController.getString(R.string.DebugMenu)));
@@ -169,6 +172,9 @@ public class MomoAntiSpamSettingsActivity extends MomoSettingsBaseActivity {
                         dlg.setTimeout(5, DialogInterface.BUTTON_POSITIVE);
                     }
                     dlg.show();
+                } else if (position == cellGroup.rows.indexOf(autoBanDelAccFromReqRow)) {
+                    ((ConfigCellSelectBox) triggerFilterRow).setEnabled(!MomoConfig.autoDismissJoinReq.Bool());
+                    ((ConfigCellTextCheck) a).onClick((TextCheckCell) view);
                 } else {
                     ((ConfigCellTextCheck) a).onClick((TextCheckCell) view);
                 }

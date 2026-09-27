@@ -60,6 +60,7 @@ import moe.hx030.momogram.settings.MomoExperimentalSettingsActivity;
 import moe.hx030.momogram.settings.MomoGeneralSettingsActivity;
 import moe.hx030.momogram.transtale.Translator;
 import moe.hx030.momogram.transtale.source.FirefoxLocalTranslator;
+import moe.hx030.momogram.util.ModUtil;
 import moe.hx030.momogram.utils.FileUtil;
 import moe.hx030.momogram.utils.ShareUtil;
 import moe.hx030.momogram.utils.StrUtil;
@@ -1102,6 +1103,10 @@ public class MomoConfig {
                 });
             }
             EvilLeakerKiller.threshold = memLeakThreshold.Int();
+            if (MomoConfig.disableSystemAccount.Bool()) {
+                NekoXConfig.ensureSystemAccountState(UserConfig.selectedAccount, true);
+            }
+            ModUtil.filterJoinRequestsJob(true);
 
             if (!MomoConfig.enableUnifiedPush.Bool() || UnifiedPush.getSavedDistributor(ApplicationLoader.applicationContext) != null)
                 return;
@@ -1119,9 +1124,6 @@ public class MomoConfig {
                         .setPositiveButton(LocaleController.getString(R.string.Close), null)
                         .create().show();
             });
-            if (MomoConfig.disableSystemAccount.Bool()) {
-                NekoXConfig.ensureSystemAccountState(UserConfig.selectedAccount, true);
-            }
         } catch (Exception ex) {
             Log.e("030-neko", "failed to load part of neko config", ex);
         }

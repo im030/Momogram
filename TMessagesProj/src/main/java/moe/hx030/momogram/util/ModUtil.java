@@ -1,10 +1,14 @@
 package moe.hx030.momogram.util;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.LongSparseArray;
 
 import org.apache.commons.lang3.function.TriConsumer;
+import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.ApplicationLoader;
 import org.telegram.messenger.ImageLocation;
 import org.telegram.messenger.LocaleController;
@@ -12,6 +16,7 @@ import org.telegram.messenger.MemberRequestsController;
 import org.telegram.messenger.MessagesController;
 import org.telegram.messenger.MessagesStorage;
 import org.telegram.messenger.R;
+import org.telegram.messenger.Utilities;
 import org.telegram.tgnet.ConnectionsManager;
 import org.telegram.tgnet.TLRPC;
 import org.telegram.tgnet.tl.TL_communities;
@@ -21,8 +26,12 @@ import org.telegram.ui.LaunchActivity;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -39,6 +48,78 @@ public class ModUtil {
     private static ArrayDeque<Long> bannedUserIds;
     private static final AtomicInteger banned = new AtomicInteger(0), dismissed = new AtomicInteger(0);
 
+    public static SharedPreferences modCache = ApplicationLoader.applicationContext
+            .getSharedPreferences("momo_mod", Context.MODE_PRIVATE);
+
+    public static void filterJoinRequestsJob(boolean scheduled) {
+        Log.d("030-mod", "filterJoinRequestsJob invoked");
+        Utilities.globalQueue.postRunnable(() -> {
+            if (!MomoConfig.autoDismissJoinReq.Bool()) return;
+            Log.d("030-mod", "filterJoinRequestsJob start");
+            final HashMap<Integer, HashSet<Long>> grp = new HashMap<>();
+            modCache.getAll().forEach((k, v) -> {
+                if (!(Boolean) v) return;
+                String[] s = k.split("_");
+                try {
+                    int acc = Integer.parseInt(s[0]);
+                    long chatId = Long.parseLong(s[1]);
+                    grp.compute(acc, (_acc, set) -> {
+                        if (set == null) set = new HashSet<>();
+                        set.add(chatId);
+                        return set;
+                    });
+                } catch (Exception e) {
+                    Log.e("030-mod", "", e);
+                }
+            });
+            grp.forEach((currentAccount, chatIds) -> {
+                MemberRequestsController controller = MemberRequestsController.getInstance(currentAccount);
+                LongSparseArray<TLRPC.User> users = new LongSparseArray<>();
+                for (long chatId : chatIds) {
+                    getAllImporters(currentAccount, controller, chatId, users, null);
+                }
+            });
+        });
+        if (!scheduled) return;
+        AndroidUtilities.runOnUIThread(() -> ModUtil.filterJoinRequestsJob(true), 30*60*1000);
+    }
+
+    public static int getAllImporters(int currentAccount, MemberRequestsController controller, long chatId, LongSparseArray<TLRPC.User> users, TLRPC.TL_chatInviteImporter last) {
+        TLRPC.Chat chat = MessagesController.getInstance(currentAccount).getChat(chatId);
+        String title = (chat == null ? "''" : chat.title);
+        Log.d("030-mod", String.format(Locale.US, "filterJoinRequestsJob: getAllImporters: acc=%d chat=%s(%d)",
+                currentAccount, title, chatId));
+        AtomicInteger count = new AtomicInteger(0);
+        controller.getImporters(chatId, null, last, users, (response, error) -> {
+            if (error != null) {
+                if (error.code == 400 && "CHAT_ID_INVALID".equals(error.text)) {
+                    Log.w("030-mod", "got CHAT_ID_INVALID, wait 10s and retry");
+                    AndroidUtilities.runOnUIThread(() -> getAllImporters(currentAccount, controller, chatId, users, last), 10000);
+                } else {
+                    Log.e("030-mod", String.format(Locale.US, "error from filterJoinRequestsJob: %d - %s, disabling job for %d", error.code, error.text, chatId));
+                    modCache.edit().putBoolean(String.format(Locale.US, "%d_%d", currentAccount, chatId), false).apply();
+                }
+                return;
+            }
+            TLRPC.TL_messages_chatInviteImporters importers = (TLRPC.TL_messages_chatInviteImporters) response;
+            int origCount = importers.count;
+
+            if (importers.count == 0 || importers.importers.isEmpty())
+                return;
+
+            filterJoinRequests(currentAccount, chatId, importers);
+            int newCount = importers.count;
+            TLRPC.TL_chatInviteImporter newLast = (newCount == 0) ? null
+                    : Collections.min(importers.importers, Comparator.comparingInt(x -> x.date));
+            count.addAndGet(newCount - origCount);
+            if (origCount >= MemberRequestsController.LIMIT) {
+                Log.d("030-mod", "fetch next for " + title);
+                count.addAndGet(getAllImporters(currentAccount, controller, chatId, users, newLast));
+            }
+        }, false);
+        return count.get();
+    }
+
     public static TLRPC.TL_messages_chatInviteImporters filterJoinRequests(int currentAccount, long chatId, TLRPC.TL_messages_chatInviteImporters importers) {
         if (importers == null || !MomoConfig.autoDismissJoinReq.Bool()) {
             Log.d("030-filterJoinReq", String.format("importers=%s autoDismiss=%s", importers != null , MomoConfig.autoDismissJoinReq.Bool()));
@@ -50,6 +131,10 @@ public class ModUtil {
         final boolean regex = MomoConfig.autoDismissRegexPattern != null;
         final boolean useOpenCC = MomoConfig.autoDismissNameUseOpenCC.Bool();
         int oldSize = importers.importers.size();
+        if (oldSize > 0) {
+            modCache.edit().putBoolean(String.format(Locale.US, "%d_%d", currentAccount, chatId), true).apply();
+            Log.d("030-mod", String.format(Locale.US, "cached chatId for filterJoinRequestsJob: %d", chatId));
+        }
         Log.d("030-filterJoinReq", String.format("b4 | count=%d size=%d", importers.count, importers.importers.size()));
 
         Map<Long, TLRPC.User> currentUsers = new HashMap<>(importers.users.size());

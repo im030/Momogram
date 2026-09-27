@@ -375,4 +375,5 @@
     <string name="DeleteAfterSend">Del. after send</string>
     <string name="SwipeLoopChatFilter">Loop chat folder when swiped at first/last one</string>
     <string name="ConfirmTranslateBeforeSend">Enable translate before send for current chat? Tap this text for 10 times to skip timer.</string>
+    <string name="TriggerFilterForAllStoredChats">Trigger join request filter for all cached chats</string>
 </resources>

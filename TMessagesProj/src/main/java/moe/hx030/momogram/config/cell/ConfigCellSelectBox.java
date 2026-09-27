@@ -27,6 +27,8 @@ public class ConfigCellSelectBox extends AbstractConfigCell {
     private final String title;
     private final Runnable onClickCustom;
     private Context ctxCustom;
+    private boolean enabled = true;
+    private TextSettingsCell cell;
 
     // default: customTitle=null customOnClick=null
     public ConfigCellSelectBox(String customTitle, ConfigItem bind, Object selectList_s, Runnable customOnClick) {
@@ -54,11 +56,16 @@ public class ConfigCellSelectBox extends AbstractConfigCell {
     }
 
     public boolean isEnabled() {
-        return true;
+        return enabled;
+    }
+
+    public void setEnabled(boolean v) {
+        enabled = v;
+        cell.setEnabled(v);
     }
 
     public void onBindViewHolder(RecyclerView.ViewHolder holder) {
-        TextSettingsCell cell = (TextSettingsCell) holder.itemView;
+        cell = (TextSettingsCell) holder.itemView;
         String valueText = "";
         if (selectList != null && bindConfig.Int() < selectList.length) {
             valueText = selectList[bindConfig.Int()];
