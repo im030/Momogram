@@ -821,9 +821,12 @@ public class AlertsCreator {
                         localeInfo = new LocaleController.LocaleInfo();
                         localeInfo.name = language.native_name;
                         localeInfo.nameEnglish = language.name;
-                        localeInfo.shortName = language.lang_code;
-                        localeInfo.baseLangCode = language.base_lang_code;
-                        localeInfo.pluralLangCode = language.plural_code;
+                        // follow loadRemoteLanguages to normalize
+                        localeInfo.shortName = language.lang_code.replace('-', '_').toLowerCase();
+                        localeInfo.baseLangCode = language.base_lang_code == null
+                                ? ""
+                                : language.base_lang_code.replace('-', '_').toLowerCase();
+                        localeInfo.pluralLangCode = language.plural_code.replace('-', '_').toLowerCase();
                         localeInfo.isRtl = language.rtl;
                         if (language.official) {
                             localeInfo.pathToFile = "remote";

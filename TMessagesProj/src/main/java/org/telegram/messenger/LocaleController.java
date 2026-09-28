@@ -73,6 +73,7 @@ import moe.hx030.momogram.MomoConfig;
 import moe.hx030.momogram.shamsicalendar.PersianDate;
 import moe.hx030.momogram.utils.FileUtil;
 import moe.hx030.momogram.utils.GsonUtil;
+import moe.hx030.momogram.utils.LocaleUtil;
 
 public class LocaleController {
 
@@ -433,6 +434,7 @@ public class LocaleController {
 
     public Locale currentLocale;
     private Locale systemDefaultLocale;
+    private Locale appliedLocale;
     private PluralRules currentPluralRules;
     private LocaleInfo currentLocaleInfo;
     private String languageOverride;
@@ -799,15 +801,7 @@ public class LocaleController {
                     }
                 }
 
-                if (currentInfo == null && systemDefaultLocale.getLanguage() != null) {
-                    currentInfo = getLanguageFromDict(systemDefaultLocale.getLanguage());
-                }
-                if (currentInfo == null) {
-                    currentInfo = getLanguageFromDict(getLocaleString(systemDefaultLocale));
-                    if (currentInfo == null) {
-                        currentInfo = getLanguageFromDict("en");
-                    }
-                }
+                currentInfo = LocaleUtil.getSystemDefaultLocaleInfo(currentInfo);
 
                 applyLanguage(currentInfo, override, true, UserConfig.selectedAccount);
             } catch (Exception e) {
@@ -860,6 +854,7 @@ public class LocaleController {
         }
         return languagesDict.get(key.toLowerCase().replace("-", "_"));
     }
+
     public LocaleInfo getBuiltinLanguageByPlural(String plural) {
         Collection<LocaleInfo> values = languagesDict.values();
         for (LocaleInfo l : values)
@@ -893,6 +888,21 @@ public class LocaleController {
 
     public Locale getSystemDefaultLocale() {
         return systemDefaultLocale;
+    }
+
+    /**
+     * Diagnostic helper: reports which asset files the current locale actually resolves to, so a
+     * wrong script can be traced to the exact file that was chosen instead of guessed at.
+     */
+    private String getNamespaceAssets(Locale locale) {
+        final StringBuilder builder = new StringBuilder();
+        for (String namespace : NamespaceLocalizationUtils.getNamespaces()) {
+            builder.append(namespace)
+                    .append('=')
+                    .append(NamespaceLocalizationUtils.getLocalizationAsset(locale, namespace))
+                    .append(' ');
+        }
+        return builder.toString();
     }
 
     public boolean isCurrentLocalLocale() {
@@ -993,7 +1003,7 @@ public class LocaleController {
         }
     }
 
-    private String getLocaleString(Locale locale) {
+    public String getLocaleString(Locale locale) {
         if (locale == null) {
             return "en";
         }
@@ -1211,16 +1221,7 @@ public class LocaleController {
             return false;
         }
         if (currentLocaleInfo == localeInfo) {
-            LocaleInfo info = null;
-            if (systemDefaultLocale.getLanguage() != null) {
-                info = getLanguageFromDict(systemDefaultLocale.getLanguage());
-            }
-            if (info == null) {
-                info = getLanguageFromDict(getLocaleString(systemDefaultLocale));
-            }
-            if (info == null) {
-                info = getLanguageFromDict("en");
-            }
+            LocaleInfo info = LocaleUtil.getSystemDefaultLocaleInfo(null);
             applyLanguage(info, true, false, currentAccount);
         }
 
@@ -1402,20 +1403,7 @@ public class LocaleController {
             }
         }
         try {
-            Locale newLocale;
-            String[] args;
-            if (!TextUtils.isEmpty(localeInfo.pluralLangCode)) {
-                args = localeInfo.pluralLangCode.split("_");
-            } else if (!TextUtils.isEmpty(localeInfo.baseLangCode)) {
-                args = localeInfo.baseLangCode.split("_");
-            } else {
-                args = localeInfo.shortName.split("_");
-            }
-            if (args.length == 1) {
-                newLocale = new Locale(args[0]);
-            } else {
-                newLocale = new Locale(args[0], args[1]);
-            }
+            Locale newLocale = LocaleUtil.getFixedLocale(localeInfo, null);
             if (override) {
                 languageOverride = localeInfo.shortName;
 
@@ -1424,6 +1412,7 @@ public class LocaleController {
                 editor.putString("language", localeInfo.getKey());
                 editor.apply();
             }
+            String packLanguageCode = null;
             if (pathToFile == null) {
                 localizationExternal = Localization.EMPTY;
                 localizationExternalSize = 0;
@@ -1433,6 +1422,10 @@ public class LocaleController {
                 if (hasBase) {
                     localeValues.putAll(getLocaleFileStrings(localeInfo.getPathToFile()));
                 }
+                if (localeValues.containsKey("LanguageCode")) {
+                    packLanguageCode = localeValues.get("LanguageCode");
+                    newLocale = LocaleUtil.getFixedLocale(localeInfo, packLanguageCode);
+                }
                 localizationExternal = new Localization.Builder()
                     .addLocalization(localeValues)
                     .build();
@@ -1441,13 +1434,24 @@ public class LocaleController {
             currentLocale = newLocale;
             currentLocaleInfo = localeInfo;
             // checkLocalizationInternal();
-            FileLog.d("applyLanguage: currentLocaleInfo is set");
+            FileLog.e("applyLanguage [tag=" + newLocale.toLanguageTag()
+                    + " short=" + shortName
+                    + " base=" + localeInfo.baseLangCode
+                    + " plural=" + localeInfo.pluralLangCode
+                    + " path=" + pathToFile
+                    + " remote=" + localeInfo.isRemote()
+                    + " unofficial=" + localeInfo.isUnofficial()
+                    + " hasBase=" + hasBase
+                    + " packCode=" + packLanguageCode
+                    + " baseAsset=" + LocalizationUtils.getLocalizationAsset(newLocale)
+                    + " " + getNamespaceAssets(newLocale)
+                    + "]");
 
             if (!TextUtils.isEmpty(currentLocaleInfo.pluralLangCode)) {
                 currentPluralRules = allRules.get(currentLocaleInfo.pluralLangCode);
             }
             if (currentPluralRules == null) {
-                currentPluralRules = allRules.get(args[0]);
+                currentPluralRules = allRules.get(newLocale.getLanguage());
             }
             if (currentPluralRules == null) {
                 currentPluralRules = allRules.get(currentLocale.getLanguage());
@@ -1460,6 +1464,8 @@ public class LocaleController {
             android.content.res.Configuration config = new android.content.res.Configuration();
             config.locale = currentLocale;
             FileLog.e("update locale to " + config.locale);
+            // save what we set to differentiate system changes and our originally set locale
+            appliedLocale = currentLocale;
             ApplicationLoader.applicationContext.getResources().updateConfiguration(config, ApplicationLoader.applicationContext.getResources().getDisplayMetrics());
             changingConfiguration = false;
             FileLog.d("applyLanguage: reloadLastFile=" + reloadLastFile + " force=" + force + " isLoadingRemote=" + isLoadingRemote);
@@ -2125,7 +2131,11 @@ public class LocaleController {
             return;
         }
         is24HourFormat = DateFormat.is24HourFormat(ApplicationLoader.applicationContext);
-        systemDefaultLocale = newConfig.locale;
+        // avoid "echo" by our locale code
+        final boolean isOwnEcho = appliedLocale != null && newConfig != null && appliedLocale.equals(newConfig.locale);
+        if (!isOwnEcho) {
+            systemDefaultLocale = newConfig.locale;
+        }
         if (languageOverride != null) {
             LocaleInfo toSet = currentLocaleInfo;
             currentLocaleInfo = null;
@@ -3189,20 +3199,14 @@ public class LocaleController {
                 saveOtherLanguages();
                 try {
                     if (currentLocaleInfo == localeInfo) {
-                        Locale newLocale;
-                        String[] args;
-                        if (!TextUtils.isEmpty(localeInfo.pluralLangCode)) {
-                            args = localeInfo.pluralLangCode.split("_");
-                        } else if (!TextUtils.isEmpty(localeInfo.baseLangCode)) {
-                            args = localeInfo.baseLangCode.split("_");
-                        } else {
-                            args = localeInfo.shortName.split("_");
-                        }
-                        if (args.length == 1) {
-                            newLocale = new Locale(args[0]);
-                        } else {
-                            newLocale = new Locale(args[0], args[1]);
-                        }
+                        final String savedPackLanguageCode = valuesToSet.get("LanguageCode");
+                        final Locale previousLocale = currentLocale;
+                        final Locale newLocale = LocaleUtil.getFixedLocale(localeInfo, savedPackLanguageCode);
+                        FileLog.e("saveRemoteLocaleStrings [differenceLang=" + langCode
+                                + " packCode=" + savedPackLanguageCode
+                                + " previous=" + (previousLocale == null ? "null" : previousLocale.toLanguageTag())
+                                + " resolved=" + newLocale.toLanguageTag()
+                                + "]");
                         languageOverride = localeInfo.shortName;
 
                         SharedPreferences preferences = MessagesController.getGlobalMainSettings();
@@ -3328,7 +3332,11 @@ public class LocaleController {
                     saveOtherLanguages();
                     NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.suggestedLangpack);
                     if (applyCurrent) {
-                        applyLanguage(currentLocaleInfo, true, false, currentAccount);
+                        LocaleInfo toApply = currentLocaleInfo;
+                        if (languageOverride == null && toApply != null && !toApply.isRemote() && !toApply.isUnofficial()) {
+                            toApply = LocaleUtil.getSystemDefaultLocaleInfo(toApply);
+                        }
+                        applyLanguage(toApply, true, false, currentAccount);
                     }
                 });
             }
@@ -4661,21 +4669,18 @@ public class LocaleController {
                 localeChanged = !Objects.equals(localizationInternalLastLocale, currentLocale);
                 if (localeChanged || localizationInternal == null) {
                     if (localizationInternalDefault == null) {
-                        Localization.Builder localizationInternalDefaultBuilder = new Localization.Builder()
-                            .addResLocalization(ApplicationLoader.applicationContext, LocalizationUtils.DEFAULT_LOCALIZATION);
-
-                        localizationInternalDefault = ensureCustomStrings(localizationInternalDefaultBuilder, Locale.ENGLISH).build();
+                        localizationInternalDefault = new Localization.Builder()
+                            .addResLocalization(ApplicationLoader.applicationContext, LocalizationUtils.DEFAULT_LOCALIZATION)
+                            .build();
                     }
 
                     final String assetPath = LocalizationUtils.getLocalizationAsset(currentLocale);
-                    if (assetPath == null || TextUtils.equals(assetPath, LocalizationUtils.DEFAULT_LOCALIZATION)) {
-                        localizationInternal = localizationInternalDefault;
-                    } else {
-                        Localization.Builder localizationInternalDefaultBuilder = new Localization.Builder()
-                            .addLocalization(localizationInternalDefault)
-                            .addResLocalization(ApplicationLoader.applicationContext, assetPath);
-                        localizationInternal = ensureCustomStrings(localizationInternalDefaultBuilder, currentLocale).build();
+                    Localization.Builder builder = new Localization.Builder()
+                        .addLocalization(localizationInternalDefault);
+                    if (assetPath != null && !TextUtils.equals(assetPath, LocalizationUtils.DEFAULT_LOCALIZATION)) {
+                        builder.addResLocalization(ApplicationLoader.applicationContext, assetPath);
                     }
+                    localizationInternal = ensureCustomStrings(builder, currentLocale).build();
 
                     localizationInternalLastLocale = currentLocale;
                 }
