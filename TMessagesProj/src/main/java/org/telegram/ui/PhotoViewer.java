@@ -10789,7 +10789,9 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                             containerView.invalidate();
                         }
                         updateQualityItems();
-                        setMute(CastSync.isActive() || muteVideo);
+                        if (CastSync.isActive() || muteVideo) {
+                            setMute(true);
+                        }
                         if (!ignorePlayerUpdate) {
                             CastSync.syncPosition(getCurrentPosition());
                             CastSync.setSpeed(getPlaybackSpeed());
@@ -10831,7 +10833,11 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                 @Override
                 public void onStateChanged(boolean playWhenReady, int playbackState) {
                     if (videoPlayer != null) {
-                        videoPlayer.setMute(CastSync.isActive() || muteVideo);
+                        if (CastSync.isActive() || muteVideo) {
+                            videoPlayer.setMute(true);
+                        } else if (firstState && (currentMessageObject == null || currentMessageObject.getFromChatId() != muteVideoForChatId)) {
+                            videoPlayer.setMute(false);
+                        }
                     }
                     if (firstState && videoPlayer != null && videoPlayer.getDuration() != C.TIME_UNSET) {
                         // 030 mark setMute here?

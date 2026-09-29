@@ -121,6 +121,7 @@ public class VideoPlayer implements Player.Listener, VideoListener, AnalyticsLis
 
     private DispatchQueue workerQueue;
     private boolean isStory;
+    private boolean muted = false;
 
     public boolean createdWithAudioTrack() {
         return !audioDisabled;
@@ -278,6 +279,7 @@ public class VideoPlayer implements Player.Listener, VideoListener, AnalyticsLis
             }
             player.setPlayWhenReady(autoplay);
             player.setRepeatMode(looping ? ExoPlayer.REPEAT_MODE_ALL : ExoPlayer.REPEAT_MODE_OFF);
+            player.setVolume(muted ? 0.0f : 1.0f);
         }
         if (mixedAudio) {
             if (audioPlayer == null) {
@@ -295,6 +297,7 @@ public class VideoPlayer implements Player.Listener, VideoListener, AnalyticsLis
                     }
                 });
                 audioPlayer.setPlayWhenReady(autoplay);
+                audioPlayer.setVolume(muted ? 0.0f : 1.0f);
             }
         }
     }
@@ -1518,10 +1521,11 @@ public class VideoPlayer implements Player.Listener, VideoListener, AnalyticsLis
     }
 
     public boolean isMuted() {
-        return player != null && player.getVolume() == 0.0f;
+        return muted;
     }
 
     public void setMute(boolean value) {
+        muted = value;
         if (player != null) {
             player.setVolume(value ? 0.0f : 1.0f);
         }
@@ -1536,6 +1540,7 @@ public class VideoPlayer implements Player.Listener, VideoListener, AnalyticsLis
     }
 
     public void setVolume(float volume) {
+        muted = volume == 0.0f;
         if (player != null) {
             player.setVolume(volume);
         }
@@ -1683,6 +1688,9 @@ public class VideoPlayer implements Player.Listener, VideoListener, AnalyticsLis
     public void onPositionDiscontinuity(Player.PositionInfo oldPosition, Player.PositionInfo newPosition, @Player.DiscontinuityReason int reason) {
         if (reason == Player.DISCONTINUITY_REASON_AUTO_TRANSITION) {
             repeatCount++;
+            if (muted && player != null) {
+                player.setVolume(0.0f);
+            }
         }
     }
 
