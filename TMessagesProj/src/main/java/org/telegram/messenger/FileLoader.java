@@ -1450,6 +1450,41 @@ public class FileLoader extends BaseController {
         return filePathDatabase;
     }
 
+    /**
+     * Same as {@code f} when it exists, otherwise look for the same file name in every
+     * media dir. getPathToMessage() may point at a stale FilePathDatabase entry (custom
+     * public/document name, changed storage path) while the file is already in cache
+     * under its default name, which randomly caused PleaseStreamDownload/PleaseDownload
+     * on save/share. Same pattern as upstream's single CACHE fallback, extended to all dirs.
+     */
+    public static File getExistingFile(File f) {
+        if (f != null && f.exists()) {
+            return f;
+        }
+        if (f == null) {
+            return null;
+        }
+        String name = f.getName();
+        if (TextUtils.isEmpty(name)) {
+            return f;
+        }
+        int[] dirs = new int[]{MEDIA_DIR_CACHE, MEDIA_DIR_IMAGE, MEDIA_DIR_VIDEO, MEDIA_DIR_AUDIO, MEDIA_DIR_DOCUMENT, MEDIA_DIR_FILES};
+        for (int dirType : dirs) {
+            try {
+                File dir = getDirectory(dirType);
+                if (dir == null) {
+                    continue;
+                }
+                File candidate = new File(dir, name);
+                if (candidate.exists()) {
+                    return candidate;
+                }
+            } catch (Exception ignore) {
+            }
+        }
+        return f;
+    }
+
     public static TLRPC.TL_photoStrippedSize getStrippedPhotoSize(ArrayList<TLRPC.PhotoSize> sizes) {
         if (sizes == null) return null;
         for (int i = 0; i < sizes.size(); ++i) {

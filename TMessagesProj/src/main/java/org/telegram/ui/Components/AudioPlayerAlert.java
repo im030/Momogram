@@ -3095,6 +3095,10 @@ public class AudioPlayerAlert extends BottomSheet implements NotificationCenter.
         if (path == null || path.length() == 0) {
             path = FileLoader.getInstance(currentAccount).getPathToMessage(messageObject.messageOwner).toString();
         }
+        File resolved = FileLoader.getExistingFile(path == null ? null : new File(path));
+        if (resolved != null && resolved.exists()) {
+            path = resolved.toString();
+        }
         MediaController.saveFile(path, parentActivity, 3, fileName, messageObject.getDocument() != null ? messageObject.getDocument().mime_type : "", uri -> BulletinFactory.of((FrameLayout) containerView, resourcesProvider).createDownloadBulletin(BulletinFactory.FileType.AUDIO).show());
     }
 
@@ -3112,6 +3116,7 @@ public class AudioPlayerAlert extends BottomSheet implements NotificationCenter.
             if (f == null) {
                 f = FileLoader.getInstance(currentAccount).getPathToMessage(messageObject.messageOwner);
             }
+            f = FileLoader.getExistingFile(f);
 
             if (f.exists()) {
                 Intent intent = new Intent(Intent.ACTION_SEND);

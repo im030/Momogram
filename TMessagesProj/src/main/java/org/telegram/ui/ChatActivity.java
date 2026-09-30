@@ -21038,7 +21038,8 @@ public class ChatActivity extends BaseFragment implements
         if (file != null && !file.exists()) {
             file = FileLoader.getInstance(currentAccount).getPathToMessage(object.messageOwner, true, true);
         }
-        if (!file.exists()) {
+        file = FileLoader.getExistingFile(file);
+        if (file == null || !file.exists()) {
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), themeDelegate);
             builder.setTitle(getString(R.string.AppName));
             builder.setPositiveButton(getString(R.string.OK), null);

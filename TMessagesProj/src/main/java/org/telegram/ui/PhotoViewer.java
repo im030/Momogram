@@ -4705,6 +4705,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                     } else {
                         f = FileLoader.getInstance(currentAccount).getPathToMessage(currentMessageObject.messageOwner);
                     }
+                    f = FileLoader.getExistingFile(f);
 
                     if (f != null && f.exists()) {
                         onSharePressed(true);
@@ -4726,6 +4727,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                         } else {
                             f = FileLoader.getInstance(currentAccount).getPathToMessage(msg.messageOwner);
                         }
+                        f = FileLoader.getExistingFile(f);
 
                         if (f == null || !f.exists()) {
                             showDownloadAlert();
@@ -4818,9 +4820,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
             } else if (pageBlocksAdapter != null) {
                 f = pageBlocksAdapter.getFile(currentIndex);
             }
-            if (f != null && !f.exists()) {
-                f = new File(FileLoader.getDirectory(FileLoader.MEDIA_DIR_CACHE), f.getName());
-            }
+            f = FileLoader.getExistingFile(f);
 
             if (f != null && f.exists()) {
                 Intent intent = new Intent(Intent.ACTION_SEND);
@@ -5110,9 +5110,6 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                             if (MessageObject.getMedia(currentMessageObject.messageOwner) instanceof TLRPC.TL_messageMediaWebPage && MessageObject.getMedia(currentMessageObject.messageOwner).webpage != null && MessageObject.getMedia(currentMessageObject.messageOwner).webpage.document == null) {
                                 TLObject fileLocation = getFileLocation(currentIndex, null);
                                 f = FileLoader.getInstance(currentAccount).getPathToAttach(fileLocation, true);
-                                if (!f.exists()) {
-                                    f = new File(FileLoader.getDirectory(FileLoader.MEDIA_DIR_CACHE), f.getName());
-                                }
                             } else {
                                 f = FileLoader.getInstance(currentAccount).getPathToMessage(currentMessageObject.messageOwner);
                             }
@@ -5133,9 +5130,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                         } else {
                             isVideo = false;
                         }
-                        if (f != null && !f.exists()) {
-                            f = new File(FileLoader.getDirectory(FileLoader.MEDIA_DIR_CACHE), f.getName());
-                        }
+                        f = FileLoader.getExistingFile(f);
 
                         final boolean isLivePhoto = currentMessageObject != null && currentMessageObject.isLivePhoto();
                         File videoFileForLivePhoto = null;
@@ -5193,6 +5188,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                                     } else {
                                         f = FileLoader.getInstance(currentAccount).getPathToMessage(currentMessageObject.messageOwner);
                                     }
+                                    f = FileLoader.getExistingFile(f);
                                     boolean isThisVideo = currentMessageObject.isVideo();
                                     final boolean isThisLivePhoto = currentMessageObject.isLivePhoto();
                                     File videoFileForLivePhoto = null;
@@ -5241,6 +5237,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                                         } else {
                                             f = FileLoader.getInstance(currentAccount).getPathToMessage(msg.messageOwner);
                                         }
+                                        f = FileLoader.getExistingFile(f);
                                         boolean isThisVideo = msg.isVideo();
                                         final boolean isThisLivePhoto = msg.isLivePhoto();
                                         File videoFileForLivePhoto = null;
@@ -5304,6 +5301,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                     } else {
                         isVideo = false;
                     }
+                    f = FileLoader.getExistingFile(f);
                     try {
                         Bitmap bitmap;
                         if (isVideo) {

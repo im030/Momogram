@@ -7182,18 +7182,21 @@ public class PeerStoriesView extends SizeNotifierFrameLayout implements Notifica
 
         public File getPath() {
             if (getLocalPath() != null) {
-                return new File(getLocalPath());
+                File local = new File(getLocalPath());
+                if (local.exists()) {
+                    return local;
+                }
             }
             if (storyItem != null) {
                 if (storyItem.media != null && storyItem.media.getDocument() != null) {
-                    return FileLoader.getInstance(currentAccount).getPathToAttach(storyItem.media.getDocument());
+                    return FileLoader.getExistingFile(FileLoader.getInstance(currentAccount).getPathToAttach(storyItem.media.getDocument()));
                 } else if (storyItem.media != null && storyItem.media.photo != null) {
                     TLRPC.PhotoSize size = FileLoader.getClosestPhotoSizeWithSize(storyItem.media.photo.sizes, Integer.MAX_VALUE);
                     File file = FileLoader.getInstance(currentAccount).getPathToAttach(size, true);
-                    if (!file.exists()) {
+                    if (file == null || !file.exists()) {
                         file = FileLoader.getInstance(currentAccount).getPathToAttach(size, false);
                     }
-                    return file;
+                    return FileLoader.getExistingFile(file);
                 }
             }
             return null;
