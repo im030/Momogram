@@ -344,4 +344,22 @@
     <string name="TranslatorInstanceNote">在线搜索公共终端或自行搭建，不兼容自动翻译功能</string>
     <string name="RecentChats">最近对话</string>
     <string name="TrimCOTFromTranslateResult">隐藏翻译结果中以[COT]开头的思考过程</string>
+    <string name="DebugAntiSpam">调试反垃圾邮件</string>
+    <string name="EnableAvatarBlur">启用头像模糊</string>
+    <string name="KeepVoteCountAfterRetractVote">撤回投票后保留票数</string>
+    <string name="AIDLOnLaunch">启动时绑定 AIDL 服务</string>
+    <string name="HideCocoonAISummary">隐藏 Cocoon AI 摘要</string>
+    <string name="MaliciousClientReasonTest">测试警告</string>
+    <string name="SendWithoutCaption">不带说明发送</string>
+    <string name="AlwaysSaveToDownloads">始终保存到“下载”文件夹</string>
+    <string name="PermUseInlineBots">使用行内机器人</string>
+    <string name="CopyFileRef">复制文件引用</string>
+    <string name="CopyFileRefFailed">无法复制文件引用</string>
+    <string name="CopyFileRefDone">已复制 %1$d 个文件</string>
+    <string name="PasteFileRef">按引用发送文件</string>
+    <string name="AttachCopiedFileRef">是否附上已复制的文件并更新消息？\n（注：仅能附上第一个文件）</string>
+    <string name="ConfirmBamHammer">针对所选发件人：封禁 + 删除所有消息 + 举报垃圾信息？</string>
+    <string name="HigherMinimumMenuHeight">更高的弹出菜单最小高度</string>
+    <string name="HideFAB">隐藏聊天列表中的悬浮按钮</string>
+    <string name="HideMessageSideButtons">隐藏消息旁边的侧边按钮</string>
 </resources>
