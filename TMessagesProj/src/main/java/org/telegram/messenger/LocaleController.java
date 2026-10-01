@@ -801,7 +801,9 @@ public class LocaleController {
                     }
                 }
 
-                currentInfo = LocaleUtil.getSystemDefaultLocaleInfo(currentInfo);
+                if (currentInfo == null) {
+                    currentInfo = LocaleUtil.getSystemDefaultLocaleInfo(null);
+                }
 
                 applyLanguage(currentInfo, override, true, UserConfig.selectedAccount);
             } catch (Exception e) {
