@@ -362,4 +362,13 @@
     <string name="HigherMinimumMenuHeight">زيادة الحد الأدنى لارتفاع القائمة المنبثقة</string>
     <string name="HideFAB">إخفاء الأزرار العائمة في قائمة الدردشة</string>
     <string name="HideMessageSideButtons">إخفاء الزر الجانبي بجوار الرسائل</string>
+    <string name="ConfirmBamHammerName">حظر %1$s وحذف جميع الرسائل من الحساب + الإبلاغ عن محتوى مزعج؟</string>
+    <string name="CantOpenProfile">تعذر فتح الملف الشخصي للمستخدم المستهدف</string>
+    <string name="AntiSpamSettings">مكافحة الرسائل المزعجة</string>
+    <string name="AutoDismissSuggestedChats">الإخفاء التلقائي لاقتراحات إضافة دردشة في المجتمعات (مجموعات)</string>
+    <string name="DebugWarning">قد يؤدي تفعيل خيار تصحيح الأخطاء هذا إلى مشاكل غير متوقعة، هل تريد المتابعة؟</string>
+    <string name="DeleteAfterSend">احذف بعد الإرسال</string>
+    <string name="SwipeLoopChatFilter">تكرار التنقل بين مجلدات الدردشة عند السحب عند أول/آخر مجلد</string>
+    <string name="ConfirmTranslateBeforeSend">تفعيل الترجمة قبل الإرسال للمحادثة الحالية؟ اضغط على هذا النص 10 مرات لتخطي المؤقت.</string>
+    <string name="AutoDismissSuggestedChatsByRule">القواعد المحددة أعلاه</string>
 </resources>
