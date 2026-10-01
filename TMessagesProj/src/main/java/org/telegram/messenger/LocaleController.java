@@ -2993,11 +2993,13 @@ public class LocaleController {
     }
 
     public static String formatShortNumber(int number, int[] rounded) {
-        if (MomoConfig.disableNumberRounding.Bool()) {
+        int roundingMode = MomoConfig.numberRounding.Int();
+        if (roundingMode != 0) {
             if (rounded != null) {
                 rounded[0] = number;
             }
-            return formatNumber(number, ',');
+            boolean comma = (roundingMode == 2);
+            return comma ? formatNumber(number, ',') : String.valueOf(number);
         }
         StringBuilder K = new StringBuilder();
         int lastDec = 0;
