@@ -5,53 +5,33 @@ import static org.telegram.messenger.LocaleController.getString;
 
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentSender;
-import android.content.SharedPreferences;
-import android.content.pm.ResolveInfo;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.os.Build;
 import android.text.TextPaint;
-import android.transition.TransitionManager;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import org.apache.commons.lang3.StringUtils;
-import org.openintents.openpgp.OpenPgpError;
-import org.openintents.openpgp.util.OpenPgpApi;
 import org.telegram.messenger.AndroidUtilities;
-import org.telegram.messenger.ApplicationLoader;
-import org.telegram.messenger.BuildVars;
 import org.telegram.messenger.LocaleController;
-import org.telegram.messenger.MessagesController;
 import org.telegram.messenger.NotificationCenter;
 import org.telegram.messenger.R;
 import org.telegram.messenger.SharedConfig;
-import org.telegram.messenger.UserConfig;
-import org.telegram.tgnet.ConnectionsManager;
 import org.telegram.ui.ActionBar.ActionBar;
 import org.telegram.ui.ActionBar.ActionBarLayout;
-import org.telegram.ui.ActionBar.AlertDialog;
 import org.telegram.ui.ActionBar.INavigationLayout;
 import org.telegram.ui.ActionBar.SimpleTextView;
 import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.ActionBar.ThemeDescription;
-import org.telegram.ui.ArticleViewer;
 import org.telegram.ui.Cells.EmptyCell;
 import org.telegram.ui.Cells.HeaderCell;
 import org.telegram.ui.Cells.NotificationsCheckCell;
@@ -66,21 +46,11 @@ import org.telegram.ui.Components.LayoutHelper;
 import org.telegram.ui.Components.RecyclerListView;
 import org.telegram.ui.Components.SeekBarView;
 import org.telegram.ui.Components.UndoView;
-import org.telegram.ui.LauncherIconController;
-import org.telegram.ui.web.SearchEngine;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.stream.Collectors;
 
-import kotlin.Unit;
 import moe.hx030.momogram.MomoConfig;
-import moe.hx030.momogram.MomoConfig;
-import moe.hx030.momogram.NekoXConfig;
 import moe.hx030.momogram.config.CellGroup;
 import moe.hx030.momogram.config.ConfigItem;
 import moe.hx030.momogram.config.cell.AbstractConfigCell;
@@ -91,14 +61,7 @@ import moe.hx030.momogram.config.cell.ConfigCellSelectBox;
 import moe.hx030.momogram.config.cell.ConfigCellTextCheck;
 import moe.hx030.momogram.config.cell.ConfigCellTextDetail;
 import moe.hx030.momogram.config.cell.ConfigCellTextInput;
-import moe.hx030.momogram.helpers.EvilLeakerKiller;
-import moe.hx030.momogram.transtale.Translator;
-import moe.hx030.momogram.transtale.TranslatorKt;
-import moe.hx030.momogram.ui.BottomBuilder;
-import moe.hx030.momogram.ui.PopupBuilder;
 import moe.hx030.momogram.util.ReflectUtil;
-import moe.hx030.momogram.utils.AlertUtil;
-import moe.hx030.momogram.utils.PGPUtil;
 
 @SuppressLint("RtlHardcoded")
 public class MomoAppearanceSettingsActivity extends MomoSettingsBaseActivity {
@@ -124,7 +87,7 @@ public class MomoAppearanceSettingsActivity extends MomoSettingsBaseActivity {
     // private final AbstractConfigCell avatarBackgroundBlurRow = cellGroup.appendCell(new ConfigCellTextCheck(MomoConfig.disableAppBarShadow));
     private final AbstractConfigCell squareAvatarRow = cellGroup.appendCell(new ConfigCellTextCheck(MomoConfig.squareAvatar));
     private final AbstractConfigCell hideBottomNavTabsRow = cellGroup.appendCell(new ConfigCellTextCheck(MomoConfig.hideBottomNavTabs));
-    private final AbstractConfigCell disableNumberRoundingRow = cellGroup.appendCell(new ConfigCellTextCheck(MomoConfig.disableNumberRounding, "4.8K -> 4777"));
+    private final AbstractConfigCell disableNumberRoundingRow = cellGroup.appendCell(new ConfigCellSelectBox(null, MomoConfig.numberRounding, MomoConfig.disableNumberRoundingOptions, null));
     private final AbstractConfigCell nameOrderRow = cellGroup.appendCell(new ConfigCellSelectBox(null, MomoConfig.nameOrder, new String[]{
             LocaleController.getString(R.string.LastFirst),
             LocaleController.getString(R.string.FirstLast)

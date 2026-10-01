@@ -209,6 +209,8 @@ public class MomoConfig {
     public static ConfigItem showIdAndDc = addConfig(R.string.ShowIdAndDc, "ShowIdAndDc", configTypeBool, APPEARANCE, false);
     public static ConfigItem tabsTitleType = addConfig(R.string.TabTitleType, "TabTitleType", configTypeInt, APPEARANCE, NekoXConfig.TITLE_TYPE_TEXT);
     public static ConfigItem disableNumberRounding = addConfig(R.string.DisableNumberRounding, "DisableNumberRounding", configTypeBool, APPEARANCE, false);
+    public static ConfigItem numberRounding = addConfig(R.string.NumRounding, "NumberRounding", configTypeInt, APPEARANCE, 0);
+    public static String[] disableNumberRoundingOptions = null;
     public static ConfigItem usePersianCalendar = addConfig(R.string.UsePersiancalendar, "UsePersiancalendar", configTypeBool, APPEARANCE, false);
     public static ConfigItem displayPersianCalendarByLatin = addConfig(R.string.DisplayPersianCalendarByLatin, "DisplayPersianCalendarByLatin", configTypeBool, APPEARANCE, false);
     public static ConfigItem showSelfInsteadOfSavedMessages = addConfig(R.string.ShowSelfInsteadOfSavedMessages, "ShowSelfInsteadOfSavedMessages", ConfigItem.configTypeBool, APPEARANCE, false);
@@ -582,6 +584,13 @@ public class MomoConfig {
             bufferCleaner.setConfigBool(true);
         }
 
+        if (migrate030.Int() < 8) {
+            migrate030.setConfigInt(8);
+            if (disableNumberRounding.Bool()) {
+                numberRounding.setConfigInt(1);
+            }
+        }
+
 
 
         // TODO remove this after some versions.
@@ -838,6 +847,11 @@ public class MomoConfig {
                 getString(R.string.Disable),
                 getString(R.string.AllChatsShort),
                 getString(R.string.AutoDismissSuggestedChatsByRule)
+        };
+        disableNumberRoundingOptions = new String[] {
+                getString(R.string.Enable),
+                getString(R.string.DisableNumRounding),
+                getString(R.string.DisableNumRoundingWithCommas)
         };
         applyHideMsgRegex();
         applyAutoBanByRegex();
