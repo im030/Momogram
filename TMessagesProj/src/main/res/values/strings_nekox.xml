@@ -379,4 +379,5 @@
     <string name="NumRounding">Number rounding</string>
     <string name="DisableNumRounding">Disable rounding</string>
     <string name="DisableNumRoundingWithCommas">Add commas instead</string>
+    <string name="ApplyAutoModToJoinMsgs">Apply rules above for join messages</string>
 </resources>

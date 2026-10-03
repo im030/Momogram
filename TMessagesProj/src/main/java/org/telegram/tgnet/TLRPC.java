@@ -20,6 +20,7 @@ import android.util.Log;
 import android.util.SparseArray;
 
 import androidx.annotation.Keep;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.gson.annotations.SerializedName;
 
@@ -21499,6 +21500,12 @@ public class TLRPC {
                     return null;
             }
         }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return String.format("%s(%s - %d - %d)", first_name, username, id, hashCode());
+        }
     }
 
     public static class TL_userContact_old2 extends User {
@@ -39039,6 +39046,12 @@ public class TLRPC {
             newRights.pin_messages = rights.pin_messages;
             newRights.add_admins = rights.add_admins;
             return newRights;
+        }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return String.format("%s(%s - %d - %d)", title, username, id, hashCode());
         }
     }
 

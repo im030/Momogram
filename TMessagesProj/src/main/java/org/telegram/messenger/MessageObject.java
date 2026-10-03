@@ -126,6 +126,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -136,6 +137,7 @@ import me.vkryl.core.BitwiseUtils;
 import moe.hx030.momogram.MomoConfig;
 import moe.hx030.momogram.MomoConfig;
 import moe.hx030.momogram.NekoXConfig;
+import moe.hx030.momogram.util.ModUtil;
 import moe.hx030.momogram.utils.PGPUtil;
 
 public class MessageObject {
@@ -322,6 +324,7 @@ public class MessageObject {
     public boolean checkedPgpMsg = false;
     
     public int richMessageMediaType;
+    private boolean checked = !MomoConfig.applyAutoModToJoinMsgs.Bool();
 
     public int getChatMode() {
         if (scheduled) {
@@ -4938,6 +4941,7 @@ public class MessageObject {
                     }
 
                 } else if (messageOwner.action instanceof TLRPC.TL_messageActionChatAddUser) {
+                    int scanUser = 0;
                     long singleUserId = messageOwner.action.user_id;
                     if (singleUserId == 0 && messageOwner.action.users.size() == 1) {
                         singleUserId = messageOwner.action.users.get(0);
@@ -4957,11 +4961,13 @@ public class MessageObject {
                                     if (singleUserId == UserConfig.getInstance(currentAccount).getClientUserId()) {
                                         messageText = getString(R.string.ChannelMegaJoined);
                                     } else {
+                                        if (MomoConfig.applyAutoModToJoinMsgs.Bool()) scanUser = 1;
                                         messageText = replaceWithLink(getString(R.string.ActionAddUserSelfMega), "un1", fromObject);
                                     }
                                 } else if (isOut()) {
                                     messageText = getString(R.string.ActionAddUserSelfYou);
                                 } else {
+                                    if (MomoConfig.applyAutoModToJoinMsgs.Bool()) scanUser = 1;
                                     messageText = replaceWithLink(getString(R.string.ActionAddUserSelf), "un1", fromObject);
                                 }
                             }
@@ -4979,6 +4985,7 @@ public class MessageObject {
                                     messageText = replaceWithLink(getString(R.string.ActionAddUserYou), "un1", fromObject);
                                 }
                             } else {
+                                if (MomoConfig.applyAutoModToJoinMsgs.Bool()) scanUser = 2;
                                 messageText = replaceWithLink(getString(R.string.ActionAddUser), "un2", whoUser);
                                 messageText = replaceWithLink(messageText, "un1", fromObject);
                             }
@@ -4987,8 +4994,46 @@ public class MessageObject {
                         if (isOut()) {
                             messageText = replaceWithLink(getString(R.string.ActionYouAddUser), "un2", messageOwner.action.users, users, sUsers);
                         } else {
+                            if (MomoConfig.applyAutoModToJoinMsgs.Bool()) scanUser = 2;
                             messageText = replaceWithLink(getString(R.string.ActionAddUser), "un2", messageOwner.action.users, users, sUsers);
                             messageText = replaceWithLink(messageText, "un1", fromObject);
+                        }
+                    }
+                    if (scanUser > 0 && !checked) {
+                        checked = true;
+                        MessagesController controller = MessagesController.getInstance(currentAccount);
+                        boolean ban = ChatObject.canBlockUsers(controller.getChat(getChatId()));
+                        boolean del = ChatObject.canUserDoAdminAction(controller.getChat(getChatId()), ChatObject.ACTION_DELETE_MESSAGES);
+                        if (!ban && !del) return;
+                        if (fromObject instanceof TLRPC.User u) {
+                            int finalScanUser = scanUser;
+                            Utilities.stageQueue.postRunnable(() -> {
+                                ModUtil.scanUser(currentAccount, getChatId(), u, (r) -> {
+                                    if (r > 0) {
+                                        ModUtil.bamHammer(currentAccount, u, controller.getChat(getChatId()), finalScanUser == 2 ? null : this);
+                                        if (r == ModUtil.SCAN_DISMISS) {
+                                            controller.unbanUserFromChat(getChatId(), u, null);
+                                        }
+                                    }
+                                });
+                            });
+                            if (scanUser == 2) {
+                                Optional<Long> id = messageOwner.action.users.stream().filter(x -> x != u.id).findFirst();
+                                if (!id.isEmpty()) {
+                                    Utilities.stageQueue.postRunnable(() -> {
+                                        TLRPC.User u2 = (users == null) ? null : users.get(id.get());
+                                        if (u2 == null && sUsers != null) sUsers.get(id.get());
+                                        ModUtil.scanUser(currentAccount, getChatId(), (u2 == null ? controller.getUser(id.get()) : u2), (r) -> {
+                                            if (r > 0) {
+                                                ModUtil.bamHammer(currentAccount, u2, controller.getChat(getChatId()), this);
+                                                if (r == ModUtil.SCAN_DISMISS) {
+                                                    controller.unbanUserFromChat(getChatId(), u, null);
+                                                }
+                                            }
+                                        });
+                                    });
+                                }
+                            }
                         }
                     }
                 } else if (messageOwner.action instanceof TLRPC.TL_messageActionChatJoinedViaCommunity) {

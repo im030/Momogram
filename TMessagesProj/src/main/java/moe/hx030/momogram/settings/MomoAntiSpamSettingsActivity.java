@@ -105,6 +105,7 @@ public class MomoAntiSpamSettingsActivity extends MomoSettingsBaseActivity {
     private final AbstractConfigCell autoBanDelAccBioFromReqRow = cellGroup.appendCell(new ConfigCellTextCheck(MomoConfig.autoDismissJoinReqBio));
     private final AbstractConfigCell autoBanNameUseOpenCCRow = cellGroup.appendCell(new ConfigCellTextCheck(MomoConfig.autoDismissNameUseOpenCC));
     private final AbstractConfigCell autoDismissDummyRow = cellGroup.appendCell(new ConfigCellTextCheck(MomoConfig.autoDismissDummy));
+    private final AbstractConfigCell applyAutoModToJoinMsgsRow = cellGroup.appendCell(new ConfigCellTextCheck(MomoConfig.applyAutoModToJoinMsgs));
     private final AbstractConfigCell autoDismissSuggestedChatsRow = cellGroup.appendCell(new ConfigCellSelectBox(LocaleController.getString(R.string.AutoDismissSuggestedChats),
             MomoConfig.autoDismissSuggestedChats, MomoConfig.autoDismissSuggestedChatsOptions, null));
     private final AbstractConfigCell triggerFilterRow = cellGroup.appendCell(new ConfigCellSelectBox(LocaleController.getString(R.string.TriggerFilterForAllStoredChats), null, null,
