@@ -10,14 +10,17 @@ import android.util.LongSparseArray;
 import org.apache.commons.lang3.function.TriConsumer;
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.ApplicationLoader;
+import org.telegram.messenger.ChatObject;
 import org.telegram.messenger.ImageLocation;
 import org.telegram.messenger.LocaleController;
 import org.telegram.messenger.MemberRequestsController;
+import org.telegram.messenger.MessageObject;
 import org.telegram.messenger.MessagesController;
 import org.telegram.messenger.MessagesStorage;
 import org.telegram.messenger.R;
 import org.telegram.messenger.Utilities;
 import org.telegram.tgnet.ConnectionsManager;
+import org.telegram.tgnet.TLObject;
 import org.telegram.tgnet.TLRPC;
 import org.telegram.tgnet.tl.TL_communities;
 import org.telegram.ui.ActionBar.BaseFragment;
@@ -37,6 +40,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 import moe.hx030.momogram.MomoConfig;
@@ -50,6 +54,11 @@ public class ModUtil {
 
     public static SharedPreferences modCache = ApplicationLoader.applicationContext
             .getSharedPreferences("momo_mod", Context.MODE_PRIVATE);
+
+    public static final int SCAN_SKIP = -1;
+    public static final int SCAN_PASS = 0;
+    public static final int SCAN_DISMISS = 1;
+    public static final int SCAN_BAN = 2;
 
     public static void filterJoinRequestsJob(boolean scheduled) {
         Log.d("030-mod", "filterJoinRequestsJob invoked");
@@ -145,30 +154,25 @@ public class ModUtil {
         final ArrayList<TLRPC.TL_chatInviteImporter> finalImporters = new ArrayList<>();
         for (TLRPC.TL_chatInviteImporter i : importers.importers) {
             TLRPC.User u = currentUsers.get(i.user_id);
-            if (u == null) continue;
-            if (dummy && TextUtils.isEmpty(u.username) && !ImageLocation.isUserHasPhoto(u)) {
-                dismissJoinRequest(currentAccount, chatId, i, u);
-                dismissed.addAndGet(1);
-            } else if (u.deleted || (regex &&
-                    FilterUtils.checkName(MomoConfig.autoDismissRegexPattern, u.first_name, u.last_name, useOpenCC)) ||
-                    (bio && FilterUtils.checkString(MomoConfig.autoDismissRegexPattern, i.about, useOpenCC))) {
-
-                if (bannedUserIds.contains(u.id)) continue;
-                bannedUserIds.add(u.id);
-
-                dismissJoinRequest(currentAccount, chatId, i, u);
-                MessagesController.getInstance(currentAccount).banUserFromChat(chatId, u, (response, error) -> {
-                    if (error != null) {
-                        Log.e("030-filterJoinReq", String.format("ban err %d: %s", error.code, error.text));
-                    } else {
-                        Log.d("030-filterJoinReq", String.format("banned %d %s", u.id, u.first_name));
-                    }
-                });
-                banned.addAndGet(1);
-            } else {
-                boolean match = MomoConfig.autoDismissRegexPattern.matcher(u.first_name).find();
-                Log.d("030-filterJoinReq", String.format("passed, DA=%s regex=%s match=%s first_name=%s", u.deleted, regex, match, u.first_name));
-                finalImporters.add(i);
+            switch (scanUser(currentAccount, chatId, u, i.about, dummy, regex, bio, useOpenCC)) {
+                case SCAN_PASS:
+                    finalImporters.add(i);
+                    break;
+                case SCAN_DISMISS:
+                    dismissJoinRequest(currentAccount, chatId, i, u);
+                    dismissed.addAndGet(1);
+                    break;
+                case SCAN_BAN:
+                    dismissJoinRequest(currentAccount, chatId, i, u);
+                    MessagesController.getInstance(currentAccount).banUserFromChat(chatId, u, (response, error) -> {
+                        if (error != null) {
+                            Log.e("030-filterJoinReq", String.format("ban err %d: %s", error.code, error.text));
+                        } else if (u != null) {
+                            Log.d("030-filterJoinReq", String.format("banned %d %s", u.id, u.first_name));
+                        }
+                    });
+                    banned.addAndGet(1);
+                    break;
             }
         }
         importers.importers = finalImporters;
@@ -178,6 +182,39 @@ public class ModUtil {
             scheduleShowStats();
         }
         return importers;
+    }
+
+    public static int scanUser(int currentAccount, long chatId, TLRPC.User u, Consumer<Integer> callback) {
+        if (u == null) return SCAN_PASS;
+        final boolean bio = MomoConfig.autoDismissJoinReqBio.Bool();
+        final boolean dummy = MomoConfig.autoDismissDummy.Bool();
+        final boolean regex = MomoConfig.autoDismissRegexPattern != null;
+        final boolean useOpenCC = MomoConfig.autoDismissNameUseOpenCC.Bool();
+        TLRPC.UserFull uf = MessagesController.getInstance(currentAccount).getUserFull(u.id);
+        if (uf == null) {
+            MessagesController.getInstance(currentAccount).loadFullUser(u, 0, true, (full) -> {
+                int res = scanUser(currentAccount, chatId, u, full.about, dummy, regex, bio, useOpenCC);
+                callback.accept(res);
+            });
+            return SCAN_SKIP;
+        }
+        String bioStr = uf.about;
+        int r = scanUser(currentAccount, chatId, u, bioStr, dummy, regex, bio, useOpenCC);
+        callback.accept(r);
+        return r;
+    }
+
+    public static int scanUser(int currentAccount, long chatId, TLRPC.User u, String bioStr, boolean dummy, boolean regex, boolean bio, boolean useOpenCC) {
+        if (u == null) return SCAN_PASS;
+        if (dummy && TextUtils.isEmpty(u.username) && !ImageLocation.isUserHasPhoto(u)) {
+            return SCAN_DISMISS;
+        } else if (u.deleted || (regex &&
+                FilterUtils.checkName(MomoConfig.autoDismissRegexPattern, u.first_name, u.last_name, useOpenCC)) ||
+                (bio && FilterUtils.checkString(MomoConfig.autoDismissRegexPattern, bioStr, useOpenCC))) {
+            return SCAN_BAN;
+        } else {
+            return SCAN_PASS;
+        }
     }
 
     private static void dismissJoinRequest(int currentAccount, long chatId, TLRPC.TL_chatInviteImporter i, TLRPC.User u) {
@@ -327,5 +364,51 @@ public class ModUtil {
     private static void scheduleShowStats() {
         ApplicationLoader.applicationHandler.removeCallbacks(showStats);
         ApplicationLoader.applicationHandler.postDelayed(showStats, 1000);
+    }
+
+    public static void bamHammer(int currentAccount, TLObject target, TLRPC.Chat currentChat, MessageObject selectedObject) {
+        // ban
+        if (target == null) {
+            Log.e("030-mod", "no target");
+            return;
+        }
+        MessagesController.getInstance(currentAccount).banUserFromChat(currentChat.id, target, (r, e) -> {
+            if (e == null) return;
+            Log.e("030-bam", String.format("attempt to ban %s from dialog %d failed, %d %s", target, currentChat.id, e.code, e.text));
+        });
+
+        // report
+        if (selectedObject != null) {
+            TLRPC.TL_channels_reportSpam req = new TLRPC.TL_channels_reportSpam();
+            req.channel = MessagesController.getInputChannel(currentChat);
+            if (target instanceof TLRPC.User) {
+                req.participant = MessagesController.getInputPeer((TLRPC.User) target);
+            } else if (target instanceof TLRPC.Chat) {
+                req.participant = MessagesController.getInputPeer((TLRPC.Chat) target);
+            }
+            ArrayList<Integer> msgId = new ArrayList<>();
+            msgId.add(selectedObject.getId());
+            req.id = msgId;
+            ConnectionsManager.getInstance(currentAccount).sendRequest(req, (r, e) -> {
+                if (e == null) return;
+                Log.e("030-bam", String.format("attempt to report spam for %s from dialog %d failed, %d %s", target, currentChat.id, e.code, e.text));
+            });
+        }
+
+        // delete all msgs + reactions
+        if (target instanceof TLRPC.User) {
+            MessagesController.getInstance(currentAccount)
+                    .deleteUserChannelHistory(currentChat, (TLRPC.User) target, null, 0);
+        } else if (target instanceof TLRPC.Chat) {
+            MessagesController.getInstance(currentAccount)
+                    .deleteUserChannelHistory(currentChat, null, (TLRPC.Chat) target, 0);
+        }
+        if (target instanceof TLRPC.User) {
+            MessagesController.getInstance(currentAccount)
+                    .deleteUserChannelAllReactions(currentChat, (TLRPC.User) target, null);
+        } else if (target instanceof TLRPC.Chat) {
+            MessagesController.getInstance(currentAccount)
+                    .deleteUserChannelAllReactions(currentChat, null, (TLRPC.Chat) target);
+        }
     }
 }

@@ -423,6 +423,7 @@ public class MomoConfig {
     public static ConfigItem autoDismissJoinReq = addConfig(R.string.AutoDismissJoinReq, "AutoDismissJoinReq", configTypeBool, ANTI_SPAM, false);
     public static ConfigItem autoDismissJoinReqBio = addConfig(R.string.AutoDismissJoinReqBio, "AutoDismissJoinReqBio", configTypeBool, ANTI_SPAM, false);
     public static ConfigItem autoDismissNameUseOpenCC = addConfig(R.string.AutoDismissUseOpenCC, "AutoDismissNameUseOpenCC", configTypeBool, ANTI_SPAM, false);
+    public static ConfigItem applyAutoModToJoinMsgs = addConfig(R.string.ApplyAutoModToJoinMsgs, "ApplyAutoModToJoinMsgs", configTypeBool, ANTI_SPAM, false);
     public static ConfigItem autoDismissRegex = addConfig(R.string.AutoDismissReqRegex, "AutoDismissReqRegex", configTypeString, ANTI_SPAM,
             "群发|纸飞机|跑U|棋牌|招商|变现|群發|稳赚|全网").setOnConfigChanged(MomoConfig::applyAutoBanByRegex);
     public static ConfigItem autoDismissDummy = addConfig(R.string.AutoDismissReqDummy, "AutoDismissReqDummy", configTypeBool, ANTI_SPAM, false);

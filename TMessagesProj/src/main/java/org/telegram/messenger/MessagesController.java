@@ -25084,6 +25084,26 @@ public class MessagesController extends BaseController implements NotificationCe
         return ret;
     }
 
+    public void unbanUserFromChat(long chatId, TLObject user, RequestDelegate delegate) {
+        TLRPC.TL_channels_editBanned req = new TLRPC.TL_channels_editBanned();
+        req.participant = getInputPeer(user);
+        req.channel = getMessagesController().getInputChannel(chatId);
+        req.banned_rights = new TLRPC.TL_chatBannedRights();
+        getConnectionsManager().sendRequest(req, (response, error) -> {
+            if (response != null) {
+                final TLRPC.Updates updates = (TLRPC.Updates) response;
+                getMessagesController().processUpdates(updates, false);
+                if (!updates.chats.isEmpty()) {
+                    AndroidUtilities.runOnUIThread(() -> {
+                        TLRPC.Chat chat = updates.chats.get(0);
+                        getMessagesController().loadFullChat(chat.id, 0, true);
+                    }, 1000);
+                }
+            }
+            if (delegate != null) delegate.run(response, error);
+        });
+    }
+
     public void banUserFromChat(long chatId, TLObject user, RequestDelegate delegate) {
         TLRPC.TL_channels_editBanned req = new TLRPC.TL_channels_editBanned();
         req.channel = getInputChannel(chatId);
