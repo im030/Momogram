@@ -3962,7 +3962,7 @@ public class ChatActivityEnterView extends FrameLayout implements
     }
 
     public void createSuggestionButton() {
-        if (suggestButton != null) {
+        if (suggestButton != null || MomoConfig.removePremiumAnnoyance.Bool()) {
             return;
         }
 
@@ -3989,6 +3989,7 @@ public class ChatActivityEnterView extends FrameLayout implements
     private boolean suggestButtonVisible;
     private ValueAnimator suggestButtonAppear;
     public void setSuggestionButtonVisible(boolean visible, boolean animated) {
+        if (MomoConfig.removePremiumAnnoyance.Bool()) return;
         if (suggestButtonVisible == visible && animated) return;
         if (suggestButton == null) {
             if (visible || isLiveComment) {
@@ -4025,18 +4026,23 @@ public class ChatActivityEnterView extends FrameLayout implements
                 public void onAnimationEnd(Animator animation) {
                     if (isLiveComment) {
                         suggestButton.setVisibility(visible ? View.VISIBLE : View.GONE);
+                        updateAttachButtonTranslationX();
                     }
                 }
             });
             suggestButtonAppear.setDuration(220);
             suggestButtonAppear.setInterpolator(CubicBezierInterpolator.EASE_OUT_QUINT);
             suggestButtonAppear.start();
+            if (isLiveComment) {
+                updateAttachButtonTranslationX();
+            }
         } else {
             suggestButton.setScaleX(s);
             suggestButton.setScaleY(s);
             suggestButton.setAlpha(alpha);
             if (isLiveComment) {
                 suggestButton.setVisibility(visible ? View.VISIBLE : View.GONE);
+                updateAttachButtonTranslationX();
             }
         }
 
@@ -6586,6 +6592,11 @@ public class ChatActivityEnterView extends FrameLayout implements
                 return false;
             }
         });
+        messageEditText.setOnFocusChangeListener((v, hasFocus) -> {
+            if (isLiveComment) {
+                updateLiveCommentAttachState();
+            }
+        });
         messageEditText.addTextChangedListener(new TextWatcher() {
 
             private boolean processChange;
@@ -7962,9 +7973,14 @@ public class ChatActivityEnterView extends FrameLayout implements
             attachButton.setTag(1);
 
             fromRes = R.drawable.deproko_baseline_attach_26;
-            targetRes = R.drawable.ic_ab_other;
+            targetRes = isLiveComment ? fromRes : R.drawable.ic_ab_other;
 
-            attachButton.setOnClickListener(this::onMenuClick);
+            attachButton.setOnClickListener(isLiveComment ? v -> {
+                if (adjustPanLayoutHelper != null && adjustPanLayoutHelper.animationInProgress()) {
+                    return;
+                }
+                delegate.didPressAttachButton();
+            } : this::onMenuClick);
             attachButton.setContentDescription(LocaleController.getString(R.string.AccDescrChatAttachEnterMenu));
             if (delegate != null)
                 delegate.onAttachButtonHidden();
@@ -9482,7 +9498,7 @@ public class ChatActivityEnterView extends FrameLayout implements
                     scheduledButton.setScaleY(1.0f);
                 }
             }
-        } else if (message.length() > 0 || forceShowSendButton || richDraftActive || audioToSend != null || videoToSendMessageObject != null || slowModeTimer == Integer.MAX_VALUE && !isSlowModeIgnored() || isLiveComment && getStarsPrice() > 0 || animatorIsBlockedByStreaming.getValue()) {
+        } else if (message.length() > 0 || forceShowSendButton || richDraftActive || audioToSend != null || videoToSendMessageObject != null || slowModeTimer == Integer.MAX_VALUE && !isSlowModeIgnored() || (isLiveComment && MomoConfig.removePremiumAnnoyance.Bool()) || animatorIsBlockedByStreaming.getValue()) {
             shownSendButton = true;
             final String caption = messageEditText == null ? null : messageEditText.getCaption();
             boolean showBotButton = caption != null && (getSendButtonInternal().getVisibility() == VISIBLE || expandStickersButton != null && expandStickersButton.getVisibility() == VISIBLE);
@@ -9500,9 +9516,11 @@ public class ChatActivityEnterView extends FrameLayout implements
                 Theme.setSelectorDrawableColor(sendButton.getBackground(), Color.argb(24, Color.red(color), Color.green(color), Color.blue(color)), true);
             }
 
-            if (audioVideoButtonContainer.getVisibility() == VISIBLE || slowModeButton.getVisibility() == VISIBLE || showBotButton || showSendButton || animatorIsBlockedByStreaming.getValue()) {
+            if (audioVideoButtonContainer.getVisibility() == VISIBLE || slowModeButton.getVisibility() == VISIBLE || showBotButton || showSendButton || animatorIsBlockedByStreaming.getValue() || (isLiveComment && (getSendButtonInternal().getVisibility() != VISIBLE || getSendButtonInternal().getAlpha() < 0.5f))) {
                 if (animated) {
                     if (runningAnimationType == 1 && caption == null || runningAnimationType == 3 && caption != null) {
+                        updateSuggestButtonTranslation(shownSendButton, true);
+                        updateLiveCommentAttachState();
                         return;
                     }
                     if (runningAnimation != null) {
@@ -9935,6 +9953,8 @@ public class ChatActivityEnterView extends FrameLayout implements
         ) {
             if (animated) {
                 if (runningAnimationType == 2) {
+                    updateSuggestButtonTranslation(false, true);
+                    updateLiveCommentAttachState();
                     return;
                 }
 
@@ -10027,7 +10047,7 @@ public class ChatActivityEnterView extends FrameLayout implements
                     }
                 }
 
-                audioVideoButtonContainer.setVisibility(VISIBLE);
+                audioVideoButtonContainer.setVisibility(isLiveComment ? GONE : VISIBLE);
                 runningAnimation = new AnimatorSet();
                 runningAnimationType = 2;
 
@@ -10042,9 +10062,11 @@ public class ChatActivityEnterView extends FrameLayout implements
                     alpha = userFull.voice_messages_forbidden ? 0.5f : 1.0f;
                 }
 
-                animators.add(ObjectAnimator.ofFloat(audioVideoSendButton, View.SCALE_X, 1f));
-                animators.add(ObjectAnimator.ofFloat(audioVideoSendButton, View.SCALE_Y, 1f));
-                animators.add(ObjectAnimator.ofFloat(audioVideoSendButton, View.ALPHA, alpha));
+                if (!isLiveComment) {
+                    animators.add(ObjectAnimator.ofFloat(audioVideoSendButton, View.SCALE_X, 1f));
+                    animators.add(ObjectAnimator.ofFloat(audioVideoSendButton, View.SCALE_Y, 1f));
+                    animators.add(ObjectAnimator.ofFloat(audioVideoSendButton, View.ALPHA, alpha));
+                }
                 if (cancelBotButton.getVisibility() == VISIBLE) {
                     animators.add(ObjectAnimator.ofFloat(cancelBotButton, View.SCALE_X, 0.1f));
                     animators.add(ObjectAnimator.ofFloat(cancelBotButton, View.SCALE_Y, 0.1f));
@@ -10058,9 +10080,7 @@ public class ChatActivityEnterView extends FrameLayout implements
                     animators.add(ObjectAnimator.ofFloat(slowModeButton, View.SCALE_Y, 0.1f));
                     animators.add(ObjectAnimator.ofFloat(slowModeButton, View.ALPHA, 0.0f));
                 } else {
-                    animators.add(ObjectAnimator.ofFloat(getSendButtonInternal(), View.SCALE_X, 0.1f));
-                    animators.add(ObjectAnimator.ofFloat(getSendButtonInternal(), View.SCALE_Y, 0.1f));
-                    animators.add(ObjectAnimator.ofFloat(getSendButtonInternal(), View.ALPHA, 0.0f));
+                    animators.add(animateSendButton(false));
                 }
 
                 runningAnimation.playTogether(animators);
@@ -10074,7 +10094,7 @@ public class ChatActivityEnterView extends FrameLayout implements
                             runningAnimationType = 0;
 
                             if (audioVideoButtonContainer != null) {
-                                audioVideoButtonContainer.setVisibility(VISIBLE);
+                                audioVideoButtonContainer.setVisibility(isLiveComment ? GONE : VISIBLE);
                             }
                         }
                     }
@@ -10106,10 +10126,10 @@ public class ChatActivityEnterView extends FrameLayout implements
                     expandStickersButton.setAlpha(0.0f);
                     expandStickersButton.setVisibility(GONE);
                 }
-                audioVideoSendButton.setScaleX(1.0f);
-                audioVideoSendButton.setScaleY(1.0f);
-                audioVideoSendButton.setAlpha(1.0f);
-                audioVideoButtonContainer.setVisibility(VISIBLE);
+                audioVideoSendButton.setScaleX(isLiveComment ? 0.1f : 1.0f);
+                audioVideoSendButton.setScaleY(isLiveComment ? 0.1f : 1.0f);
+                audioVideoSendButton.setAlpha(isLiveComment ? 0.0f : 1.0f);
+                audioVideoButtonContainer.setVisibility(isLiveComment ? GONE : VISIBLE);
                 if (attachLayout != null) {
                     if (getVisibility() == VISIBLE) {
                         delegate.onAttachButtonShow();
@@ -10148,13 +10168,51 @@ public class ChatActivityEnterView extends FrameLayout implements
             }
         }
         if (isStories && suggestButton != null) {
-            if (animated) {
-                suggestButton.animate().translationX(shownSendButton ? -Math.max(0, sendButton.width() - dp(64)) : dp(42)).setDuration(320).setInterpolator(CubicBezierInterpolator.EASE_OUT_QUINT).start();
-            } else {
-                suggestButton.setTranslationX(shownSendButton ? -Math.max(0, sendButton.width() - dp(64)) : dp(42));
-            }
+            updateSuggestButtonTranslation(shownSendButton, animated);
+        }
+        updateLiveCommentAttachState();
+        if (isLiveComment && MomoConfig.removePremiumAnnoyance.Bool() && sendButton != null) {
+            sendButton.invalidate();
         }
         scheduleSyncActionButtonsState();
+    }
+
+    private void updateSuggestButtonTranslation(boolean shownSendButton, boolean animated) {
+        if (!isStories || suggestButton == null) return;
+        float target = shownSendButton ? -Math.max(0, sendButton.width() - dp(64)) : dp(42);
+        if (Math.abs(suggestButton.getTranslationX() - target) >= 1) {
+            if (animated) {
+                suggestButton.animate().translationX(target).setDuration(320).setInterpolator(CubicBezierInterpolator.EASE_OUT_QUINT).start();
+            } else {
+                suggestButton.setTranslationX(target);
+            }
+        }
+        if (isLiveComment && attachButton != null && attachButton.getVisibility() == VISIBLE) {
+            float attachTarget = attachLayoutPaddingTranslationX + attachLayoutTranslationX + target - dp(6 + DEFAULT_HEIGHT) - dp(2);
+            if (Math.abs(attachButton.getTranslationX() - attachTarget) >= 1) {
+                if (animated) {
+                    attachButton.animate().translationX(attachTarget).setDuration(320).setInterpolator(CubicBezierInterpolator.EASE_OUT_QUINT).start();
+                } else {
+                    attachButton.setTranslationX(attachTarget);
+                }
+            }
+        }
+    }
+
+    private boolean shouldShowLiveCommentAttach() {
+        if (!isLiveComment || attachButton == null || messageEditText == null) return false;
+        if (!messageEditText.isFocused()) return false;
+        CharSequence text = messageEditText.getTextToUse();
+        return text == null || AndroidUtilities.getTrimmedString(text).length() == 0;
+    }
+
+    private void updateLiveCommentAttachState() {
+        if (!isLiveComment || attachButton == null) return;
+        boolean show = shouldShowLiveCommentAttach();
+        attachButton.setVisibility(show ? VISIBLE : GONE);
+        if (show) {
+            updateAttachButtonTranslationX();
+        }
     }
 
     private void setSlowModeButtonVisible(boolean visible) {
@@ -16527,7 +16585,14 @@ public class ChatActivityEnterView extends FrameLayout implements
     }
 
     private void syncActionButtonsState() {
-        if (audioVideoButtonContainer != null && audioVideoButtonContainer.getVisibility() == VISIBLE) {
+        if (isLiveComment) {
+            if (audioVideoButtonContainer != null) {
+                audioVideoButtonContainer.setVisibility(GONE);
+            }
+            if (audioVideoSendButton != null) {
+                audioVideoSendButton.setVisibility(GONE);
+            }
+        } else if (audioVideoButtonContainer != null && audioVideoButtonContainer.getVisibility() == VISIBLE) {
             audioVideoButtonContainer.setScaleX(1f);
             audioVideoButtonContainer.setScaleY(1f);
             audioVideoButtonContainer.setAlpha(1f);
@@ -16542,10 +16607,14 @@ public class ChatActivityEnterView extends FrameLayout implements
             attachLayout.setScaleX(1f);
             updateAttachLayoutParams();
             if (attachButton != null && attachButtonAlpha > 0f) {
-                attachButton.setVisibility(VISIBLE);
-                attachButton.setScaleX(1f);
-                attachButton.setScaleY(1f);
-                attachButton.setAlpha(attachButtonAlpha);
+                if (isLiveComment && !shouldShowLiveCommentAttach()) {
+                    attachButton.setVisibility(GONE);
+                } else {
+                    attachButton.setVisibility(VISIBLE);
+                    attachButton.setScaleX(1f);
+                    attachButton.setScaleY(1f);
+                    attachButton.setAlpha(attachButtonAlpha);
+                }
             }
         }
     }
@@ -16556,11 +16625,17 @@ public class ChatActivityEnterView extends FrameLayout implements
     }
 
     private boolean isSendButtonEnabled() {
-        return sendButtonEnabled && streamingState != BotForumHelper.SteamingSendButtonState.BLOCKING;
+        return sendButtonEnabled && streamingState != BotForumHelper.SteamingSendButtonState.BLOCKING && !shouldShowLiveCommentAttach();
     }
 
     private void updateAttachButtonTranslationX() {
         if (attachButton == null) return;
+        if (isLiveComment) {
+            boolean hasSuggestButton = suggestButton != null && suggestButton.getVisibility() == VISIBLE;
+            float additionalX = hasSuggestButton ? suggestButton.getTranslationX() : dp(6 + DEFAULT_HEIGHT) + dp(2);
+            attachButton.setTranslationX(attachLayoutPaddingTranslationX + attachLayoutTranslationX + additionalX - dp(6 + DEFAULT_HEIGHT) - dp(2));
+            return;
+        }
         attachButton.setTranslationX(attachLayoutPaddingTranslationX + attachLayoutTranslationX + (sendButton != null ? (
             -Math.max(0, sendButton.width() - dp(DEFAULT_HEIGHT + 12)) * sendButton.getAlpha()
         ) : 0));
@@ -17481,13 +17556,20 @@ public class ChatActivityEnterView extends FrameLayout implements
     public void setLiveComment(boolean isLiveComment, boolean isAdmin) {
         if (this.isLiveComment == isLiveComment) return;
         this.isLiveComment = isLiveComment;
-        attachButton.setVisibility(isLiveComment ? View.GONE : View.VISIBLE);
         if (isLiveComment) {
             AndroidUtilities.removeFromParent(notifyButton);
         }
         if (isLiveComment) {
-            audioVideoSendButton.setVisibility(View.GONE);
+            if (audioVideoSendButton != null) {
+                audioVideoSendButton.setVisibility(View.GONE);
+            }
+            if (audioVideoButtonContainer != null) {
+                audioVideoButtonContainer.setVisibility(View.GONE);
+            }
         } else {
+            if (attachButton != null) {
+                attachButton.setVisibility(View.VISIBLE);
+            }
             reset();
         }
         if (!isLiveComment) {
