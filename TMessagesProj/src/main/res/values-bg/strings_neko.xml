@@ -1,3 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="DeleteAllFromSelfDone">Всички ваши съобщения бяха изтрити</string>
+    <string name="BotLogin">Вход като бот</string>
+    <string name="InvalidAccessToken">Невалиден токен за достъп</string>
+    <string name="IgnoreBlocked">Скриване на съобщения от блокиран потребител</string>
+    <string name="Connection">Свързване</string>
+    <string name="Chat">Чат</string>
+    <string name="NameOrder">Подредба на имената</string>
+    <string name="FirstLast">Име Фамилия</string>
+    <string name="LastFirst">Фамилия Име</string>
+    <string name="TypefaceUseDefault">Използване на системния шрифт по подразбиране</string>
+    <string name="NoQuoteForward">Препращане без цитиране</string>
+    <string name="Repeat">Повтори</string>
+    <string name="AddToSavedMessages">Запази съобщението</string>
+    <string name="CreateMention">Създай споменаване</string>
+    <string name="Prpr">Пероперо</string>
+    <string name="TransparentStatusBar">Прозрачен статус бар</string>
+    <string name="EnableResidentNotification">Показване на постоянно известие</string>
+    <string name="DisableResidentNotification">Изключване на постоянното известие</string>
+    <string name="NekogramRunning">Momogram работи</string>
+    <string name="EventType">Набор от икони за страничната лента</string>
+    <string name="ChristmasHat">Показване на шапката на Дядо Коледа всеки ден</string>
+    <string name="ActionBarDecoration">Декорация на заглавната лента</string>
+    <string name="DependsOnDate">В зависимост от датата</string>
+    <string name="Christmas">Коледа</string>
+    <string name="Valentine">Денят на влюбените</string>
+    <string name="Snowflakes">Падащи снежинки</string>
+    <string name="Fireworks">Фойерверки</string>
+    <string name="DeleteDownloadedFile">Изтриване на изтегления файл</string>
+    <string name="TestBackend">Тестване на бекенда</string>
+    <string name="TestBackendOn">Този акаунт ще се свързва с тестовия бекенд.</string>
+    <string name="TestBackendOff">Този акаунт ще се свързва с продукционния бекенд.</string>
+    <string name="HideProxySponsorChannel">Скриване на спонсорския канал на проксито</string>
+    <string name="ViewHistory">Виж историята</string>
+    <string name="Nya">Мяу!</string>
+    <string name="SaveCacheToExternalFilesDir">Изолация на хранилището</string>
+    <string name="SaveCacheToExternalFilesDirAbout">Запазва папката „Telegram“ в специфична за приложението директория, за да поддържа споделеното хранилище подредено.</string>
+    <string name="MomoSettings">Настройки на Momo</string>
+    <string name="NekoSettings">Неко Настройки</string>
 </resources>
