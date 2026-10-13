@@ -90,6 +90,10 @@
 # dnsjava registers this service on Java 18+; java.net.spi.* does not exist on Android
 -dontwarn org.xbill.DNS.spi.DnsjavaInetAddressResolverProvider
 
+-keep class org.telegram.utils.code.highlight.PrismaHighlighter {
+    private static native <methods>;
+}
+
 ## https://developers.google.com/ml-kit/known-issues#android_issues
 #-keep class com.google.mlkit.nl.languageid.internal.LanguageIdentificationJni { *; }
 
