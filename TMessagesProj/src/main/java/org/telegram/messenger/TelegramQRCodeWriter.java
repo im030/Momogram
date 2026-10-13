@@ -61,6 +61,11 @@ public final class TelegramQRCodeWriter {
     private int sideQuadSize;
 
     private int imageSize;
+    private Drawable centerDrawable;
+
+  public void setCenterDrawable(Drawable drawable) {
+    centerDrawable = drawable;
+  }
 
     public Bitmap encode(String contents, BarcodeFormat format, int width, int height, Map<EncodeHintType, ?> hints, Bitmap bitmap, Context context) throws WriterException {
         return encode(contents, format, width, height, hints, bitmap, context, null);
@@ -223,7 +228,10 @@ public final class TelegramQRCodeWriter {
         }
 
         Bitmap icon;
-        if (iconF != null) {
+        if (centerDrawable != null) {
+            centerDrawable.setBounds(imageX, imageX, imageX + imageSize, imageX + imageSize);
+            centerDrawable.draw(canvas);
+        } else if (iconF != null) {
             icon = iconF.apply(imageSize);
             canvas.drawBitmap(icon, imageX, imageX, null);
             icon.recycle();
@@ -250,6 +258,61 @@ public final class TelegramQRCodeWriter {
         }
         return x >= 0 && y >= 0 && x < input.getWidth() && y < input.getHeight() && input.get(x, y) == 1;
     }
+
+  public static void drawSideQuadsGradient(Canvas canvas, Paint blackPaint, GradientDrawable rect, float sideQuadSize, float multiple, int padding, float size, float radiusFactor, float[] radii, int backgroundColor, int color) {
+      boolean isTransparentBackground = Color.alpha(backgroundColor) == 0;
+      rect.setShape(GradientDrawable.RECTANGLE);
+      rect.setCornerRadii(radii);
+      Path clipPath = new Path();
+      RectF rectF = new RectF();
+      for (int a = 0; a < 3; a++) {
+          float x, y;
+          if (a == 0) {
+              x = padding;
+              y = padding;
+          } else if (a == 1) {
+              x = size - sideQuadSize * multiple - padding;
+              y = padding;
+          } else {
+              x = padding;
+              y = size - sideQuadSize * multiple - padding;
+          }
+
+          float r;
+          if (isTransparentBackground) {
+              rectF.set(x + multiple, y + multiple, x + (sideQuadSize - 1) * multiple, y + (sideQuadSize - 1) * multiple);
+              r = (sideQuadSize * multiple) / 4.0f * radiusFactor;
+              clipPath.reset();
+              clipPath.addRoundRect(rectF, r, r, Path.Direction.CW);
+              clipPath.close();
+              canvas.save();
+              canvas.clipPath(clipPath, Region.Op.DIFFERENCE);
+          }
+          r = (sideQuadSize * multiple) / 3.0f * radiusFactor;
+          Arrays.fill(radii, r);
+          rect.setColor(color);
+          rect.setBounds((int) x, (int) y, (int) (x + sideQuadSize * multiple), (int) (y + sideQuadSize * multiple));
+          rect.draw(canvas);
+          canvas.drawRect(x + multiple, y + multiple, x + (sideQuadSize - 1) * multiple, y + (sideQuadSize - 1) * multiple, blackPaint);
+          if (isTransparentBackground) {
+              canvas.restore();
+          }
+
+          if (!isTransparentBackground) {
+              r = (sideQuadSize * multiple) / 4.0f * radiusFactor;
+              Arrays.fill(radii, r);
+              rect.setColor(backgroundColor);
+              rect.setBounds((int) (x + multiple), (int) (y + multiple), (int) (x + (sideQuadSize - 1) * multiple), (int) (y + (sideQuadSize - 1) * multiple));
+              rect.draw(canvas);
+          }
+
+          r = ((sideQuadSize - 2) * multiple) / 4.0f * radiusFactor;
+          Arrays.fill(radii, r);
+          rect.setColor(color);
+          rect.setBounds((int) (x + multiple * 2), (int) (y + multiple * 2), (int) (x + (sideQuadSize - 2) * multiple), (int) (y + (sideQuadSize - 2) * multiple));
+          rect.draw(canvas);
+      }
+  }
 
     public Bitmap encode(String contents, int width, int height, Map<EncodeHintType, ?> hints, Bitmap bitmap) throws WriterException {
         return encode(contents, width, height, hints, bitmap, 1.0f, 0xffffffff, 0xff000000);

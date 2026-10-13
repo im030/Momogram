@@ -3,6 +3,7 @@ package org.telegram.ui.bots;
 import static org.telegram.messenger.AndroidUtilities.dp;
 import static org.telegram.messenger.AndroidUtilities.lerp;
 import static org.telegram.ui.Components.Bulletin.DURATION_PROLONG;
+import static org.telegram.ui.bots.BotWebViewSheet.TYPE_FAKE_WEB_VIEW;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -158,7 +159,8 @@ public class BotWebViewAttachedSheet implements NotificationCenter.NotificationC
             TYPE_BOT_MENU_BUTTON,
             TYPE_WEB_VIEW_BOT_APP,
             TYPE_WEB_VIEW_BOT_MAIN,
-            TYPE_WEB_VIEW_GUARD
+            TYPE_WEB_VIEW_GUARD,
+            TYPE_FAKE_WEB_VIEW
     })
     public @interface WebViewType {}
 
