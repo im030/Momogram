@@ -7,5 +7,7 @@ bin/init/libs/libvpx.sh
 bin/init/libs/ffmpeg.sh
 bin/init/libs/boringssl.sh
 bin/init/libs/tlottie.sh
+bin/init/libs/wallet-engine.sh
 bin/init/libs/tde2e.sh
 bin/init/libs/wamr.sh
+bin/init/libs/prisma.sh
