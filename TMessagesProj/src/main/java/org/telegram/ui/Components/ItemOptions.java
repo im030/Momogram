@@ -347,7 +347,7 @@ public class ItemOptions {
     }
 
     public ItemOptions add(int iconResId, CharSequence text, CharSequence subtext, Runnable onClickListener) {
-        return add(iconResId, null, text, subtext, Theme.key_actionBarDefaultSubmenuItemIcon, Theme.key_actionBarDefaultSubmenuItem, onClickListener);
+        return add(iconResId, null, text, subtext, Theme.key_actionBarDefaultSubmenuItemIcon, Theme.key_actionBarDefaultSubmenuItem, onClickListener, null);
     }
 
     public ItemOptions add(Drawable icon, CharSequence text, Runnable onClickListener) {
