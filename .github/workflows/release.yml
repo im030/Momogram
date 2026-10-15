@@ -589,6 +589,7 @@ jobs:
             cp -fv TMessagesProj/jni/third_party/libvpx/build/$a/lib/libvpx.a \
             TMessagesProj/jni/prebuild/lib/$a/
           done
+          pushd TMessagesProj/jni/tgcalls && patch -p1 < ../patches/tgcalls/0001-PATCH-Custom-group-voip-audio-bitrate.patch && popd
           ./run libs native
           mkdir -p ~/apks || true
           cp -rfv TMessagesProj/build/outputs/apk ~/apks || true
