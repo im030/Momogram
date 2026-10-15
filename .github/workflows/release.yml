@@ -633,25 +633,25 @@ jobs:
         with:
           path: |
             TMessagesProj/src/main/libs
-          key: ${{ hashFiles('TMessagesProj/jni/**', 'ffmpeg_status', 'libvpx_status', 'boringssl_status', 'dav1d_status', 'tdlib_status', 'tlottie_status') }}-armeabi-v7a
+          key: ${{ hashFiles('TMessagesProj/jni/**', 'ffmpeg_status', 'libvpx_status', 'boringssl_status', 'dav1d_status', 'tdlib_status', 'openh264_status', 'tlottie_status', 'wamr_status', 'we_status', 'prisma_status') }}-armeabi-v7a
       - name: Native Cache (arm64-v8a)
         uses: actions/cache@v5
         with:
           path: |
             TMessagesProj/src/main/libs
-          key: ${{ hashFiles('TMessagesProj/jni/**', 'ffmpeg_status', 'libvpx_status', 'boringssl_status', 'dav1d_status', 'tdlib_status', 'tlottie_status') }}-arm64-v8a
+          key: ${{ hashFiles('TMessagesProj/jni/**', 'ffmpeg_status', 'libvpx_status', 'boringssl_status', 'dav1d_status', 'tdlib_status', 'openh264_status', 'tlottie_status', 'wamr_status', 'we_status', 'prisma_status') }}-arm64-v8a
       - name: Native Cache (x86)
         uses: actions/cache@v5
         with:
           path: |
             TMessagesProj/src/main/libs
-          key: ${{ hashFiles('TMessagesProj/jni/**', 'ffmpeg_status', 'libvpx_status', 'boringssl_status', 'dav1d_status', 'tdlib_status', 'tlottie_status') }}-x86
+          key: ${{ hashFiles('TMessagesProj/jni/**', 'ffmpeg_status', 'libvpx_status', 'boringssl_status', 'dav1d_status', 'tdlib_status', 'openh264_status', 'tlottie_status', 'wamr_status', 'we_status', 'prisma_status') }}-x86
       - name: Native Cache (x86_64)
         uses: actions/cache@v5
         with:
           path: |
             TMessagesProj/src/main/libs
-          key: ${{ hashFiles('TMessagesProj/jni/**', 'ffmpeg_status', 'libvpx_status', 'boringssl_status', 'dav1d_status', 'tdlib_status', 'tlottie_status') }}-x86_64
+          key: ${{ hashFiles('TMessagesProj/jni/**', 'ffmpeg_status', 'libvpx_status', 'boringssl_status', 'dav1d_status', 'tdlib_status', 'openh264_status', 'tlottie_status', 'wamr_status', 'we_status', 'prisma_status') }}-x86_64
       - name: FFmpeg Cache
         uses: actions/cache@v5
         with:
