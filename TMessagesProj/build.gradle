@@ -6,7 +6,7 @@ apply plugin: "org.telegram.build-plugin"
 apply plugin: "org.telegram.build-app-plugin"
 
 def verName = APP_VERSION_NAME
-def verCode = 11619
+def verCode = 11629
 
 def gitHashProc = new ProcessBuilder("git", "log", "--pretty=format:'%h'", "-n", "1").redirectErrorStream(true).start()
 def gitHashBuf = new byte[16]
@@ -192,7 +192,8 @@ android {
         externalNativeBuild {
             cmake {
                 version '3.22.1'
-                arguments '-DANDROID_STL=c++_static', '-DANDROID_PLATFORM=android-21' //, '-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON'
+                def walletEngine = (project.findProperty("WITH_WALLET_ENGINE") ?: System.getenv("WITH_WALLET_ENGINE") ?: "ON").toString()
+                arguments '-DANDROID_STL=c++_static', '-DANDROID_PLATFORM=android-21', "-DWITH_WALLET_ENGINE=${walletEngine}" //, '-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON'
                 targets 'tmessages.49'
             }
         }
