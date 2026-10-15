@@ -6557,7 +6557,6 @@ public class ChatAttachAlert extends BottomSheet implements NotificationCenter.N
             emojiButton = -1;
             attachBotsStartRow = -1;
             attachBotsEndRow = -1;
-            moneyButton = -1;
 
             if (isPollAttach) {
                 galleryButton = buttonsCount++;
@@ -6609,14 +6608,14 @@ public class ChatAttachAlert extends BottomSheet implements NotificationCenter.N
                         UserConfig.getInstance(currentAccount).isBot() || UserConfig.getInstance(currentAccount).isPremium();
                 galleryButton = buttonsCount++;
                 documentButton = buttonsCount++;
-                if (MessagesController.getInstance(currentAccount).config.walletAvailable.get() && ((ChatActivity) baseFragment).getChatMode() == ChatActivity.MODE_DEFAULT && isMoneyTabRecipient(user)) {
+                if (GramWallet.isAvailable() && MessagesController.getInstance(currentAccount).config.walletAvailable.get() && ((ChatActivity) baseFragment).getChatMode() == ChatActivity.MODE_DEFAULT && isMoneyTabRecipient(user)) {
                     moneyButton = buttonsCount++;
                 }
 
                 if (plainTextEnabled) {
                     locationButton = buttonsCount++;
                 }
-                if (plainTextEnabled && MessagesController.getInstance(currentAccount).richEditorAvailable()) {
+                if (plainTextEnabled && MessagesController.getInstance(currentAccount).richEditorAvailable() && richMsgAllowed) {
                     richButton = buttonsCount++;
                 }
 
@@ -6649,28 +6648,6 @@ public class ChatAttachAlert extends BottomSheet implements NotificationCenter.N
                         buttonsCount += attachMenuBots.size();
                         attachBotsEndRow = buttonsCount;
                     }
-                }
-                documentButton = buttonsCount++;
-
-                if (plainTextEnabled) {
-                    locationButton = buttonsCount++;
-                }
-                if (plainTextEnabled && MessagesController.getInstance(currentAccount).richEditorAvailable() && richMsgAllowed) {
-                    richButton = buttonsCount++;
-                }
-
-                if (pollsEnabled) {
-                    pollButton = buttonsCount++;
-                }
-                if (plainTextEnabled) {
-                    contactButton = buttonsCount++;
-                }
-                if (baseFragment instanceof ChatActivity && ((ChatActivity) baseFragment).getChatMode() == 0 && user != null && !paidUser && !user.bot && QuickRepliesController.getInstance(currentAccount).hasReplies()) {
-                    quickRepliesButton = buttonsCount++;
-                }
-                musicButton = buttonsCount++;
-                if (todoEnabled) {
-                    todoButton = buttonsCount++;
                 }
             }
             super.notifyDataSetChanged();
