@@ -149,7 +149,9 @@ set_target_properties(tlottie PROPERTIES
         IMPORTED_LOCATION ${CMAKE_HOME_DIRECTORY}/prebuild/lib/${ANDROID_ABI}/libtlottie.a)
 
 # Wallet Engine: matching Rust archive and generated UniFFI C++20 wrapper.
+option(WITH_WALLET_ENGINE "Link TON wallet engine into tmessages" ON)
 set(WALLET_ENGINE_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/prebuild/include/wallet-engine)
+if(WITH_WALLET_ENGINE)
 add_library(wallet_engine STATIC IMPORTED)
 set_target_properties(wallet_engine PROPERTIES
         IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/prebuild/lib/${ANDROID_ABI}/libwallet_engine.a)
@@ -171,6 +173,12 @@ add_library(wallet_engine_jni OBJECT wallet/WalletEngineBridge.cpp wallet/GramWa
 target_compile_features(wallet_engine_jni PRIVATE cxx_std_20)
 set_target_properties(wallet_engine_jni PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_link_libraries(wallet_engine_jni PRIVATE wallet_engine_cpp)
+else()
+# Slim build: same JNI symbols, no wallet engine. See WalletEngineStub.cpp.
+add_library(wallet_engine_jni OBJECT wallet/WalletEngineStub.cpp)
+set_target_properties(wallet_engine_jni PROPERTIES POSITION_INDEPENDENT_CODE ON)
+add_library(wallet_engine_cpp INTERFACE)
+endif()
 
 #sqlite
 add_library(sqlite STATIC

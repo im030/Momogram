@@ -150,8 +150,13 @@ public class GramWallet implements GramWalletStreaming.IGramWalletStreamingSubsc
         return localInstance;
     }
 
+    /** False when built without the wallet engine (WITH_WALLET_ENGINE=OFF). */
+    public static boolean isAvailable() {
+        return WalletEngine2.isAvailable();
+    }
+
     public static void ensureLocalWalletBalances(int currentAccount, Runnable whenDone) {
-        if (!MessagesController.getInstance(currentAccount).config.walletAvailable.get()) {
+        if (!isAvailable() || !MessagesController.getInstance(currentAccount).config.walletAvailable.get()) {
             whenDone.run();
             return;
         }
@@ -849,7 +854,7 @@ public class GramWallet implements GramWalletStreaming.IGramWalletStreamingSubsc
             engine = null;
             engineAddress = null;
         }
-        if (!TextUtils.isEmpty(address) && public_key != null && (engine == null || !TextUtils.equals(engineAddress, address))) {
+        if (WalletEngine2.isAvailable() && !TextUtils.isEmpty(address) && public_key != null && (engine == null || !TextUtils.equals(engineAddress, address))) {
             if (engine != null) {
                 log("closing wallet-engine of " + engineAddress);
                 engine.close();

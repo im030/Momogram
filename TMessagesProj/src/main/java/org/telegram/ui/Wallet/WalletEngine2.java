@@ -64,6 +64,23 @@ public class WalletEngine2 implements AutoCloseable {
         return mnemonicWordlist;
     }
 
+    private static Boolean sAvailable;
+    /**
+     * False when built without the wallet engine (WITH_WALLET_ENGINE=OFF):
+     * the stub natives throw NO_WALLET_ENGINE instead of doing real work.
+     * Probed once via mnemonicWordlist(); the real engine always answers it.
+     */
+    public static boolean isAvailable() {
+        if (sAvailable != null) return sAvailable;
+        try {
+            mnemonicWordlist();
+            sAvailable = true;
+        } catch (Throwable t) {
+            sAvailable = false;
+        }
+        return sAvailable;
+    }
+
     /**
      * Returns whether the phrase is a valid Rotation mnemonic supported by TG Wallet.
      * Call off the UI thread. This does not check a deployed contract or wallet ownership.
@@ -157,8 +174,12 @@ public class WalletEngine2 implements AutoCloseable {
     static native boolean isValidCellBoc(String boc);
 
     static boolean sameTonConnectAddress(String first, String second) {
-        return isValidAddress(first) && isValidAddress(second)
-                && nativeTransactionAddress(first).equals(nativeTransactionAddress(second));
+        try {
+            return isValidAddress(first) && isValidAddress(second)
+                    && nativeTransactionAddress(first).equals(nativeTransactionAddress(second));
+        } catch (RuntimeException e) {
+            return false;
+        }
     }
 
     void previewTonConnect(GramWalletTonConnect.Transaction request, Utilities.Callback2<TL_wallet.walletTransaction, String> callback) {
@@ -397,7 +418,13 @@ public class WalletEngine2 implements AutoCloseable {
 
     /** Formats a validated address as a non-bounceable, user-friendly mainnet address. */
     static String toUserFriendlyAddress(String address) {
-        return nativeTransactionAddress(address);
+        try {
+            return nativeTransactionAddress(address);
+        } catch (RuntimeException e) {
+            // Stub build (NO_WALLET_ENGINE): keep the raw address so background
+            // flows like Toncenter history parsing still work.
+            return address;
+        }
     }
 
     public WalletEngine2(int currentAccount, String address, byte[] publicKey) {
@@ -1404,7 +1431,7 @@ public class WalletEngine2 implements AutoCloseable {
     private static TL_wallet.walletTransaction createTransaction(String address, long amount) {
         TL_wallet.walletTransaction transaction = new TL_wallet.walletTransaction();
         TL_wallet.walletTransactionPeerAddress peer = new TL_wallet.walletTransactionPeerAddress();
-        peer.address = nativeTransactionAddress(address);
+        peer.address = toUserFriendlyAddress(address);
         transaction.peer = peer;
         transaction.amount = amount;
         // id, tx_hash and date are unknown until a server/on-chain transaction is observed.
