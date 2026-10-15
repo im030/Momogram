@@ -2031,7 +2031,7 @@ public class ChatActivity extends BaseFragment implements
             wasManualScroll = true;
             if (view instanceof ChatActionCell) {
                 MessageObject message = ((ChatActionCell) view).getMessageObject();
-                if (message != null && message.messageOwner.action instanceof TLRPC.TL_messageActionWalletTonConnectRequest) {
+                if (message != null && GramWallet.isAvailable() && message.messageOwner.action instanceof TLRPC.TL_messageActionWalletTonConnectRequest) {
                     TLRPC.TL_messageActionWalletTonConnectRequest request =
                             (TLRPC.TL_messageActionWalletTonConnectRequest) message.messageOwner.action;
                     if (request.expires > getConnectionsManager().getCurrentTime()
@@ -35110,6 +35110,7 @@ public class ChatActivity extends BaseFragment implements
                 break;
             }
             case OPTION_SEND_MONEY: {
+                if (!GramWallet.isAvailable()) return;
                 if (!(selectedObject.messageOwner.action instanceof TLRPC.TL_messageActionGramTransfer)) return;
                 final TLRPC.TL_messageActionGramTransfer action = (TLRPC.TL_messageActionGramTransfer) selectedObject.messageOwner.action;
                 if (MessagesController.isSupportUser(currentUser)) {
@@ -49288,7 +49289,7 @@ public class ChatActivity extends BaseFragment implements
             }
         }
 
-        if (getMessagesController().config.walletAvailable.get() &&
+        if (GramWallet.isAvailable() && getMessagesController().config.walletAvailable.get() &&
                 selectedObject.messageOwner.action instanceof TLRPC.TL_messageActionGramTransfer
                 && selectedObject.getDialogId() > 0
                 && getMessagesController().getUser(selectedObject.getDialogId()) != null) {

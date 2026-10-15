@@ -1442,7 +1442,7 @@ public class LinkManager {
     }
 
     private boolean handleSendGrams(Uri uri) {
-        if (!getMessagesController().config.walletAvailable.get()) return false;
+        if (!GramWallet.isAvailable() || !getMessagesController().config.walletAvailable.get()) return false;
         final Uri tonConnectUri = parseTonConnectStartApp(uri.getQueryParameter("startapp"));
         if (tonConnectUri != null) {
             handleTc(tonConnectUri);
@@ -1520,7 +1520,7 @@ public class LinkManager {
     }
 
     private boolean handleTon(Uri uri) {
-        if (!getMessagesController().config.walletAvailable.get()) return false;
+        if (!GramWallet.isAvailable() || !getMessagesController().config.walletAvailable.get()) return false;
         uri = normalizeTgUri(uri);
 
         final List<String> _segments = uri.getPathSegments();
@@ -1653,6 +1653,7 @@ public class LinkManager {
     }
 
     private boolean handleTc(Uri uri) {
+        if (!GramWallet.isAvailable()) return false;
         uri = normalizeTgUri(uri);
 
         final List<String> _segments = uri.getPathSegments();

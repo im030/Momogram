@@ -854,7 +854,7 @@ public class PasscodeActivity extends BaseFragment implements NotificationCenter
         autoLockRow = rowCount++;
         autoLockDetailRow = rowCount++;
 
-        if (getMessagesController().config.walletAvailable.get()) {
+        if (GramWallet.isAvailable() && getMessagesController().config.walletAvailable.get()) {
             walletHeaderRow = rowCount++;
             walletPasscodeRow = rowCount++;
             if (GramWalletStorage.deviceHasFingerprint(ApplicationLoader.applicationContext)) {

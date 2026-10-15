@@ -171,6 +171,7 @@ import org.telegram.ui.Stars.StarsIntroActivity;
 import org.telegram.ui.Stars.MessageSuggestionOfferSheet;
 import org.telegram.ui.Stories.recorder.HintView2;
 import org.telegram.ui.Stories.recorder.StoryEntry;
+import org.telegram.ui.Wallet.GramWallet;
 import org.telegram.ui.WebAppDisclaimerAlert;
 import org.telegram.ui.iv.ChatAttachAlertRichLayout;
 import org.telegram.ui.web.BotWebViewContainer;
@@ -2811,7 +2812,7 @@ public class ChatAttachAlert extends BottomSheet implements NotificationCenter.N
                         showLayout(restrictedLayout = new ChatAttachRestrictedLayout(1, this, getContext(), resourcesProvider));
                     }
                     showLayout(photoLayout);
-                } else if (num == LAYOUT_TYPE_MONEY) {
+                } else if (num == LAYOUT_TYPE_MONEY && GramWallet.isAvailable()) {
                     if (gramLayout == null && baseFragment instanceof ChatActivity) {
                         final TLRPC.User recipient = ((ChatActivity) baseFragment).getCurrentUser();
                         if (isMoneyTabRecipient(recipient)) {
