@@ -629,6 +629,10 @@ jobs:
           git submodule status TMessagesProj/jni/third_party/boringssl > boringssl_status
           git submodule status TMessagesProj/jni/td > tdlib_status
           git submodule status TMessagesProj/jni/tlottie > tlottie_status
+          git submodule status TMessagesProj/jni/third_party/openh264 > openh264_status
+          git submodule status TMessagesProj/jni/third_party/wamr > wamr_status
+          git submodule status TMessagesProj/jni/wallet-engine > we_status
+          git submodule status TMessagesProj/jni/third_party/libprisma > prisma_status
       - name: Native Cache (armeabi-v7a)
         uses: actions/cache@v5
         with:
