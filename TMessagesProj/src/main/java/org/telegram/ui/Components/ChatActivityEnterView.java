@@ -788,6 +788,7 @@ public class ChatActivityEnterView extends FrameLayout implements
     private boolean collectDeleteAfterSendIds;
     public static final ConcurrentHashMap<Long, HashSet<Integer>> deleteAfterSendMessageIds = new ConcurrentHashMap<>();
     public static final ConcurrentHashMap<Long, HashMap<Integer, long[]>> deleteAfterSendRetries = new ConcurrentHashMap<>();
+    private static final HashMap<Long, Boolean> alwaysDeleteAfterSend = new HashMap<>();
 
     private int lastSizeChangeValue1;
     private boolean lastSizeChangeValue2;
@@ -5217,6 +5218,25 @@ public class ChatActivityEnterView extends FrameLayout implements
                     menuPopupWindow.dismiss();
                 }
                 toggleTranslateBeforeSend(finalCell);
+            });
+
+            cell.setMinimumWidth(AndroidUtilities.dp(196));
+            menuPopupLayout.addView(cell, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 48, LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT, 0, 48 * a++, 0, 0));
+        }
+
+        // always delete after send for current session toggle
+        if (NekoXConfig.isDeveloper()) {
+            boolean enabled = Boolean.TRUE.equals(alwaysDeleteAfterSend.getOrDefault(dialog_id, false));
+            cell = new ActionBarMenuSubItem(getContext(), false, true);
+            cell.setTextAndIcon(LocaleController.getString(R.string.AlwaysDeleteAfterSend),
+                    enabled ? R.drawable.baseline_check_24 : R.drawable.baseline_close_24);
+
+            ActionBarMenuSubItem finalCell = cell;
+            cell.setOnClickListener(v -> {
+                if (menuPopupWindow != null && menuPopupWindow.isShowing()) {
+                    menuPopupWindow.dismiss();
+                }
+                toggleAlwaysDeleteAfterSend(finalCell);
             });
 
             cell.setMinimumWidth(AndroidUtilities.dp(196));
@@ -15183,7 +15203,14 @@ public class ChatActivityEnterView extends FrameLayout implements
                 }
             }
             HashSet<Integer> idSet = deleteAfterSendMessageIds.getOrDefault(did, new HashSet<>());
-            if (did == dialog_id && oldMsgId != null && oldMsgId < 0 && idSet.contains(oldMsgId)) {
+            if (did == dialog_id && Boolean.TRUE.equals(alwaysDeleteAfterSend.getOrDefault(dialog_id, false))) {
+                if (oldMsgId != null && oldMsgId < 0) {
+                    idSet.remove(oldMsgId);
+                }
+                if (newMsgId != null) {
+                    scheduleDeleteAfterSend(newMsgId, did, 0);
+                }
+            } else if (did == dialog_id && oldMsgId != null && oldMsgId < 0 && idSet.contains(oldMsgId)) {
                 idSet.remove(oldMsgId);
                 scheduleDeleteAfterSend(newMsgId, did, 0);
             }
@@ -17497,6 +17524,19 @@ public class ChatActivityEnterView extends FrameLayout implements
         if (newAutoTranslateBeforeSend) {
             BulletinFactory.of(parentFragment)
                     .createSimpleBulletin(R.raw.info, LocaleController.getString(R.string.AlwaysTranslateBeforeSendNote))
+                    .show(false);
+        }
+    }
+
+    private void toggleAlwaysDeleteAfterSend(ActionBarMenuSubItem cell) {
+        boolean newEnabled = Boolean.FALSE.equals(alwaysDeleteAfterSend.getOrDefault(dialog_id, false));
+        alwaysDeleteAfterSend.put(dialog_id, newEnabled);
+        cell.setTextAndIcon(LocaleController.getString(R.string.AlwaysDeleteAfterSend),
+                newEnabled ? R.drawable.baseline_check_24 : R.drawable.baseline_close_24);
+
+        if (newEnabled) {
+            BulletinFactory.of(parentFragment)
+                    .createSimpleBulletin(R.raw.info, LocaleController.getString(R.string.AlwaysDeleteAfterSend))
                     .show(false);
         }
     }
