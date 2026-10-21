@@ -11,7 +11,7 @@ public final class SharedSettings {
         BooleanSetting.of("experimental_settings_allowed", BuildVars.DEBUG_VERSION);
 
     public static final BooleanSetting audioRecorderV2Enabled =
-        BooleanSetting.of("audio_recorder_v2_enabled", BuildConfig.DEBUG_VERSION);
+        BooleanSetting.of("audio_recorder_v2_enabled", BuildVars.DEBUG_VERSION);
 
     public static final EnumSetting<AudioRecordingSession.NoiseSuppression> audioRecorderNoiseSuppression =
         EnumSetting.of("audio_recorder_noise_suppression", AudioRecordingSession.NoiseSuppression.DISABLED);
