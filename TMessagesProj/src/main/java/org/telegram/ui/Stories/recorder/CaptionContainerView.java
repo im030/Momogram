@@ -508,6 +508,7 @@ public class CaptionContainerView extends FrameLayout {
                 }
                 applyButton.setVisibility(View.VISIBLE);
             } else {
+                createEditText(getContext());
                 editText.getEditText().scrollBy(0, -editText.getEditText().getScrollY());
             }
             keyboardAnimator = ValueAnimator.ofFloat(keyboardT, show ? 1 : 0);
@@ -541,6 +542,7 @@ public class CaptionContainerView extends FrameLayout {
                         }
                     }
                     if (show) {
+                        createEditText(getContext());
                         editText.getEditText().setAllowDrawCursor(true);
                     }
                     afterUpdateShownKeyboard(show);
