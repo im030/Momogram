@@ -19013,7 +19013,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         }
 
         // 030: aggressive gc
-        if (MomoConfig.alwaysDestroyPhotoViewer.Bool()) {
+        if (MomoConfig.alwaysDestroyPhotoViewer.Bool() && PhotoViewer.this != PipInstance && Instance != null) {
             if (captionEdit != null) captionEdit.detachedFromWindow();
             if (topCaptionEdit != null) topCaptionEdit.detachedFromWindow();
             if (containerView != null) {
@@ -24088,15 +24088,17 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
             widthSize -= getPaddingLeft() + getPaddingRight();
             heightSize -= getPaddingBottom();
             // setMeasuredDimension(widthSize, heightSize);
-            ViewGroup.LayoutParams layoutParams = animatingImageView.getLayoutParams();
-            animatingImageView.measure(MeasureSpec.makeMeasureSpec(layoutParams.width, MeasureSpec.AT_MOST), MeasureSpec.makeMeasureSpec(layoutParams.height, MeasureSpec.AT_MOST));
+            if (animatingImageView != null) {
+                ViewGroup.LayoutParams layoutParams = animatingImageView.getLayoutParams();
+                animatingImageView.measure(MeasureSpec.makeMeasureSpec(layoutParams.width, MeasureSpec.AT_MOST), MeasureSpec.makeMeasureSpec(layoutParams.height, MeasureSpec.AT_MOST));
+            }
             containerView.measure(MeasureSpec.makeMeasureSpec(widthSize, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(heightSize, MeasureSpec.EXACTLY));
             navigationBar.measure(MeasureSpec.makeMeasureSpec(widthSize, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(navigationBarHeight, MeasureSpec.EXACTLY));
         }
 
         @Override
         protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-            animatingImageView.layout(getPaddingLeft(), 0, getPaddingLeft() + animatingImageView.getMeasuredWidth(), animatingImageView.getMeasuredHeight());
+            if (animatingImageView != null) animatingImageView.layout(getPaddingLeft(), 0, getPaddingLeft() + animatingImageView.getMeasuredWidth(), animatingImageView.getMeasuredHeight());
             containerView.layout(getPaddingLeft(), 0, getPaddingLeft() + containerView.getMeasuredWidth(), containerView.getMeasuredHeight());
             navigationBar.layout(getPaddingLeft(), containerView.getMeasuredHeight(), navigationBar.getMeasuredWidth(), containerView.getMeasuredHeight() + navigationBar.getMeasuredHeight());
             wasLayout = true;
