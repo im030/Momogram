@@ -1,9 +1,15 @@
 import java.nio.charset.StandardCharsets
+import com.android.build.api.dsl.CommonExtension
 
 apply plugin: "com.android.application"
 apply plugin: "kotlin-android"
 apply plugin: "org.telegram.build-plugin"
 apply plugin: "org.telegram.build-app-plugin"
+
+def androidExt = project.extensions.findByType(CommonExtension.class)
+if (androidExt != null) {
+    androidExt.buildFeatures.buildConfig = true
+}
 
 def verName = APP_VERSION_NAME
 def verCode = 11659
@@ -123,7 +129,6 @@ if (nativeTarget == null) nativeTarget = ""
 android {
 
     buildFeatures.aidl = true
-    buildFeatures.buildConfig = true
 
     androidResources {
         noCompress += "pack"
@@ -257,7 +262,7 @@ android {
             minifyEnabled = true
             shrinkResources = true
             multiDexEnabled = true
-            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro", '../TMessagesProj/proguard-rules-beta.pro'
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
             matchingFallbacks = ["release", "debug"]
             signingConfig = (keystorePwd == null ? signingConfigs.debug : signingConfigs.release)
         }
@@ -268,7 +273,7 @@ android {
             minifyEnabled = true
             shrinkResources = true
             multiDexEnabled = true
-            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro", '../TMessagesProj/proguard-rules-beta.pro'
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
             matchingFallbacks = ["release", "debug"]
         }
 
@@ -489,7 +494,7 @@ android {
         }
     }
     lint {
-        disable 'MissingTranslation', 'ExtraTranslation', 'BlockedPrivateApi', 'Instantiatable'
+        disable 'MissingTranslation', 'ExtraTranslation', 'BlockedPrivateApi'
     }
 
     tasks.all { task ->
@@ -502,11 +507,6 @@ android {
         }
     }
 
-    lintOptions {
-        disable 'MissingTranslation'
-        disable 'ExtraTranslation'
-        disable 'BlockedPrivateApi'
-    }
 
     namespace = 'org.telegram.messenger'
 }

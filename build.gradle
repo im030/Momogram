@@ -6,7 +6,7 @@ buildscript {
         maven { url = "https://plugins.gradle.org/m2/" }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.13.2'
+        classpath 'com.android.tools.build:gradle:9.4.1'
         classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:2.2.10'
 //        classpath 'com.google.gms:google-services:4.3.15'
 //        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.9.2'
@@ -14,7 +14,7 @@ buildscript {
         //noinspection GradleDependency
         // classpath "com.github.triplet.gradle:play-publisher:3.6.0" // no more gplay build
         // This is needed since android-connector:2.2.0 is built with Java 17
-        classpath 'com.android.tools:r8:9.0.32'
+        classpath 'com.android.tools:r8:9.5.28'
     }
 }
 
@@ -59,7 +59,7 @@ allprojects {
                     def manifestFile = file("${project.projectDir}/src/main/AndroidManifest.xml")
 
                     if (manifestFile.exists()) {
-                        def manifest = new XmlSlurper().parse(manifestFile)
+                        def manifest = new groovy.xml.XmlSlurper().parse(manifestFile)
                         def manifestPackage = manifest.@package.text()
 
                         if (manifestPackage) {

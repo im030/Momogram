@@ -42,8 +42,9 @@
 	url = https://github.com/tdlib/td.git
 	ignore = dirty
 [submodule "TMessagesProj_Modules/media"]
-	path = TMessagesProj_Modules/media
+	path = TMessagesProj_Modules/media3
 	url = https://github.com/Arseny271/media.git
+	ignore = dirty
 [submodule "TMessagesProj/jni/third_party/absl"]
 	path = TMessagesProj/jni/third_party/absl
 	url = https://github.com/abseil/abseil-cpp.git

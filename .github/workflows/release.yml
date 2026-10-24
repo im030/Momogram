@@ -710,6 +710,7 @@ jobs:
           export APK_CERT="${{ secrets.APK_CERT }}"
           printf "%s" "$APK_CERT" > /tmp/ci.jks.b64
           base64 -d /tmp/ci.jks.b64 > /tmp/ci.jks
+          for d in $(ls TMessagesProj_Modules/media3/libraries); do touch TMessagesProj_Modules/media3/libraries/$d/proguard-rules.txt || true; done  
           ./gradlew TMessagesProj:assemble${{ matrix.flavor }}
           
           # tmp
