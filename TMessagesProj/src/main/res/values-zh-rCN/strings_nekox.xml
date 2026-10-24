@@ -362,4 +362,14 @@
     <string name="HigherMinimumMenuHeight">更高的弹出菜单最小高度</string>
     <string name="HideFAB">隐藏聊天列表中的悬浮按钮</string>
     <string name="HideMessageSideButtons">隐藏消息旁边的侧边按钮</string>
+    <string name="ConfirmBamHammerName">封禁%1$s并删除该账户的所有消息，同时举报垃圾信息？</string>
+    <string name="CantOpenProfile">无法打开目标用户的个人资料</string>
+    <string name="AntiSpamSettings">反垃圾邮件</string>
+    <string name="AutoDismissSuggestedChats">在社区聊天中自动关闭聊天建议功能</string>
+    <string name="AutoDismissSuggestedChatsByRule">以上规则</string>
+    <string name="DebugWarning">启用此类调试选项可能会引发意料之外的问题，是否继续？</string>
+    <string name="DeleteAfterSend">发送后删除</string>
+    <string name="SwipeLoopChatFilter">在聊天文件夹列表的首项或末项处滑动时，实现循环跳转</string>
+    <string name="ConfirmTranslateBeforeSend">是否在发送前对当前聊天内容启用翻译？连续点击此处 10 次即可跳过倒计时。</string>
+    <string name="TriggerFilterForAllStoredChats">针对所有已缓存的聊天触发加入请求过滤器</string>
 </resources>
