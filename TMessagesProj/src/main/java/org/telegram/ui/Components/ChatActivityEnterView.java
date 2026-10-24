@@ -15307,6 +15307,7 @@ public class ChatActivityEnterView extends FrameLayout implements
                 else Log.d("030-txx", String.format("UUID mismatch, expect: %s, got: %s", translateUUID, args[1]));
             }
         } else if (id == NotificationCenter.forwardingMessageTranslated) {
+            if (parentFragment == null) return;
             Log.d("030-tx", String.format("forwardingMessageTranslated %d %s", dialog_id, parentFragment.isFullyVisible));
             sendButton.setLoading(false, SendButton.INFINITE_LOADING);
             if (sendPopupWindow != null) sendPopupWindow.dismiss();
