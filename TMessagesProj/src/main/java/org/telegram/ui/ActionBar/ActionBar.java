@@ -2223,8 +2223,10 @@ public class ActionBar extends FrameLayout implements FactorAnimator.Target, The
             //visualWidth = Math.max(visualWidth, dp(168));
         }
 
-        final int p = MomoConfig.unroundedChatView.Bool() ? 0 : dp(6);
-        final int width = Math.min(getMeasuredWidth() - dp(46) - p * 4 - dp(46), visualWidth);
+        final boolean fix = MomoConfig.unroundedChatView.Bool() || MomoConfig.removeChatViewPadding.Bool();
+        final int p = fix ? 0 : dp(6);
+        final int max = getMeasuredWidth() - dp(46) - p * 4 - dp(46);
+        final int width = fix ? (max + dp(46)) : Math.min(max, visualWidth);
         if (animated) {
             if (animatorAvatarContainerWidth.getToFactor() != width) {
                 animatorAvatarContainerWidth.animateTo(width);
@@ -2299,27 +2301,29 @@ public class ActionBar extends FrameLayout implements FactorAnimator.Target, The
     protected void dispatchDraw(Canvas canvas) {
         final int p = MomoConfig.unroundedChatView.Bool() ? 0 : dp(6);
         final int s = dp(46);
+        final boolean fixUI = MomoConfig.unroundedChatView.Bool() || MomoConfig.removeChatViewPadding.Bool();
+        final int rightMenuPadding = fixUI ? 0 : p * 2;
 
         final float actionModeFactor = getActionModeFactor();
         final int menuWidthA = hasForcedMenuWidth ? forcedMenuWidth : (int) animatorMenuItemsWidth.getFactor();
         final int menuWidth = hasForcedMenuMinWidth ? Math.max((int) (forcedMenuMinWidth * (1f - searchFactor)), menuWidthA) : menuWidthA;
 
         final boolean hasBackButton = backButtonImageView != null && backButtonImageView.getVisibility() == View.VISIBLE;
-	final boolean fromTopEdge = glassMode && MomoConfig.unroundedChatView.Bool();
+        final boolean fromTopEdge = glassMode && MomoConfig.unroundedChatView.Bool();
 
         final int t = fromTopEdge ? 0 : getHeight() - (getCurrentActionBarHeight() + s) / 2 - p;
         final int b = fromTopEdge ? getHeight() : t + s + p * 2;
 
         if (glassDrawable != null && !glassOnlyBack && drawGlassTitle) {
             final int menuWidthWithPadding = menuWidth + ((hasForcedMenuWidth || hasForcedMenuMinWidth) ? (menuWidth > 0 ? p : 0) : (int) (p * animatorHasMenuItems.getFloatValue()));
-            final int rightOffset = lerp(menuWidthWithPadding, Math.max(menuWidthWithPadding, p + s), chatAvatarContainer == null ? 0f : 1f - animatorAvatarContainerHasAvatar.getFloatValue());
+            final int rightOffset = fixUI ? 0 : lerp(menuWidthWithPadding, Math.max(menuWidthWithPadding, p + s), chatAvatarContainer == null ? 0f : 1f - animatorAvatarContainerHasAvatar.getFloatValue());
 
             final int leftDefault = lerp(hasBackButton ? s + p : 0, s + p, chatAvatarContainer == null? 0f : 1f - animatorAvatarContainerHasAvatar.getFloatValue());
             final int rightDefault = getWidth() - rightOffset;
             final int widthDefault = rightDefault - leftDefault;
             final int left, right;
             if (chatAvatarContainer != null) {
-                final int width = lerp(Math.min(widthDefault, (int) animatorAvatarContainerWidth.getFactor() + p * 2), widthDefault, Math.max(searchFactor, actionModeFactor));
+                final int width = lerp(Math.min(widthDefault, (int) animatorAvatarContainerWidth.getFactor() + rightMenuPadding), widthDefault, Math.max(searchFactor, actionModeFactor));
                 left = (rightDefault + leftDefault - width) / 2;
                 right = left + width;
 

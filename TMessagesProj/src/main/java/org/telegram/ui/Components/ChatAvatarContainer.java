@@ -127,6 +127,7 @@ public class ChatAvatarContainer extends FrameLayout implements FactorAnimator.T
 
     private final AnimatedEmojiDrawable.SwapAnimatedEmojiDrawable emojiStatusDrawable;
     private final AnimatedEmojiDrawable.SwapAnimatedEmojiDrawable botVerificationDrawable;
+    private static boolean fixUI = MomoConfig.unroundedChatView.Bool() || MomoConfig.removeChatViewPadding.Bool();
 
     protected boolean useAnimatedSubtitle() {
         return false;
@@ -188,6 +189,7 @@ public class ChatAvatarContainer extends FrameLayout implements FactorAnimator.T
 
     public ChatAvatarContainer(Context context, BaseFragment baseFragment, boolean needTime, Theme.ResourcesProvider resourcesProvider) {
         super(context);
+        fixUI = MomoConfig.unroundedChatView.Bool() || MomoConfig.removeChatViewPadding.Bool();
         this.resourcesProvider = resourcesProvider;
         if (baseFragment instanceof ChatActivity) {
             parentFragment = (ChatActivity) baseFragment;
@@ -298,7 +300,7 @@ public class ChatAvatarContainer extends FrameLayout implements FactorAnimator.T
         titleTextView.setLeftDrawableTopPadding(-dp(1.3f));
         titleTextView.setCanHideRightDrawable(false);
         titleTextView.setRightDrawableOutside(true);
-        titleTextView.setPadding(0, dp(6), 0, dp(12));
+        titleTextView.setPadding(0, dp(fixUI ? 4 : 6), 0, dp(12));
         if (MomoConfig.marqueeForLongChatTitles.Bool()) {
             titleTextView.setScrollNonFitText(true);
         }
@@ -796,7 +798,7 @@ public class ChatAvatarContainer extends FrameLayout implements FactorAnimator.T
                 titleTextLargerCopyView.layout(l, viewTop + dp(1.66f), l + titleTextLargerCopyView.getMeasuredWidth(), viewTop + titleTextLargerCopyView.getTextHeight() + dp(1.66f));
             }
         } else {
-            titleTextView.layout(l, viewTop + dp(11) - titleTextView.getPaddingTop(), l + titleTextView.getMeasuredWidth(), viewTop + titleTextView.getTextHeight() + dp(11) - titleTextView.getPaddingTop() + titleTextView.getPaddingBottom());
+            titleTextView.layout(l, viewTop + dp(fixUI ? 8 : 11) - titleTextView.getPaddingTop(), l + titleTextView.getMeasuredWidth(), viewTop + titleTextView.getTextHeight() + dp(fixUI ? 8 : 11) - titleTextView.getPaddingTop() + titleTextView.getPaddingBottom());
             if (titleTextLargerCopyView != null) {
                 titleTextLargerCopyView.layout(l, viewTop + dp(10), l + titleTextLargerCopyView.getMeasuredWidth(), viewTop + titleTextLargerCopyView.getTextHeight() + dp(10));
             }
@@ -1166,7 +1168,7 @@ public class ChatAvatarContainer extends FrameLayout implements FactorAnimator.T
                 if (animated) {
                     titleAnimation = new AnimatorSet();
                     titleAnimation.playTogether(
-                        ObjectAnimator.ofFloat(titleTextView, View.TRANSLATION_Y, dp(9.7f)),
+                        ObjectAnimator.ofFloat(titleTextView, View.TRANSLATION_Y, dp(fixUI ? 5.4f : 9.7f)),
                         ObjectAnimator.ofFloat(getSubtitleTextView(), View.ALPHA, 0.0f)
                     );
                     titleAnimation.addListener(new AnimatorListenerAdapter() {
@@ -1186,7 +1188,7 @@ public class ChatAvatarContainer extends FrameLayout implements FactorAnimator.T
                     titleAnimation.setDuration(180);
                     titleAnimation.start();
                 } else {
-                    titleTextView.setTranslationY(dp(9.7f));
+                    titleTextView.setTranslationY(dp(fixUI ? 5.4f : 9.7f));
                     getSubtitleTextView().setAlpha(0.0f);
                     getSubtitleTextView().setVisibility(INVISIBLE);
                 }
