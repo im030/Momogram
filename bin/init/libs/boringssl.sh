@@ -17,4 +17,8 @@ cd ..
 pwd
 cp -fv ../openssl/include/openssl/aes_ige.h boringssl/include/openssl/ || exit 1
 cp -fv ../openssl/aes_ige.c boringssl/crypto/fipsmodule/aes/ || exit 1
-./build_boringssl.sh
+./build_boringssl.sh $@
+
+for a in arm64-v8a armeabi-v7a x86 x86_64; do
+  cp -fv boringssl/build/$a/lib{crypto,ssl}.a ../prebuild/lib/$a/ || true
+done
