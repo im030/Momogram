@@ -237,8 +237,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 import kotlin.Unit;
 import kotlin.text.StringsKt;
@@ -17537,7 +17539,7 @@ public class ChatActivityEnterView extends FrameLayout implements
 
     private void toggleAlwaysDeleteAfterSend(ActionBarMenuSubItem cell) {
         boolean newEnabled = Boolean.FALSE.equals(alwaysDeleteAfterSend.getOrDefault(dialog_id, false));
-        alwaysDeleteAfterSend.put(dialog_id, newEnabled);
+        setDelAfterSend(dialog_id, newEnabled);
         cell.setTextAndIcon(LocaleController.getString(R.string.AlwaysDeleteAfterSend),
                 newEnabled ? R.drawable.baseline_check_24 : R.drawable.baseline_close_24);
 
@@ -17657,5 +17659,19 @@ public class ChatActivityEnterView extends FrameLayout implements
         InputFilter[] newFilters = Arrays.copyOf(oldFilters, oldFilters.length + 1);
         newFilters[oldFilters.length] = noNewLinesFilter;
         editText.setFilters(newFilters);
+    }
+
+    public static void initDelAfterSend(String str) {
+        String[] spl = str.split(",");
+        for (String s : spl) alwaysDeleteAfterSend.put(Long.valueOf(s), true);
+    }
+
+    private static void setDelAfterSend(long did, boolean val) {
+        alwaysDeleteAfterSend.put(did, val);
+        List<String> ids = alwaysDeleteAfterSend.entrySet().stream()
+                .filter(Map.Entry::getValue)
+                .map(x -> x.getKey().toString())
+                .collect(Collectors.toList());
+        MomoConfig.delAfterSend.setConfigString(String.join(",", ids));
     }
 }

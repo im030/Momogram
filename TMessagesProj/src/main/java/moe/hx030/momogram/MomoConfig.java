@@ -24,6 +24,7 @@ import org.telegram.tgnet.TLRPC;
 import org.telegram.ui.ActionBar.AlertDialog;
 import org.telegram.ui.ActionBar.BaseFragment;
 import org.telegram.ui.Components.BulletinFactory;
+import org.telegram.ui.Components.ChatActivityEnterView;
 import org.telegram.ui.LaunchActivity;
 import org.telegram.ui.LauncherIconController;
 import org.unifiedpush.android.connector.UnifiedPush;
@@ -441,6 +442,7 @@ public class MomoConfig {
     public static ConfigItem customCacheSize = addConfig("CustomCacheSize", configTypeInt, -1);
     public static ConfigItem warnedClients = addConfig("WarnedClients", configTypeString, "");
     public static ConfigItem prevSessionCheck = addConfig("PrevSessionCheck", configTypeLong, 0L);
+    public static ConfigItem delAfterSend = addConfig("delAfterSendIds", configTypeString, "");
 
     // deprecated
     public static ConfigItem ccToLang = addConfig("opencc_to_lang", configTypeString, "");
@@ -1122,6 +1124,7 @@ public class MomoConfig {
                 NekoXConfig.ensureSystemAccountState(UserConfig.selectedAccount, true);
             }
             ModUtil.filterJoinRequestsJob(true);
+            ChatActivityEnterView.initDelAfterSend(delAfterSend.String());
 
             if (!MomoConfig.enableUnifiedPush.Bool() || UnifiedPush.getSavedDistributor(ApplicationLoader.applicationContext) != null)
                 return;
