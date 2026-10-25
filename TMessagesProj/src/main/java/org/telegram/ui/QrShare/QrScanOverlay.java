@@ -22,6 +22,7 @@ import android.graphics.PorterDuffColorFilter;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -42,16 +43,20 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.ColorUtils;
 
-import com.google.android.gms.vision.Frame;
-import com.google.android.gms.vision.barcode.Barcode;
-import com.google.android.gms.vision.barcode.BarcodeDetector;
+//import com.google.android.gms.vision.Frame;
+//import com.google.android.gms.vision.barcode.Barcode;
+//import com.google.android.gms.vision.barcode.BarcodeDetector;
 import com.google.zxing.BinaryBitmap;
+import com.google.zxing.LuminanceSource;
+import com.google.zxing.PlanarYUVLuminanceSource;
 import com.google.zxing.RGBLuminanceSource;
 import com.google.zxing.Result;
 import com.google.zxing.ResultPoint;
+import com.google.zxing.common.GlobalHistogramBinarizer;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.qrcode.QRCodeReader;
 
+import org.apache.commons.lang3.StringUtils;
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.ApplicationLoader;
 import org.telegram.messenger.FileLog;
@@ -65,11 +70,13 @@ import org.telegram.messenger.LiteMode;
 import org.telegram.messenger.camera.CameraController;
 import org.telegram.messenger.camera.CameraSessionWrapper;
 import org.telegram.messenger.camera.CameraView;
+import org.telegram.messenger.camera.Size;
 import org.telegram.ui.ActionBar.ActionBar;
 import org.telegram.ui.ActionBar.BackDrawable;
 import org.telegram.ui.ActionBar.BaseFragment;
 import org.telegram.ui.ActionBar.INavigationLayout;
 import org.telegram.ui.BasePermissionsActivity;
+import org.telegram.ui.CameraScanActivity;
 import org.telegram.ui.Components.BulletinFactory;
 import org.telegram.ui.Components.CubicBezierInterpolator;
 import org.telegram.ui.Components.LayoutHelper;
@@ -287,19 +294,19 @@ public final class QrScanOverlay extends FrameLayout {
     /** The first code in a picture that {@code accept} takes, or null; not on the UI thread. */
     @Nullable
     public static String readQr(Bitmap bitmap, Utilities.CallbackReturn<String, Boolean> accept) {
-        BarcodeDetector vision = null;
+//        BarcodeDetector vision = null;
+//        try {
+//            vision = new BarcodeDetector.Builder(ApplicationLoader.applicationContext).setBarcodeFormats(Barcode.QR_CODE).build();
+//        } catch (Throwable e) {
+//            FileLog.e(e);
+//        }
         try {
-            vision = new BarcodeDetector.Builder(ApplicationLoader.applicationContext).setBarcodeFormats(Barcode.QR_CODE).build();
-        } catch (Throwable e) {
-            FileLog.e(e);
-        }
-        try {
-            final Scanned scanned = decode(bitmap, vision, new QRCodeReader(), accept);
+            final Scanned scanned = decode(bitmap, null, new QRCodeReader(), accept);
             return scanned != null ? scanned.link : null;
         } finally {
-            if (vision != null) {
-                vision.release();
-            }
+//            if (vision != null) {
+//                vision.release();
+//            }
         }
     }
 
@@ -321,7 +328,7 @@ public final class QrScanOverlay extends FrameLayout {
     private final HandlerThread scanThread = new HandlerThread("QrScan");
     private final Handler scanHandler;
     private volatile boolean scanning;
-    private @Nullable BarcodeDetector visionReader;
+//    private @Nullable BarcodeDetector visionReader;
     private @Nullable QRCodeReader zxingReader;
     private @Nullable Bitmap frameBitmap;
     private boolean found;
@@ -358,11 +365,11 @@ public final class QrScanOverlay extends FrameLayout {
         scanThread.start();
         scanHandler = new Handler(scanThread.getLooper());
         scanHandler.post(() -> {
-            try {
-                visionReader = new BarcodeDetector.Builder(ApplicationLoader.applicationContext).setBarcodeFormats(Barcode.QR_CODE).build();
-            } catch (Throwable e) {
-                FileLog.e(e);
-            }
+//            try {
+//                visionReader = new BarcodeDetector.Builder(ApplicationLoader.applicationContext).setBarcodeFormats(Barcode.QR_CODE).build();
+//            } catch (Throwable e) {
+//                FileLog.e(e);
+//            }
             zxingReader = new QRCodeReader();
         });
 
@@ -413,10 +420,10 @@ public final class QrScanOverlay extends FrameLayout {
         releaseCamera();
         scanHandler.removeCallbacksAndMessages(null);
         scanHandler.post(() -> {
-            if (visionReader != null) {
-                visionReader.release();
-                visionReader = null;
-            }
+//            if (visionReader != null) {
+//                visionReader.release();
+//                visionReader = null;
+//            }
             if (frameBitmap != null) {
                 frameBitmap.recycle();
                 frameBitmap = null;
@@ -951,7 +958,7 @@ public final class QrScanOverlay extends FrameLayout {
                 }
                 try {
                     tv.getBitmap(frameBitmap);
-                    final Scanned scanned = decode(frameBitmap, visionReader, zxingReader, accept);
+                    final Scanned scanned = decode(frameBitmap, null, zxingReader, accept);
                     if (scanned != null) {
                         AndroidUtilities.runOnUIThread(() -> onFound(scanned));
                         return;
@@ -978,24 +985,24 @@ public final class QrScanOverlay extends FrameLayout {
 
     /** The first Telegram link in the frame; other codes are ignored and the scan goes on. */
     @Nullable
-    private static Scanned decode(Bitmap bitmap, @Nullable BarcodeDetector visionReader, @Nullable QRCodeReader zxingReader, Utilities.CallbackReturn<String, Boolean> accept) {
+    private static Scanned decode(Bitmap bitmap, @Nullable /*BarcodeDetector*/Object visionReader, @Nullable QRCodeReader zxingReader, Utilities.CallbackReturn<String, Boolean> accept) {
         final int w = bitmap.getWidth(), h = bitmap.getHeight();
-        if (visionReader != null && visionReader.isOperational()) {
-            final SparseArray<Barcode> codes = visionReader.detect(new Frame.Builder().setBitmap(bitmap).build());
-            for (int i = 0; codes != null && i < codes.size(); i++) {
-                final Barcode code = codes.valueAt(i);
-                final String text = code.rawValue != null ? code.rawValue.trim() : null;
-                if (!accepts(accept, text)) {
-                    continue;
-                }
-                final PointF[] points = new PointF[code.cornerPoints != null ? code.cornerPoints.length : 0];
-                for (int k = 0; k < points.length; k++) {
-                    points[k] = new PointF(code.cornerPoints[k].x / (float) w, code.cornerPoints[k].y / (float) h);
-                }
-                return new Scanned(text, points);
-            }
-            return null;
-        }
+//        if (visionReader != null && visionReader.isOperational()) {
+//            final SparseArray<Barcode> codes = visionReader.detect(new Frame.Builder().setBitmap(bitmap).build());
+//            for (int i = 0; codes != null && i < codes.size(); i++) {
+//                final Barcode code = codes.valueAt(i);
+//                final String text = code.rawValue != null ? code.rawValue.trim() : null;
+//                if (!accepts(accept, text)) {
+//                    continue;
+//                }
+//                final PointF[] points = new PointF[code.cornerPoints != null ? code.cornerPoints.length : 0];
+//                for (int k = 0; k < points.length; k++) {
+//                    points[k] = new PointF(code.cornerPoints[k].x / (float) w, code.cornerPoints[k].y / (float) h);
+//                }
+//                return new Scanned(text, points);
+//            }
+//            return null;
+//        }
         if (zxingReader == null) {
             return null;
         }

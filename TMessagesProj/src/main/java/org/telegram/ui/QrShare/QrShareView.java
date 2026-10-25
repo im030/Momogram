@@ -60,6 +60,8 @@ import org.telegram.ui.Stars.StarsController;
 import java.util.ArrayList;
 import java.util.Random;
 
+import moe.hx030.momogram.MomoConfig;
+
 /**
  * The QR code of a user or a chat, after the iOS "share QR" screen with "Remove message fee":
  * - background scenes (profile colours, emoji, gifts) switch with a glowing ring wave from the tapped swatch;
@@ -1869,6 +1871,7 @@ public class QrShareView extends View {
     }
 
     private void haptic() {
+        if (MomoConfig.disableVibration.Bool()) return;
         try {
             performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
         } catch (Exception ignore) {}

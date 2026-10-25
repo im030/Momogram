@@ -214,7 +214,7 @@ final class QrShareServer implements NotificationCenter.NotificationCenterDelega
         view.setFeeStars(stars);
         if (stars > 0 && !freeModeRestored) {
             freeModeRestored = true;
-            if (!link.contactToken && mode == QrShareView.FEE_PAID && getPrefs().getBoolean(PREF_NO_PAID_PERMANENT, false)) {
+            if (!link.contactToken && mode == QrShareView.FEE_PAID) {
                 mode = QrShareView.FEE_PERMANENT;
                 view.restoreFreeMode(false);
                 token = getCachedPermanentToken();

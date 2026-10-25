@@ -1275,7 +1275,7 @@ public class CameraScanActivity extends BaseFragment {
         return matrix;
     }
 
-    private class QrResult {
+    private static class QrResult {
         String text;
         RectF bounds;
         PointF[] cornerPoints;
