@@ -198,7 +198,7 @@ android {
             cmake {
                 version '3.22.1'
                 def walletEngine = (project.findProperty("WITH_WALLET_ENGINE") ?: System.getenv("WITH_WALLET_ENGINE") ?: "ON").toString()
-                arguments '-DANDROID_STL=c++_static', '-DANDROID_PLATFORM=android-21', "-DWITH_WALLET_ENGINE=${walletEngine}" //, '-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON'
+                arguments '-DANDROID_STL=c++_static', '-DANDROID_PLATFORM=android-23', "-DWITH_WALLET_ENGINE=${walletEngine}" //, '-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON'
                 targets 'tmessages.49'
             }
         }

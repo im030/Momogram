@@ -599,10 +599,32 @@ public class AlertDialog extends Dialog implements Drawable.Callback, Notificati
                 if (lastScreenWidth != AndroidUtilities.displaySize.x) {
                     AndroidUtilities.runOnUIThread(() -> {
                         lastScreenWidth = AndroidUtilities.displaySize.x;
+                        final int calculatedWidth = AndroidUtilities.displaySize.x - dp(56);
+                        int maxWidth;
+                        if (AndroidUtilities.isTablet()) {
+                            if (AndroidUtilities.isSmallTablet()) {
+                                maxWidth = dp(446);
+                            } else {
+                                maxWidth = dp(496);
+                            }
+                        } else {
+                            maxWidth = dp(356);
+                        }
+
+                        final int dialogWidth = Math.min(maxWidth, calculatedWidth) + backgroundPaddings.left + backgroundPaddings.right;
+                        if (needStarsBalance) {
+                            // the window is fullscreen here: resize the dialog inside it instead of the window
+                            final ViewGroup.LayoutParams lp = getLayoutParams();
+                            if (lp != null && lp.width != dialogWidth) {
+                                lp.width = dialogWidth;
+                                requestLayout();
+                            }
+                            return;
+                        }
                         Window window = getWindow();
                         WindowManager.LayoutParams params = new WindowManager.LayoutParams();
-                        params.copyFrom(window.getAttributes());
-                        params.width = getDesiredDialogWidth();
+                        if (window != null) params.copyFrom(window.getAttributes());
+                        params.width = Math.max(dialogWidth, getDesiredDialogWidth());
                         try {
                             window.setAttributes(params);
                         } catch (Throwable e) {
@@ -717,6 +739,21 @@ public class AlertDialog extends Dialog implements Drawable.Callback, Notificati
     }
 
     private boolean needStarsBalance;
+
+    private int getDialogWidth() {
+        final int calculatedWidth = AndroidUtilities.displaySize.x - dp(48) - additioanalHorizontalPadding * 2;
+        int maxWidth;
+        if (AndroidUtilities.isTablet()) {
+            if (AndroidUtilities.isSmallTablet()) {
+                maxWidth = dp(446);
+            } else {
+                maxWidth = dp(496);
+            }
+        } else {
+            maxWidth = dp(356);
+        }
+        return Math.min(maxWidth, calculatedWidth) + backgroundPaddings.left + backgroundPaddings.right;
+    }
     public AlertDialog setShowStarsBalance(boolean show) {
         needStarsBalance = show;
         return this;
@@ -1379,9 +1416,13 @@ public class AlertDialog extends Dialog implements Drawable.Callback, Notificati
         WindowManager.LayoutParams params = new WindowManager.LayoutParams();
         params.copyFrom(window.getAttributes());
         if (needStarsBalance) {
-//            params.width = WindowManager.LayoutParams.MATCH_PARENT;
+            // a fixed fullscreen frame: with WRAP_CONTENT the window was resized after the first layout
+            // (see the width check in AlertDialogView.onMeasure) and the system animated it moving to the center
+            params.width = WindowManager.LayoutParams.MATCH_PARENT;
             params.height = WindowManager.LayoutParams.MATCH_PARENT;
             params.flags |= WindowManager.LayoutParams.FLAG_FULLSCREEN;
+            lastScreenWidth = AndroidUtilities.displaySize.x;
+            containerView.getLayoutParams().width = getDialogWidth();
 
             window.setWindowAnimations(R.style.DialogNoAnimation);
         } else if (progressViewStyle == ALERT_TYPE_SPINNER) {
@@ -1396,7 +1437,7 @@ public class AlertDialog extends Dialog implements Drawable.Callback, Notificati
             }
 
             lastScreenWidth = AndroidUtilities.displaySize.x;
-            params.width = getDesiredDialogWidth();
+            params.width = Math.max(getDesiredDialogWidth(), getDialogWidth());
         }
         if (customView == null || !checkFocusable || !canTextInput(customView)) {
             params.flags |= WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM;
