@@ -12,7 +12,7 @@ if (androidExt != null) {
 }
 
 def verName = APP_VERSION_NAME
-def verCode = 11659
+def verCode = 11669
 
 def gitHashProc = new ProcessBuilder("git", "log", "--pretty=format:'%h'", "-n", "1").redirectErrorStream(true).start()
 def gitHashBuf = new byte[16]
