@@ -345,16 +345,22 @@ interface Translator {
                     val target = ArrayList<MessageObject>()
                     chatActivity.messagePreviewParams.forwardMessages.getSelectedMessages(target)
                     target.forEach {
+                        val media = it.messageOwner?.media
+                        val isMedia = media != null && media !is TLRPC.TL_messageMediaWebPage
                         var isMsgText = false
                         var targetText = it.caption
                         if (targetText == null || targetText.trim().isBlank()) {
+                            if (isMedia) {
+                                FileLog.d("030-tx: media without caption")
+                                return@forEach
+                            }
                             isMsgText = true
                             targetText = it.messageText
                         }
 
-                        // doc & media messages can't be tampered
-                        if (targetText.isNullOrBlank() || it.isDocument || it.isSticker || it.isVideo || it.isMusic || it.isGif) {
-                            FileLog.d("030-tx: null text or doc")
+                        // stickers can't carry a translated caption
+                        if (targetText.isNullOrBlank() || it.isAnyKindOfSticker()) {
+                            FileLog.d("030-tx: null text or sticker")
                             return@forEach
                         }
 

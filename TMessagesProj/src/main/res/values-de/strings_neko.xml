@@ -233,7 +233,6 @@
     <string name="ViewStats">Statistiken</string>
     <string name="AutoSendMessageIfBlockedBySlowMode">Automatischen Senden von Nachrichten, wenn durch Langsamer Modus blockiert wird</string>
     <string name="AlwaysTranslateBeforeSend">Immer übersetzen</string>
-    <string name="AlwaysTranslateBeforeSendNote">Bei weitergeleiteten Nachrichten wird nur der Text gespeichert</string>
     <string name="CopyPhotoSticker">Foto/Sticker kopieren</string>
     <string name="SelectAnIcon">Wähle ein Symbol aus</string>
     <string name="CopySticker">Sticker kopieren</string>

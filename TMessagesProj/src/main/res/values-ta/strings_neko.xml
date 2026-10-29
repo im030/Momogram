@@ -260,7 +260,6 @@
     <string name="CleanupLeftoversResultsMB">விடுவிக்கப்பட்ட %1 $ .2F MB சேமிப்பு.</string>
     <string name="ArticleViewerBottomActionBar">கட்டுரை பார்வையாளர் அதிரடி பட்டியை கீழே நகர்த்தவும்</string>
     <string name="AlwaysTranslateBeforeSend">எப்போதும் மொழிபெயர்க்கவும்</string>
-    <string name="AlwaysTranslateBeforeSendNote">அனுப்பப்பட்ட செய்திகளுக்கு உரை மட்டுமே தக்கவைக்கப்படும்</string>
     <string name="SelectAnIcon">ஒரு ஐகானைத் தேர்வுசெய்க</string>
     <string name="ImageMessageSizeTweak">படத்துடன் பெரிய செய்திகளின் அதிகபட்ச அளவை பெரியதாக ஆக்கி, அம்ச பொருத்தத்தை இயக்கவும்</string>
     <string name="CopySticker">ச்டிக்கரை நகலெடுக்கவும்</string>

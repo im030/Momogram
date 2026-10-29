@@ -261,7 +261,6 @@
     <string name="ArticleViewerBottomActionBar">Makale görüntüleyicinin üst barını aşağıya taşı</string>
     <string name="AlwaysTranslateBeforeSend">Her zaman çevir</string>
     <string name="SelectAnIcon">Bir simge seç</string>
-    <string name="AlwaysTranslateBeforeSendNote">İletilen mesajlar için sadece metin saklanacak</string>
     <string name="ImageMessageSizeTweak">Büyük resimler için mesajların kapladığı alanı arttır ve metne göre boyutlanmasını sağla</string>
     <string name="CopySticker">Çıkartmayı Kopyala</string>
     <string name="CopyPhotoSticker">Resmi/Çıkartmayı Kopyala</string>

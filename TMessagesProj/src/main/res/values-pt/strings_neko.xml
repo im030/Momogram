@@ -268,7 +268,6 @@
     <string name="LingvaInstanceNote">Pesquise on-line por uma instância pública ou hospede uma você mesmo. Observe que o tradutor Lingva não funciona com tradução automática.</string>
     <string name="DisableAutoWebLogin">Desativar login automático com conta do Telegram</string>
     <string name="IgnoreFilterEmoticonUpdate">Ignorar atualizações de ícones de pasta do servidor</string>
-    <string name="AlwaysTranslateBeforeSendNote">Somente o texto será retido para mensagens encaminhadas</string>
     <string name="CopyPhotoSticker">Copiar Foto/Sticker</string>
     <string name="HideUnreadCounterOnFolderTabs">Ocultar contador de não lidos nas abas de pastas</string>
     <string name="ChooseBestVideoQualityByDefault">Escolher a melhor qualidade de vídeo por padrão</string>

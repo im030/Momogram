@@ -247,7 +247,6 @@
     <string name="CleanupLeftoversResults">%1$.2f KB の空間を解放しました.</string>
     <string name="CleanupLeftoversResultsMB">%1$.2f MB の空間を解放しました.</string>
     <string name="AlwaysTranslateBeforeSend">常に翻訳する</string>
-    <string name="AlwaysTranslateBeforeSendNote">転送されたメッセージはテキストのみになります</string>
     <string name="CopySticker">ステッカーをコピー</string>
     <string name="CopyPhotoSticker">画像/ステッカーをコピー</string>
     <string name="ChooseBestVideoQualityByDefault">自動的に最高の動画解像度を選ぶ</string>

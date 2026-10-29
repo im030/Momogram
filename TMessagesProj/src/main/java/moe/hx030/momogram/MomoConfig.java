@@ -336,6 +336,8 @@ public class MomoConfig {
     public static ConfigItem alwaysShowBotCommandButton = addConfig(R.string.AlwaysShowBotCommandButton, "AlwaysShowBotCommandButton", configTypeBool, CHAT, false);
     public static ConfigItem dontSendRightAfterTranslated = addConfig(R.string.DontSendRightAfterTranslated, "DontSendRightAfterTranslated", configTypeBool, CHAT, true);
     public static ConfigItem hideOriginalTextAfterTranslate = addConfig(R.string.HideOriginalTextAfterTranslate, "HideOriginalTextAfterTranslate", configTypeBool, CHAT, false);
+    public static ConfigItem showTranslatedForwardSource = addConfig(R.string.ShowTranslatedForwardSource, "ShowTranslatedForwardSource", configTypeBool, CHAT, false);
+    public static ConfigItem showTranslatedForwardSourceDetails = addConfig(R.string.ShowTranslatedForwardSourceDetails, "ShowTranslatedForwardSourceDetails", configTypeBool, CHAT, false);
     public static ConfigItem autoTranslate = addConfig(R.string.AutomaticTranslation, "AutomaticTranslation", configTypeBool, CHAT, false);
     public static ConfigItem useCustomProviderForAutoTranslate = addConfig(R.string.UseCustomProviderForAutoTranslate, "UseCustomProviderForAutoTranslate", configTypeBool, CHAT, true);
     public static ConfigItem autoSendMessageIfBlockedBySlowMode = addConfig(R.string.AutoSendMessageIfBlockedBySlowMode, "AutoSendMessageIfBlockedBySlowMode", configTypeBool, CHAT, false);

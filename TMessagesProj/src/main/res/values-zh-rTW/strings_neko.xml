@@ -259,7 +259,6 @@
     <string name="CleanupLeftoversResults">釋出了 %1$.2f KB 的空間.</string>
     <string name="CleanupLeftoversResultsMB">釋出了 %1$.2f MB 的空間.</string>
     <string name="AlwaysTranslateBeforeSend">總是送出前翻譯</string>
-    <string name="AlwaysTranslateBeforeSendNote">轉發的訊息將只剩下文字部份</string>
     <string name="CopySticker">複製貼圖</string>
     <string name="CopyPhotoSticker">複製圖片/貼圖</string>
     <string name="ChooseBestVideoQualityByDefault">預設選擇最高影片畫質</string>

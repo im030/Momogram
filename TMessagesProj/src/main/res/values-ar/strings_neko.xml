@@ -261,7 +261,6 @@
     <string name="CleanupLeftoversResultsMB">تم تحرير %1$.2f ميغابايت من مساحة التخزين.</string>
     <string name="ArticleViewerBottomActionBar">نقل شريط إجراءات عرض المقال إلى الأسفل</string>
     <string name="AlwaysTranslateBeforeSend">الترجمة دائمًا</string>
-    <string name="AlwaysTranslateBeforeSendNote">سيتم الاحتفاظ بالنص فقط في الرسائل المُعاد توجيهها</string>
     <string name="SelectAnIcon">اختر أيقونة</string>
     <string name="ImageMessageSizeTweak">جعل الحد الأقصى لحجم الرسائل التي تحتوي على صور أكبر وتفعيل ملاءمة الأبعاد (Aspect Fit)</string>
     <string name="CopySticker">نسخ الملصق</string>

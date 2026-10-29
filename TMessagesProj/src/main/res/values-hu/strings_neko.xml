@@ -260,7 +260,6 @@
     <string name="CleanupLeftoversResultsMB">%1$.2f MB terület felszabadítva.</string>
     <string name="ArticleViewerBottomActionBar">A cikknéző műveleti sáv áthelyezése alulra</string>
     <string name="AlwaysTranslateBeforeSend">Mindig fordít</string>
-    <string name="AlwaysTranslateBeforeSendNote">Csak a szöveg kerül továbbításra</string>
     <string name="SelectAnIcon">Ikon kiválasztása</string>
     <string name="ImageMessageSizeTweak">Maximalizálja az üzenetek méretét méretarányos kihúzással</string>
     <string name="CopySticker">Matrica másolása</string>

@@ -260,7 +260,6 @@
     <string name="CleanupLeftoversResultsMB">Освобождено %1$.2f МБ памяти.</string>
     <string name="ArticleViewerBottomActionBar">Переместить панель действий статей вниз</string>
     <string name="AlwaysTranslateBeforeSend">Всегда переводить</string>
-    <string name="AlwaysTranslateBeforeSendNote">В пересланных сообщениях будет сохранён только текст</string>
     <string name="SelectAnIcon">Выберите значок</string>
     <string name="ImageMessageSizeTweak">Увеличить макс. размер сообщений с картинками и включить подстройки пропорций</string>
     <string name="CopySticker">Скопировать стикер</string>

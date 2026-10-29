@@ -261,7 +261,6 @@
     <string name="CleanupLeftoversResultsMB">Freed %1$.2f MB of storage.</string>
     <string name="ArticleViewerBottomActionBar">Move article viewer action bar to bottom</string>
     <string name="AlwaysTranslateBeforeSend">Always translate</string>
-    <string name="AlwaysTranslateBeforeSendNote">Only text will be retained for forwarded messages</string>
     <string name="SelectAnIcon">Choose an icon</string>
     <string name="ImageMessageSizeTweak">Make max size of messages with image larger and enable aspect fit</string>
     <string name="CopySticker">Copy Sticker</string>

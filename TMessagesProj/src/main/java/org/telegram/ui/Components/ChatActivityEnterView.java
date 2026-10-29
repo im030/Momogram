@@ -230,6 +230,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -239,6 +240,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -15337,39 +15339,135 @@ public class ChatActivityEnterView extends FrameLayout implements
     private void sendTranslatedForwardingMessages(Object... args) {
         if (parentFragment.messagePreviewParamsForTranslate != null &&
                 parentFragment.messagePreviewParamsForTranslate.forwardMessages != null) {
-            for (MessageObject obj : parentFragment.messagePreviewParamsForTranslate.forwardMessages.messages) {
-                CharSequence text = obj.caption != null ? obj.caption : "";
-                if (text.length() == 0) text = obj.messageText;
-                if (!obj.isAnyKindOfSticker() && obj.getDocument() == null && text != null && text.length() > 0) {
+            ArrayList<MessageObject> messagesToSend = new ArrayList<>();
+            parentFragment.messagePreviewParamsForTranslate.forwardMessages.getSelectedMessages(messagesToSend);
+
+            HashMap<Long, Integer> groupCounts = new HashMap<>();
+            for (MessageObject obj : messagesToSend) {
+                long groupId = obj.getGroupId();
+                if (groupId != 0 && canSendTranslatedForwardMedia(obj)) {
+                    Integer count = groupCounts.get(groupId);
+                    groupCounts.put(groupId, count == null ? 1 : count + 1);
+                }
+            }
+            HashMap<Long, Integer> groupRemaining = new HashMap<>();
+            for (Map.Entry<Long, Integer> entry : groupCounts.entrySet()) {
+                if (entry.getValue() > 1) {
+                    groupRemaining.put(entry.getKey(), entry.getValue());
+                }
+            }
+            HashMap<Long, Long> sentGroupIds = new HashMap<>();
+            HashMap<Long, Integer> firstGroupObjectIds = new HashMap<>();
+            HashMap<Long, String> groupCaptionTexts = new HashMap<>();
+            HashMap<Long, String> groupSources = new HashMap<>();
+            for (MessageObject obj : messagesToSend) {
+                long groupId = obj.getGroupId();
+                if (groupId == 0 || !groupRemaining.containsKey(groupId) || !canSendTranslatedForwardMedia(obj)) {
+                    continue;
+                }
+                if (!firstGroupObjectIds.containsKey(groupId)) {
+                    firstGroupObjectIds.put(groupId, obj.getId());
+                }
+                if (!groupSources.containsKey(groupId)) {
+                    groupSources.put(groupId, getTranslatedForwardSource(obj));
+                }
+                if (!groupCaptionTexts.containsKey(groupId) && !TextUtils.isEmpty(obj.caption)) {
+                    groupCaptionTexts.put(groupId, obj.caption.toString());
+                }
+            }
+
+            for (MessageObject obj : messagesToSend) {
+                TLRPC.MessageMedia media = MessageObject.getMedia(obj);
+                long groupId = obj.getGroupId();
+                boolean groupedMedia = groupId != 0 && groupRemaining.containsKey(groupId);
+                String translated;
+                if (groupedMedia) {
+                    Integer firstId = firstGroupObjectIds.get(groupId);
+                    if (firstId != null && firstId == obj.getId()) {
+                        translated = combineTranslatedForwardCaption(groupSources.get(groupId), groupCaptionTexts.get(groupId));
+                    } else {
+                        translated = "";
+                    }
+                } else {
+                    CharSequence text = obj.caption != null ? obj.caption : "";
+                    if (text.length() == 0 && (media == null || media instanceof TLRPC.TL_messageMediaWebPage)) {
+                        text = obj.messageText;
+                    }
+                    translated = text == null ? "" : text.toString();
+                    String source = getTranslatedForwardSource(obj);
+                    if (source != null) {
+                        translated = translated.isEmpty() ? source : source + "\n\n" + translated;
+                    }
+                }
+
+                TLRPC.TL_photo photo = media instanceof TLRPC.TL_messageMediaPhoto ? copyPhotoReference(media.photo) : null;
+                TLRPC.TL_document document = media instanceof TLRPC.TL_messageMediaDocument ? copyDocumentReference(media.document) : null;
+                boolean isCaption = !obj.isAnyKindOfSticker() && (photo != null || document != null);
+
+                // split text if too long
+                ArrayDeque<String> splits = null;
+                int limit = isCaption ? 969 : 4069;
+                int trlen = translated.length();
+                if (trlen > limit) {
+                    splits = new ArrayDeque<>();
+                    for (int i = limit; i < trlen; i += 4069) {
+                        int end = Math.min(trlen, i + 4069);
+                        boolean last = (end == trlen);
+                        splits.add(translated.substring(i, end) + (last ? "" : "..."));
+                    }
+                    translated = translated.substring(0, limit) + "...";
+                }
+
+                if (isCaption) {
+                    SendMessagesHelper.SendMessageParams params;
+                    if (photo != null) {
+                        String path = null;
+                        if (photo.sizes != null && !photo.sizes.isEmpty()) {
+                            TLRPC.PhotoSize size = photo.sizes.get(photo.sizes.size() - 1);
+                            if (size != null && size.location != null) {
+                                path = FileLoader.getInstance(currentAccount).getPathToAttach(size.location, true).toString();
+                            }
+                        }
+                        params = SendMessagesHelper.SendMessageParams.of(photo, path, dialog_id,
+                                null, null, translated, null, null, null, true, 0, 0, 0,
+                                photo, false, obj.hasMediaSpoilers());
+                    } else {
+                        String path = FileLoader.getInstance(currentAccount).getPathToAttach(document, true).toString();
+                        params = SendMessagesHelper.SendMessageParams.of(document, null, path, dialog_id,
+                                null, null, translated, null, null, null, true, 0, 0, 0,
+                                document, null, false, obj.hasMediaSpoilers());
+                    }
+                    applyTranslatedForwardGrouping(obj, params, groupRemaining, sentGroupIds);
+                    params.payStars = 0;
+                    params.monoForumPeer = getSendMonoForumPeerId();
+                    params.suggestionParams = getSendMessageSuggestionParams();
+                    SendMessagesHelper.getInstance(currentAccount).sendMessage(params);
+                } else if (obj.type == MessageObject.TYPE_TEXT || obj.type == MessageObject.TYPE_EMOJIS || obj.messageOwner.media == null) {
                     SendMessagesHelper.SendMessageParams params =
-                            SendMessagesHelper.SendMessageParams.of(text.toString(), dialog_id,
+                            SendMessagesHelper.SendMessageParams.of(translated, dialog_id,
                                     null, null, null, true, null,
                                     null, null, true, 0, 0, null, false);
-                    if (obj.isDocument()) {
-                        TLRPC.Document doc = obj.getDocument();
-                        TLRPC.TL_document document = new TLRPC.TL_document();
-                        document.id = doc.id;
-                        document.mime_type = obj.isSticker() ? "image/webp" : "video/webm";
-                        document.access_hash = doc.access_hash;
-                        document.file_reference = (doc.file_reference != null ? doc.file_reference : new byte[0]);
-                        params.document = document;
-                    }
-                    parentFragment.getSendMessagesHelper().sendMessage(params);
-                } else /* if (obj.isDocument() || obj.getDocument() != null) */ {
-                    SendMessagesHelper.SendMessageParams params = SendMessagesHelper.SendMessageParams.of(obj);
-//                    SendMessagesHelper.SendMessageParams params = new SendMessagesHelper.SendMessageParams();
-//                    if (text != null && text.length() > 0) params.caption = text.toString();
-                    params.peer = dialog_id;
-//                    params.replyToMsg = obj.replyMessageObject;
-//                    params.replyToTopMsg = getThreadMessage();
-//                    TLRPC.Document doc = obj.getDocument();
-//                    TLRPC.TL_document document = new TLRPC.TL_document();
-//                    document.id = doc.id;
-//                    document.mime_type = obj.isSticker() ? "image/webp" : "video/webm";
-//                    document.access_hash = doc.access_hash;
-//                    document.file_reference = (doc.file_reference != null ? doc.file_reference : new byte[0]);
-//                    params.document = document;
+                    params.payStars = 0;
+                    params.monoForumPeer = getSendMonoForumPeerId();
+                    params.suggestionParams = getSendMessageSuggestionParams();
                     SendMessagesHelper.getInstance(currentAccount).sendMessage(params);
+                } else {
+                    SendMessagesHelper.SendMessageParams params = SendMessagesHelper.SendMessageParams.of(obj);
+                    params.peer = dialog_id;
+                    params.payStars = 0;
+                    params.monoForumPeer = getSendMonoForumPeerId();
+                    params.suggestionParams = getSendMessageSuggestionParams();
+                    SendMessagesHelper.getInstance(currentAccount).sendMessage(params);
+                }
+                int i = 0;
+                final var fsplits = splits;
+                while (splits != null && !splits.isEmpty()) {
+                    Utilities.stageQueue.postRunnable(() -> {
+                        String msg = fsplits.pollFirst();
+                        SendMessagesHelper.getInstance(currentAccount).sendMessage(SendMessagesHelper.SendMessageParams.of(msg, dialog_id,
+                                null, null, null, true, null,
+                                null, null, true, 0, 0, null, false));
+                    }, (++i) * 67);
                 }
             }
         }
@@ -15387,6 +15485,128 @@ public class ChatActivityEnterView extends FrameLayout implements
             parentFragment.messagePreviewParamsForTranslate = null;
             isTranslatedBeforeSend = false;
         }, 30);
+    }
+
+    private boolean canSendTranslatedForwardMedia(MessageObject obj) {
+        if (obj.isAnyKindOfSticker()) {
+            return false;
+        }
+        TLRPC.MessageMedia media = MessageObject.getMedia(obj);
+        return media instanceof TLRPC.TL_messageMediaPhoto && media.photo instanceof TLRPC.TL_photo ||
+                media instanceof TLRPC.TL_messageMediaDocument && media.document instanceof TLRPC.TL_document;
+    }
+
+    private void applyTranslatedForwardGrouping(MessageObject obj, SendMessagesHelper.SendMessageParams params,
+                                                HashMap<Long, Integer> groupRemaining, HashMap<Long, Long> sentGroupIds) {
+        long groupId = obj.getGroupId();
+        Integer remaining = groupRemaining.get(groupId);
+        if (groupId == 0 || remaining == null) {
+            return;
+        }
+        Long sentGroupId = sentGroupIds.get(groupId);
+        if (sentGroupId == null) {
+            sentGroupId = Utilities.random.nextLong();
+            sentGroupIds.put(groupId, sentGroupId);
+        }
+        if (params.params == null) {
+            params.params = new HashMap<>();
+        }
+        params.params.put("groupId", "" + sentGroupId);
+        remaining--;
+        groupRemaining.put(groupId, remaining);
+        if (remaining == 0) {
+            params.params.put("final", "1");
+        }
+    }
+
+    private TLRPC.TL_photo copyPhotoReference(TLRPC.Photo photo) {
+        if (!(photo instanceof TLRPC.TL_photo)) {
+            return null;
+        }
+        TLRPC.Photo copied = TLObject.deepCopy((TLRPC.TL_photo) photo, TLRPC.Photo::TLdeserialize);
+        if (!(copied instanceof TLRPC.TL_photo)) {
+            return null;
+        }
+        TLRPC.TL_photo copy = (TLRPC.TL_photo) copied;
+        copy.file_reference = photo.file_reference != null ? photo.file_reference.clone() : new byte[0];
+        return copy;
+    }
+
+    private TLRPC.TL_document copyDocumentReference(TLRPC.Document document) {
+        if (!(document instanceof TLRPC.TL_document)) {
+            return null;
+        }
+        TLRPC.Document copied = TLObject.deepCopy((TLRPC.TL_document) document, TLRPC.Document::TLdeserialize);
+        if (!(copied instanceof TLRPC.TL_document)) {
+            return null;
+        }
+        TLRPC.TL_document copy = (TLRPC.TL_document) copied;
+        copy.file_reference = document.file_reference != null ? document.file_reference.clone() : new byte[0];
+        return copy;
+    }
+
+    private String combineTranslatedForwardCaption(String source, String caption) {
+        if (caption == null) {
+            caption = "";
+        }
+        if (source == null) {
+            return caption;
+        }
+        return caption.isEmpty() ? source : source + "\n\n" + caption;
+    }
+
+    private String getTranslatedForwardSource(MessageObject obj) {
+        if (!MomoConfig.showTranslatedForwardSource.Bool() || obj == null || obj.messageOwner == null) {
+            return null;
+        }
+        TLRPC.Message message = obj.messageOwner;
+        TLRPC.MessageFwdHeader header = message.fwd_from;
+        long sourceId = 0;
+        String name = null;
+        int date = message.date;
+        if (header != null) {
+            if (header.date != 0) {
+                date = header.date;
+            }
+            if (header.from_id != null) {
+                sourceId = DialogObject.getPeerDialogId(header.from_id);
+            } else if (header.saved_from_peer != null) {
+                sourceId = DialogObject.getPeerDialogId(header.saved_from_peer);
+            }
+            if (!TextUtils.isEmpty(header.from_name)) {
+                name = header.from_name;
+            }
+        } else {
+            if (message.from_id != null) {
+                sourceId = DialogObject.getPeerDialogId(message.from_id);
+            }
+            if (sourceId == 0 && message.peer_id != null) {
+                sourceId = DialogObject.getPeerDialogId(message.peer_id);
+            }
+        }
+        TLObject sourcePeer = sourceId != 0 ? MessagesController.getInstance(currentAccount).getUserOrChat(sourceId) : null;
+        if (TextUtils.isEmpty(name) && sourcePeer != null) {
+            name = MessageObject.getPeerObjectName(sourcePeer);
+        }
+        if (TextUtils.isEmpty(name)) {
+            name = getString(R.string.TranslatedForwardSourceUnknown);
+        }
+        if (MomoConfig.showTranslatedForwardSourceDetails.Bool()) {
+            ArrayList<String> details = new ArrayList<>();
+            if (sourcePeer != null) {
+                String username = DialogObject.getPublicUsername(sourcePeer);
+                if (!TextUtils.isEmpty(username)) {
+                    details.add("@" + username);
+                }
+            }
+            if (sourceId != 0) {
+                details.add("ID: " + Math.abs(sourceId));
+            }
+            if (!details.isEmpty()) {
+                name += " (" + TextUtils.join(", ", details) + ")";
+            }
+        }
+        return formatString(R.string.TranslatedForwardSourceFormat, name, LocaleController.formatSeenDate(date));
     }
 
     public void onRequestPermissionsResultFragment(int requestCode, String[] permissions, int[] grantResults) {
@@ -17531,7 +17751,7 @@ public class ChatActivityEnterView extends FrameLayout implements
 
         if (newAutoTranslateBeforeSend) {
             BulletinFactory.of(parentFragment)
-                    .createSimpleBulletin(R.raw.info, LocaleController.getString(R.string.AlwaysTranslateBeforeSendNote))
+                    .createSimpleBulletin(R.raw.info, LocaleController.getString(R.string.AlwaysTranslateBeforeSendHint))
                     .show(false);
         }
     }

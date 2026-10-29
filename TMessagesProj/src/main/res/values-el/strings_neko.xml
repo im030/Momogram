@@ -224,7 +224,6 @@
     <string name="SearchBlacklistShort">Μαύρη λίστα από την αναζήτηση</string>
     <string name="SearchBlacklistRevert">Κατάργηση από τη μαύρη λίστα</string>
     <string name="ForceHideShowAsList">Απόκρυψη κειμένου «Εμφάνιση ως λίστα» στην αναζήτηση</string>
-    <string name="AlwaysTranslateBeforeSendNote">Μόνο το κείμενο θα διατηρηθεί για προωθημένα μηνύματα</string>
     <string name="SelectAnIcon">Επιλέξτε ένα εικονίδιο</string>
     <string name="CopyPhotoSticker">Αντιγραφή Φωτο/Αυτοκόλλητου</string>
     <string name="CrashDialogTitle">Το NekoX κατέρρευσε!</string>

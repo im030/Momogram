@@ -381,4 +381,9 @@
     <string name="DisableNumRounding">Disable rounding</string>
     <string name="DisableNumRoundingWithCommas">Add commas instead</string>
     <string name="ApplyAutoModToJoinMsgs">Apply rules above for join messages</string>
+    <string name="AlwaysTranslateBeforeSendHint">Forwarded messages will be re-sent with translated text and media captions</string>
+    <string name="ShowTranslatedForwardSource">Show source on auto-translated forwards</string>
+    <string name="ShowTranslatedForwardSourceDetails">Include username and ID in forwarded source</string>
+    <string name="TranslatedForwardSourceFormat">(Forwarded from %1$s, sent at %2$s)</string>
+    <string name="TranslatedForwardSourceUnknown">Unknown sender</string>
 </resources>

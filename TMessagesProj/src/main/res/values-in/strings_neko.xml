@@ -258,7 +258,6 @@
     <string name="IgnoreFilterEmoticonUpdate">Abaikan pembaruan ikon folder dari server</string>
     <string name="ArticleViewerBottomActionBar">Pindahkan bilah tindakan penampil artikel ke bawah</string>
     <string name="AlwaysTranslateBeforeSend">Selalu terjemahkan</string>
-    <string name="AlwaysTranslateBeforeSendNote">Hanya teks yang akan disimpan untuk pesan yang diteruskan</string>
     <string name="SelectAnIcon">Pilih ikon</string>
     <string name="ImageMessageSizeTweak">Perbesar ukuran pesan maksimum dengan gambar dan aktifkan kesesuaian aspek</string>
     <string name="CopySticker">Salin Stiker</string>

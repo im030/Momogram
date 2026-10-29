@@ -267,7 +267,6 @@
     <string name="ArticleViewerBottomActionBar">Mover la barra de acciones del visor de artículos hacia la parte inferior</string>
     <string name="MapMobileDataSaverToRoamingNote">Solo es compatible con Android 9 o versiones más recientes</string>
     <string name="AlwaysTranslateBeforeSend">Traducir siempre</string>
-    <string name="AlwaysTranslateBeforeSendNote">Solo se conservará el texto de los mensajes reenviados</string>
     <string name="ChooseBestVideoQualityByDefault">Elige la mejor calidad de vídeo por defecto</string>
     <string name="MapMobileDataSaverToRoaming">Usar ajuste de roaming predeterminado con ahorro de datos activado</string>
     <string name="KeepBlockedBotChatHistory">Mantener el historial de bots tras el bloqueo</string>

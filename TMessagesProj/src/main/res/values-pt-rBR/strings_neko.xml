@@ -259,7 +259,6 @@
     <string name="ChatNameOverrideMenu">Substituir nome</string>
     <string name="NameAsTitleText">Use o nome como texto do título</string>
     <string name="MomoSettings">Configurações Momo</string>
-    <string name="AlwaysTranslateBeforeSendNote">Somente o texto será retido para mensagens encaminhadas</string>
     <string name="SelectAnIcon">Escolha um ícone</string>
     <string name="ImageMessageSizeTweak">Aumente o tamanho máximo das mensagens com imagem e habilite o ajuste de aspecto</string>
     <string name="ArticleViewerBottomActionBar">Mover a barra de ação do visualizador de artigos para baixo</string>

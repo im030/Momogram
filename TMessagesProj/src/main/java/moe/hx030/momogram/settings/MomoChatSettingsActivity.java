@@ -132,6 +132,8 @@ public class MomoChatSettingsActivity extends MomoSettingsBaseActivity implement
     private final AbstractConfigCell confirmToSendCommandByClickRow = cellGroup.appendCell(new ConfigCellTextCheck(MomoConfig.confirmToSendCommandByClick));
     private final AbstractConfigCell dontSendRightAfterTranslatedRow = cellGroup.appendCell(new ConfigCellTextCheck(MomoConfig.dontSendRightAfterTranslated));
     private final AbstractConfigCell hideOriginalTextAfterTranslateRow = cellGroup.appendCell(new ConfigCellTextCheck(MomoConfig.hideOriginalTextAfterTranslate));
+    private final AbstractConfigCell showTranslatedForwardSourceRow = cellGroup.appendCell(new ConfigCellTextCheck(MomoConfig.showTranslatedForwardSource));
+    private final AbstractConfigCell showTranslatedForwardSourceDetailsRow = cellGroup.appendCell(new ConfigCellTextCheck(MomoConfig.showTranslatedForwardSourceDetails));
     private final AbstractConfigCell autoSendMessageIfBlockedBySlowModeRow = cellGroup.appendCell(new ConfigCellTextCheck(MomoConfig.autoSendMessageIfBlockedBySlowMode, LocaleController.getString(R.string.AutoSendMessageIfBlockedBySlowModeDesc)));
     private final AbstractConfigCell replyAsQuoteByDefaultRow = cellGroup.appendCell(new ConfigCellTextCheck(MomoConfig.replyAsQuoteByDefault));
     private final AbstractConfigCell hideMessageSideButtonsRow = cellGroup.appendCell(new ConfigCellTextCheck(MomoConfig.hideMessageSideButtons));
