@@ -792,7 +792,11 @@ public class ChatActivityEnterView extends FrameLayout implements
     private boolean collectDeleteAfterSendIds;
     public static final ConcurrentHashMap<Long, HashSet<Integer>> deleteAfterSendMessageIds = new ConcurrentHashMap<>();
     public static final ConcurrentHashMap<Long, HashMap<Integer, long[]>> deleteAfterSendRetries = new ConcurrentHashMap<>();
-    private static final HashMap<Long, Boolean> alwaysDeleteAfterSend = new HashMap<>();
+    private static final ConcurrentHashMap<Long, Boolean> alwaysDeleteAfterSend = new ConcurrentHashMap<>();
+
+    public static boolean isDeleteAfterSendEnabled(long dialogId) {
+        return Boolean.TRUE.equals(alwaysDeleteAfterSend.get(dialogId));
+    }
 
     private int lastSizeChangeValue1;
     private boolean lastSizeChangeValue2;
@@ -8895,10 +8899,11 @@ public class ChatActivityEnterView extends FrameLayout implements
     private void scheduleDeleteAfterSend(int serverId, long dialogId, int attempt) {
         AndroidUtilities.runOnUIThread(() -> {
             long[] data = deleteAfterSendRetries.getOrDefault(dialogId, new HashMap<>()).get(serverId);
-            if (data != null && (long) data[0] != dialogId) {
-                return;
-            }
-            if (data == null) {
+            if (data != null) {
+                if (attempt == 0 || (long) data[0] != dialogId) {
+                    return;
+                }
+            } else {
                 deleteAfterSendRetries.compute(dialogId, (k, v) -> {
                     if (v == null) v = new HashMap<>();
                     v.put(serverId, new long[]{dialogId});

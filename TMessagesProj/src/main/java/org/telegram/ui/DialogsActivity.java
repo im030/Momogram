@@ -18,6 +18,7 @@ import static org.telegram.messenger.LocaleController.getString;
 import static org.telegram.ui.Components.AlertsCreator.createClearOrDeleteDialogsAlert;
 import static org.telegram.ui.Components.ChatActivityEnterView.deleteAfterSendMessageIds;
 import static org.telegram.ui.Components.ChatActivityEnterView.deleteAfterSendRetries;
+import static org.telegram.ui.Components.ChatActivityEnterView.isDeleteAfterSendEnabled;
 
 import android.Manifest;
 import android.animation.Animator;
@@ -15083,13 +15084,18 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
     }
     private void maybeDeleteMessages(Object... args) {
         if (args.length < 4) return;
+        if (args.length > 6 && Boolean.TRUE.equals(args[6])) return;
         long did = (Long) args[3];
         Integer newMsgId = (Integer) args[1];
         Integer oldMsgId = (Integer) args[0];
+        if (newMsgId == null) return;
         HashSet<Integer> idSet = deleteAfterSendMessageIds.getOrDefault(did, new HashSet<>());
 
-        if (oldMsgId != null && oldMsgId < 0 && idSet != null && idSet.contains(oldMsgId)) {
+        boolean collected = oldMsgId != null && oldMsgId < 0 && idSet.contains(oldMsgId);
+        if (collected) {
             idSet.remove(oldMsgId);
+        }
+        if (collected || isDeleteAfterSendEnabled(did)) {
             scheduleDeleteAfterSend(newMsgId, did, 0);
         }
     }
@@ -15097,10 +15103,11 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
     private void scheduleDeleteAfterSend(int serverId, long dialogId, int attempt) {
         AndroidUtilities.runOnUIThread(() -> {
             long[] data = deleteAfterSendRetries.getOrDefault(dialogId, new HashMap<>()).get(serverId);
-            if (data != null && (long) data[0] != dialogId) {
-                return;
-            }
-            if (data == null) {
+            if (data != null) {
+                if (attempt == 0 || (long) data[0] != dialogId) {
+                    return;
+                }
+            } else {
                 deleteAfterSendRetries.compute(dialogId, (k, v) -> {
                     if (v == null) v = new HashMap<>();
                     v.put(serverId, new long[]{dialogId});
