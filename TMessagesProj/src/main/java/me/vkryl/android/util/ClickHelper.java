@@ -26,6 +26,7 @@ import android.view.ViewConfiguration;
 
 import me.vkryl.android.ViewUtils;
 import me.vkryl.core.BitwiseUtils;
+import moe.hx030.momogram.MomoConfig;
 
 public class ClickHelper {
   private static final int FLAG_CAUGHT = 0x01;
@@ -144,10 +145,12 @@ public class ClickHelper {
 
   public final void onLongPress (View view, float x, float y) {
     longPressX = x; longPressY = y;
-    if (delegate.ignoreHapticFeedbackSettings(x, y)) {
-      ViewUtils.hapticVibrate(view, true, delegate.forceEnableVibration());
-    } else {
-      view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
+    if (!MomoConfig.disableVibration.Bool()) {
+      if (delegate.ignoreHapticFeedbackSettings(x, y)) {
+        ViewUtils.hapticVibrate(view, true, delegate.forceEnableVibration());
+      } else {
+        view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
+      }
     }
     flags |= FLAG_IN_LONG_PRESS;
     flags &= ~FLAG_AWAITING_CUSTOM_LONG_PRESS;

@@ -262,6 +262,7 @@ import moe.hx030.momogram.utils.UIUtil;
 
 import me.vkryl.android.animator.BoolAnimator;
 import me.vkryl.android.animator.FactorAnimator;
+import moe.hx030.momogram.utils.VibrateUtil;
 
 public class ChatActivityEnterView extends FrameLayout implements
     NotificationCenter.NotificationCenterDelegate,
@@ -3748,6 +3749,7 @@ public class ChatActivityEnterView extends FrameLayout implements
             createBotButton();
             botButton.setVisibility(VISIBLE);
         }
+        if (MomoConfig.disableVibration.Bool()) VibrateUtil.disableHapticFeedback(this);
     }
 
     public void setViewParentForEmoji(ViewGroup viewParent) {
@@ -4340,6 +4342,7 @@ public class ChatActivityEnterView extends FrameLayout implements
             }
             if (delegate.getSendAsPeers() != null) {
                 try {
+                    if (!MomoConfig.disableVibration.Bool())
                     v.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
                 } catch (Exception ignored) {
                 }
@@ -4532,6 +4535,7 @@ public class ChatActivityEnterView extends FrameLayout implements
                                             public void onAnimationUpdate(DynamicAnimation animation, float value, float velocity) {
                                                 if (!performedHapticFeedback && value >= endY) {
                                                     performedHapticFeedback = true;
+                                                    if (MomoConfig.disableVibration.Bool()) return;
                                                     try {
                                                         avatar.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
                                                     } catch (Exception ignored) {
@@ -5518,6 +5522,7 @@ public class ChatActivityEnterView extends FrameLayout implements
             sendPopupWindow.showAtLocation(view, Gravity.LEFT | Gravity.TOP, location[0] + view.getMeasuredWidth() - sendPopupLayout.getMeasuredWidth() + dp(8), y);
             sendPopupWindow.dimBehind();
             sendButton.invalidate();
+            if (MomoConfig.disableVibration.Bool()) return true;
             try {
                 view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
             } catch (Exception ignore) {}
@@ -8736,6 +8741,7 @@ public class ChatActivityEnterView extends FrameLayout implements
             if (captionLimitView != null) {
                 AndroidUtilities.shakeViewSpring(captionLimitView, 3.5f);
                 try {
+                    if (!MomoConfig.disableVibration.Bool())
                     captionLimitView.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
                 } catch (Exception ignored) {
                 }
@@ -8772,6 +8778,7 @@ public class ChatActivityEnterView extends FrameLayout implements
             if (captionLimitView != null) {
                 AndroidUtilities.shakeViewSpring(captionLimitView, 3.5f);
                 try {
+                    if (!MomoConfig.disableVibration.Bool())
                     captionLimitView.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
                 } catch (Exception ignored) {}
             }

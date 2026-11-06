@@ -5,6 +5,8 @@ import android.os.VibrationEffect;
 
 import androidx.annotation.RequiresApi;
 
+import moe.hx030.momogram.MomoConfig;
+
 public enum BotWebViewVibrationEffect {
     IMPACT_LIGHT(new long[] {7}, new int[] {65}, new long[] {60}),
     IMPACT_MEDIUM(new long[] {7}, new int[] {145}, new long[] {70}),
@@ -42,6 +44,7 @@ public enum BotWebViewVibrationEffect {
     }
 
     public void vibrate() {
+        if (MomoConfig.disableVibration.Bool()) return;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             AndroidUtilities.getVibrator().vibrate(getVibrationEffectForOreo());
         } else {

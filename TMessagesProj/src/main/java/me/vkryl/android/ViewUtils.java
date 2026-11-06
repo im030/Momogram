@@ -27,6 +27,8 @@ import android.view.ViewTreeObserver;
 
 import java.lang.reflect.Method;
 
+import moe.hx030.momogram.MomoConfig;
+
 public final class ViewUtils {
   public static void onClick (View v) {
     if (v != null) {
@@ -73,7 +75,7 @@ public final class ViewUtils {
 
   @SuppressWarnings("deprecation")
   public static void hapticVibrate (View view, boolean isForce, boolean ignoreSetting) {
-    if (view != null) {
+    if (view != null && !MomoConfig.disableVibration.Bool()) {
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && ignoreSetting) {
         // TODO[sdk]: replacement for HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING
       }
