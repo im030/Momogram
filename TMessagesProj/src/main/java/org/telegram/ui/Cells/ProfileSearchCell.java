@@ -8,6 +8,7 @@
 
 package org.telegram.ui.Cells;
 
+import org.telegram.messenger.FileLog;
 import static org.telegram.messenger.AndroidUtilities.dp;
 import static org.telegram.messenger.LocaleController.getString;
 
@@ -51,6 +52,7 @@ import org.telegram.tgnet.ConnectionsManager;
 import org.telegram.tgnet.TLRPC;
 import org.telegram.tgnet.tl.TL_account;
 import org.telegram.ui.ActionBar.Theme;
+import org.telegram.ui.ActionBar.ThemeBind;
 import org.telegram.ui.Components.AnimatedEmojiDrawable;
 import org.telegram.ui.Components.AnimatedFloat;
 import org.telegram.ui.Components.AvatarDrawable;
@@ -72,6 +74,7 @@ import org.telegram.ui.bots.BotWebViewSheet;
 import org.telegram.ui.community.CommunityUtils;
 
 import java.util.Locale;
+import java.util.HashSet;
 
 import moe.hx030.momogram.MomoConfig;
 import moe.hx030.momogram.NekoXConfig;
@@ -351,9 +354,9 @@ public class ProfileSearchCell extends BaseCell implements NotificationCenter.No
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
         avatarImage.onAttachedToWindow();
-        NotificationCenter.getGlobalInstance().addObserver(this, NotificationCenter.emojiLoaded);
+        NotificationCenter.getGlobalInstance().addWeakObserver(this, NotificationCenter.emojiLoaded);
         if (showPremiumBlocked) {
-            NotificationCenter.getGlobalInstance().addObserver(this, NotificationCenter.userIsPremiumBlockedUpadted);
+            NotificationCenter.getGlobalInstance().addWeakObserver(this, NotificationCenter.userIsPremiumBlockedUpadted);
         }
         statusDrawable.attach();
         botVerificationDrawable.attach();
@@ -1220,8 +1223,28 @@ public class ProfileSearchCell extends BaseCell implements NotificationCenter.No
 
     @Override
     public void updateColors() {
+        if (colorsGeneration != ThemeBind.generation()) {
+            colorsGeneration = ThemeBind.generation();
+            try {
+                update(0);
+            } catch (Exception e) {
+                FileLog.e(e);
+            }
+            return;
+        }
         if (nameLayout != null && getMeasuredWidth() > 0) {
             buildLayout();
         }
+    }
+
+    private int colorsGeneration = ThemeBind.generation();
+    @Override
+    public void addColorKeys(HashSet<Integer> colors) {
+        colors.add(Theme.key_chats_verifiedBackground);
+        colors.add(Theme.key_windowBackgroundWhiteGrayText);
+        colors.add(Theme.key_chats_secretName);
+        colors.add(Theme.key_chats_name);
+        colors.add(Theme.key_windowBackgroundWhiteGrayText3);
+        colors.add(Theme.key_windowBackgroundWhiteBlueText3);
     }
 }

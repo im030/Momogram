@@ -47,6 +47,7 @@ import org.telegram.ui.AccountFrozenAlert;
 import org.telegram.ui.ActionBar.AlertDialog;
 import org.telegram.ui.ActionBar.BaseFragment;
 import org.telegram.ui.ActionBar.Theme;
+import org.telegram.ui.ActionBar.ThemeBind;
 import org.telegram.ui.Cells.CheckBoxCell;
 import org.telegram.ui.Cells.TextCheckCell;
 import org.telegram.ui.Components.AlertsCreator;
@@ -435,20 +436,20 @@ public class VoIPHelper {
     public static void permissionDenied(final Activity activity, final Runnable onFinish, int code) {
         boolean mergedRequest = code == 102;
 		if (!activity.shouldShowRequestPermissionRationale(Manifest.permission.RECORD_AUDIO) || mergedRequest && !activity.shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)) {
-            AlertDialog.Builder dlg = new AlertDialog.Builder(activity)
-
-                    .setMessage(AndroidUtilities.replaceTags(mergedRequest ? LocaleController.getString(R.string.VoipNeedMicCameraPermissionWithHint) : LocaleController.getString(R.string.VoipNeedMicPermissionWithHint)))
-                    .setPositiveButton(LocaleController.getString(R.string.Settings), (dialog, which) -> {
-                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                        Uri uri = Uri.fromParts("package", activity.getPackageName(), null);
-                        intent.setData(uri);
-                        activity.startActivity(intent);
-                    })
-                    .setNegativeButton(LocaleController.getString(R.string.ContactsPermissionAlertNotNow), null)
-            .setOnDismissListener(dialog -> {
-                if (onFinish != null)
-                    onFinish.run();
-            }).setTopAnimation(mergedRequest ? R.raw.permission_request_camera : R.raw.permission_request_microphone, AlertsCreator.PERMISSIONS_REQUEST_TOP_ICON_SIZE, false, Theme.getColor(Theme.key_dialogTopBackground));
+			AlertDialog.Builder dlg = new AlertDialog.Builder(activity)
+					.setMessage(AndroidUtilities.replaceTags(mergedRequest ? LocaleController.getString(R.string.VoipNeedMicCameraPermissionWithHint) : LocaleController.getString(R.string.VoipNeedMicPermissionWithHint)))
+					.setPositiveButton(LocaleController.getString(R.string.Settings), (dialog, which) -> {
+						Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+						Uri uri = Uri.fromParts("package", activity.getPackageName(), null);
+						intent.setData(uri);
+						activity.startActivity(intent);
+					})
+					.setNegativeButton(LocaleController.getString(R.string.ContactsPermissionAlertNotNow), null)
+					.setOnDismissListener(dialog -> {
+						if (onFinish != null)
+							onFinish.run();
+					})
+					.setTopAnimation(mergedRequest ? R.raw.permission_request_camera : R.raw.permission_request_microphone, AlertsCreator.PERMISSIONS_REQUEST_TOP_ICON_SIZE, false, Theme.getColor(Theme.key_dialogTopBackground)).setTopBackgroundColorKey(Theme.key_dialogTopBackground, null);
 
 			dlg.show();
         }
@@ -523,12 +524,12 @@ public class VoIPHelper {
         int pad = AndroidUtilities.dp(16);
         alertView.setPadding(pad, pad, pad, 0);
 
-        TextView text = new TextView(context);
-        text.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
-        text.setTextColor(Theme.getColor(Theme.key_dialogTextBlack));
-        text.setGravity(Gravity.CENTER);
-        text.setText(LocaleController.getString(R.string.VoipRateCallAlert));
-        alertView.addView(text);
+		TextView text = new TextView(context);
+		text.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+		ThemeBind.textColor(text, Theme.key_dialogTextBlack);
+		text.setGravity(Gravity.CENTER);
+		text.setText(LocaleController.getString(R.string.VoipRateCallAlert));
+		alertView.addView(text);
 
         final BetterRatingView bar = new BetterRatingView(context);
         alertView.addView(bar, LayoutHelper.createLinear(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.CENTER_HORIZONTAL, 0, 16, 0, 0));
@@ -590,10 +591,10 @@ public class VoIPHelper {
 		final EditTextBoldCursor commentBox = new EditTextBoldCursor(context);
 		commentBox.setHint(LocaleController.getString(R.string.VoipFeedbackCommentHint));
 		commentBox.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
-		commentBox.setTextColor(Theme.getColor(Theme.key_dialogTextBlack));
-		commentBox.setHintTextColor(Theme.getColor(Theme.key_dialogTextHint));
+		ThemeBind.textColor(commentBox, Theme.key_dialogTextBlack);
+		ThemeBind.hintTextColor(commentBox, Theme.key_dialogTextHint);
 		commentBox.setBackground(null);
-		commentBox.setLineColors(Theme.getColor(Theme.key_dialogInputField), Theme.getColor(Theme.key_dialogInputFieldActivated), Theme.getColor(Theme.key_text_RedBold));
+		ThemeBind.lineColors(commentBox, Theme.key_dialogInputField, Theme.key_dialogInputFieldActivated, Theme.key_text_RedBold);
 		commentBox.setPadding(0, AndroidUtilities.dp(4), 0, AndroidUtilities.dp(4));
 		commentBox.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
 		commentBox.setVisibility(View.GONE);
@@ -610,13 +611,13 @@ public class VoIPHelper {
         checkbox.setOnClickListener(checkClickListener);
         alertView.addView(checkbox, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, -8, 0, -8, 0));
 
-        final TextView logsText = new TextView(context);
-        logsText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
-        logsText.setTextColor(Theme.getColor(Theme.key_dialogTextGray3));
-        logsText.setText(LocaleController.getString(R.string.CallReportLogsExplain));
-        logsText.setPadding(AndroidUtilities.dp(8), 0, AndroidUtilities.dp(8), 0);
-        logsText.setOnClickListener(checkClickListener);
-        alertView.addView(logsText);
+		final TextView logsText = new TextView(context);
+		logsText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+		ThemeBind.textColor(logsText, Theme.key_dialogTextGray3);
+		logsText.setText(LocaleController.getString(R.string.CallReportLogsExplain));
+		logsText.setPadding(AndroidUtilities.dp(8), 0, AndroidUtilities.dp(8), 0);
+		logsText.setOnClickListener(checkClickListener);
+		alertView.addView(logsText);
 
         checkbox.setVisibility(View.GONE);
         logsText.setVisibility(View.GONE);
@@ -733,11 +734,11 @@ public class VoIPHelper {
         LinearLayout ll = new LinearLayout(context);
         ll.setOrientation(LinearLayout.VERTICAL);
 
-        TextView warning = new TextView(context);
-        warning.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15);
-        warning.setText("Please only change these settings if you know exactly what they do.");
-        warning.setTextColor(Theme.getColor(Theme.key_dialogTextBlack));
-        ll.addView(warning, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 16, 8, 16, 8));
+		TextView warning = new TextView(context);
+		warning.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15);
+		warning.setText("Please only change these settings if you know exactly what they do.");
+		ThemeBind.textColor(warning, Theme.key_dialogTextBlack);
+		ll.addView(warning, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, 16, 8, 16, 8));
 
         final TextCheckCell tcpCell = new TextCheckCell(context);
         tcpCell.setTextAndCheck("Force TCP", preferences.getBoolean("dbg_force_tcp_in_calls", false), false);

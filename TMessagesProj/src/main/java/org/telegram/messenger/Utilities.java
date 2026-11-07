@@ -43,7 +43,7 @@ public class Utilities {
     public static SecureRandom random = new SecureRandom();
     public static Random fastRandom = new Xoroshiro128PlusRandom(random.nextLong());
 
-    public static class DebugDispatchQueue extends DispatchQueue {
+    public static class DebugDispatchQueue extends DispatchQueue2 {
         public DebugDispatchQueue(String threadName) {
             super(threadName);
         }
@@ -109,11 +109,11 @@ public class Utilities {
 
     public static volatile DebugDispatchQueue stageQueue = new DebugDispatchQueue("stageQueue");
     public static volatile DebugDispatchQueue globalQueue = new DebugDispatchQueue("globalQueue");
-    public static volatile DispatchQueue cacheClearQueue = new DispatchQueue("cacheClearQueue");
+    public static volatile DispatchQueue2 cacheClearQueue = new DispatchQueue2("cacheClearQueue");
     public static volatile DebugDispatchQueue searchQueue = new DebugDispatchQueue("searchQueue");
-    public static volatile DispatchQueue phoneBookQueue = new DispatchQueue("phoneBookQueue");
-    public static volatile DispatchQueue themeQueue = new DispatchQueue("themeQueue");
-    public static volatile DispatchQueue externalNetworkQueue = new DispatchQueue("externalNetworkQueue");
+    public static volatile DispatchQueue2 phoneBookQueue = new DispatchQueue2("phoneBookQueue");
+    public static volatile DispatchQueue2 themeQueue = new DispatchQueue2("themeQueue");
+    public static volatile DispatchQueue2 externalNetworkQueue = new DispatchQueue2("externalNetworkQueue");
     public static volatile DispatchQueue videoPlayerQueue;
 
     private final static String RANDOM_STRING_CHARS = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
