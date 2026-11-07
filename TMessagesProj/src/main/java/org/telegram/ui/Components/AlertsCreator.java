@@ -106,8 +106,7 @@ import org.telegram.messenger.UserConfig;
 import org.telegram.messenger.UserObject;
 import org.telegram.messenger.Utilities;
 import org.telegram.messenger.browser.Browser;
-import org.telegram.messenger.pip.utils.PipPermissions;
-import org.telegram.messenger.pip.utils.PipUtils;
+import org.telegram.utils.pip.PipEnvironment;
 import org.telegram.tgnet.ConnectionsManager;
 import org.telegram.tgnet.SerializedData;
 import org.telegram.tgnet.TLObject;
@@ -649,7 +648,7 @@ public class AlertsCreator {
                     fragment.presentFragment(new TooManyCommunitiesActivity(TooManyCommunitiesActivity.TYPE_JOIN));
                 }
             } else if (error.text.equals("INVITE_HASH_EXPIRED")) {
-                showSimpleAlert(fragment, LocaleController.getString(R.string.ExpiredLink), LocaleController.getString(R.string.InviteExpired));
+                BulletinFactory.of(fragment).createSimpleBulletin(R.raw.linkbroken, LocaleController.getString(R.string.InviteExpired)).show();
             } else {
                 showSimpleAlert(fragment, LocaleController.getString(R.string.JoinToGroupErrorNotExist));
             }
@@ -7442,7 +7441,8 @@ public class AlertsCreator {
         builder.setPositiveButton(LocaleController.getString(R.string.Enable), (dialogInterface, i) -> {
             if (activity != null) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    if (allowPictureInPicture && PipUtils.checkPermissions(activity) == PipPermissions.PIP_DENIED_PIP) {
+                    // no overlay and system PiP denied: the PiP settings are the closer fix
+                    if (allowPictureInPicture && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !PipEnvironment.canDrawOverlays(activity) && !PipEnvironment.canUseSystemPip(activity)) {
                         try {
                             activity.startActivity(new Intent("android.settings.PICTURE_IN_PICTURE_SETTINGS", Uri.parse("package:" + activity.getPackageName())));
                             return;

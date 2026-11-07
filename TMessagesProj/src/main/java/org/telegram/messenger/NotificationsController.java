@@ -5008,6 +5008,7 @@ public class NotificationsController extends BaseController implements Notificat
         if (Build.VERSION.SDK_INT >= 26) {
             notificationBuilder.setChannelId(validateChannelId(lastDialogId, lastTopicId, chatName, vibrationPattern, ledColor, sound, importance, isDefault, isInApp, isSilent, chatType));
         }
+        notificationBuilder.setOnlyAlertOnce(isSilent);
         Notification mainNotification = notificationBuilder.build();
         if (Build.VERSION.SDK_INT <= 19) {
             notificationManager.notify(notificationId, mainNotification);
@@ -5799,6 +5800,7 @@ public class NotificationsController extends BaseController implements Notificat
                     .setContentIntent(contentIntent)
                     .extend(wearableExtender)
                     .setSortKey(String.valueOf(Long.MAX_VALUE - date))
+                    .setOnlyAlertOnce(isSilent || dialogId != lastDialogId || topicId != lastTopicId)
                     .setCategory(NotificationCompat.CATEGORY_MESSAGE);
 
             try {
