@@ -4876,6 +4876,12 @@ public class MessageObject {
     }
 
     private void updateMessageText(AbstractMap<Long, TLRPC.User> users, AbstractMap<Long, TLRPC.Chat> chats, LongSparseArray<TLRPC.User> sUsers, LongSparseArray<TLRPC.Chat> sChats) {
+        if (isWidgetMediaBlocked()) {
+            messageText = getString(R.string.WidgetMessageBlocked);
+            messageTextShort = messageText;
+            messageTextForReply = messageText;
+            return;
+        }
         TLRPC.User fromUser = null;
         TLRPC.Chat fromChat = null;
         if (messageOwner.from_id instanceof TLRPC.TL_peerUser) {
@@ -6985,6 +6991,8 @@ public class MessageObject {
                 type = TYPE_UNSUPPORTED;
             } else if (isRestrictedMessage) {
                 type = TYPE_TEXT;
+            } else if (isWidgetMediaBlocked()) {
+                type = TYPE_TEXT;
             } else if (messageOwner.rich_message != null || getMedia(messageOwner) instanceof TLRPC.TL_messageMediaWidget) {
                 type = TYPE_ARTICLE;
 //                contentType = 9;
@@ -7161,6 +7169,9 @@ public class MessageObject {
     }
 
     public boolean checkLayout() {
+        if (messageOwner != null && WidgetMedia.isWidget(getMedia(messageOwner)) && (MomoConfig.blockWidgetMessages.Bool() != (type == TYPE_TEXT))) {
+            layoutCreated = false;
+        }
         if (type != TYPE_TEXT && type != TYPE_EMOJIS && type != TYPE_ARTICLE || messageOwner.peer_id == null || messageText == null || messageText.length() == 0 && !isBotPendingDraft) {
             return false;
         }
@@ -7969,6 +7980,10 @@ public class MessageObject {
     }
 
     public void generateCaption() {
+        if (isWidgetMediaBlocked()) {
+            caption = null;
+            return;
+        }
         if (isRoundVideo()) return;
         final boolean hideLinks = shouldHideLinks();
         if (caption != null &&
@@ -9089,8 +9104,15 @@ public class MessageObject {
         }
     }
 
+    private boolean isWidgetMediaBlocked() {
+        return MomoConfig.blockWidgetMessages.Bool() && messageOwner != null && WidgetMedia.isWidget(getMedia(messageOwner));
+    }
+
     public TL_iv.RichMessage getDisplayRichMessage() {
         if (messageOwner == null) {
+            return null;
+        }
+        if (isWidgetMediaBlocked()) {
             return null;
         }
         if (translated && messageOwner.translatedRichMessage != null) {

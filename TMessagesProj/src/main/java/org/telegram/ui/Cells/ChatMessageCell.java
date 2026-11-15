@@ -2407,6 +2407,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
 
     /** A widget message (messageMediaWidget) laid out as a rich message: the widget is its only block. */
     private boolean isWidgetMessage() {
+        if (MomoConfig.blockWidgetMessages.Bool()) return false;
         final RichMessageLayout layout = currentMessageObject.richLayout;
         return currentMessageObject.type == MessageObject.TYPE_ARTICLE && layout != null
             && layout.blocks.size() == 1 && layout.blocks.get(0) instanceof RichWidgetBlock;

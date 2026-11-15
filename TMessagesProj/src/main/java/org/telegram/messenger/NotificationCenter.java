@@ -265,6 +265,7 @@ public class NotificationCenter {
     public static final int botStarsTransactionsLoaded = totalEvents++;
     public static final int channelStarsUpdated = totalEvents++;
     public static final int updateAllMessages = totalEvents++;
+    public static final int widgetBlockingChanged = totalEvents++;
     public static final int starGiftsLoaded = totalEvents++;
     public static final int starUserGiftsLoaded = totalEvents++;
     public static final int starUserGiftCollectionsLoaded = totalEvents++;
