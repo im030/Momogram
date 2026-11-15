@@ -6,6 +6,8 @@ import org.json.JSONObject;
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.ui.Components.WidgetSandboxPlayer;
 
+import moe.hx030.momogram.MomoConfig;
+
 /**
  * One widget: a chat's widget message (WidgetMedia). Outlives the Views that show it and owns, by
  * stage:
@@ -176,7 +178,7 @@ public final class WidgetSandboxMessage implements WidgetSandboxSession.Listener
 
     /** UI: runs the widget's scripts, starting a new session when the old one was unloaded. */
     public void activate() {
-        if (active) return;
+        if (active || MomoConfig.blockWidgetMessages.Bool()) return;
         // Kill switch: nothing starts, the last frame (if any) stays as it is.
         if (WidgetSandboxSession.disabledByConfig()) return;
         active = true;

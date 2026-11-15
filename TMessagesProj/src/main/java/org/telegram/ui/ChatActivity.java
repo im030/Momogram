@@ -3161,6 +3161,7 @@ public class ChatActivity extends BaseFragment implements
             .add(NotificationCenter.didUpdateReactions)
             .add(NotificationCenter.savedReactionTagsUpdate)
             .add(NotificationCenter.updateAllMessages)
+            .add(NotificationCenter.widgetBlockingChanged)
             .add(NotificationCenter.didUpdateExtendedMedia)
             .add(NotificationCenter.videoLoadingStateChanged)
             .add(NotificationCenter.scheduledMessagesUpdated)
@@ -25201,6 +25202,25 @@ public class ChatActivity extends BaseFragment implements
                 });
                 if (chatAdapter != null) {
                     chatAdapter.notifyDataSetChanged(false);
+                }
+            });
+        } else if (id == NotificationCenter.widgetBlockingChanged) {
+            doOnIdle(() -> {
+                AndroidUtilities.forEachViews(chatListView, view -> {
+                    if (view instanceof ChatMessageCell) {
+                        MessageObject message = ((ChatMessageCell) view).getMessageObject();
+                        if (message != null && WidgetMedia.isWidget(MessageObject.getMedia(message.messageOwner))) {
+                            if (message.richLayout != null) {
+                                message.richLayout.detach(view);
+                                message.richLayout = null;
+                            }
+                            message.resetLayout();
+                            message.forceUpdate = true;
+                        }
+                    }
+                });
+                if (chatAdapter != null) {
+                    chatAdapter.notifyDataSetChanged(true);
                 }
             });
         } else if (id == NotificationCenter.didVerifyMessagesStickers) {

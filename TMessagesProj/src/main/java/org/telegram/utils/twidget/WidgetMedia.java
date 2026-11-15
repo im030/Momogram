@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import android.view.HapticFeedbackConstants;
 import android.view.View;
 
+import moe.hx030.momogram.MomoConfig;
 import org.json.JSONObject;
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.ApplicationLoader;
@@ -259,6 +260,7 @@ public final class WidgetMedia {
      * carries the payload's hash, so a bot's edit is a new widget (on the same storage). Any thread.
      */
     public static TL_iv.RichMessage richMessage(MessageObject object, TLRPC.TL_messageMediaWidget media) {
+        if (MomoConfig.blockWidgetMessages.Bool()) return null;
         String url = URL_PREFIX + object.currentAccount + "/" + object.getDialogId() + "/" + object.messageOwner.id + "/"
                 + Arrays.hashCode(media.payload);
         entry(object, url, media);
@@ -343,7 +345,7 @@ public final class WidgetMedia {
     public static WidgetSandboxMessage find(String url) {
         Entry entry = isWidgetUrl(url) ? entries.get(url) : null;
         if (entry == null) return null;
-        // Kill switch (AppGlobalConfig#widgetsDisabled): no runtime, the block keeps its placeholder.
+        // Kill switch (AppGlobalConfig#widgetsDisabled / MomoConfig#blockWidgetMessages): no runtime.
         if (WidgetSandboxSession.disabledByConfig()) return null;
         synchronized (entry) {
             if (entry.message == null) {
@@ -696,6 +698,7 @@ public final class WidgetMedia {
      * until the new one loads; after {@link #MAX_CRASHES} deaths it stays stopped with its badge.
      */
     private static void start(Entry entry) {
+        if (MomoConfig.blockWidgetMessages.Bool()) return;
         WidgetSandboxMessage message = entry.message;
         if (entry.dead) {
             if (entry.crashes >= MAX_CRASHES) return;

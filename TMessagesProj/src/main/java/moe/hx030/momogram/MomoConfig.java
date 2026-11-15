@@ -367,6 +367,8 @@ public class MomoConfig {
     public static String hideMessageRegexString = null;
     public static Pattern hideMessageRegexPattern = null;
 
+    public static ConfigItem blockWidgetMessages = addConfig(R.string.BlockWidgetMessages, "BlockWidgetMessages", configTypeBool, CHAT, false);
+
     public static ConfigItem profileShowLinkedChat = addConfig("profileShowLinkedChat", configTypeBool, CHAT, true);
     public static ConfigItem profileShowAddToFolder = addConfig("profileShowAddToFolder", configTypeBool, CHAT, true);
     public static ConfigItem profileShowRecentActions = addConfig("profileShowRecentActions", configTypeBool, CHAT, false);

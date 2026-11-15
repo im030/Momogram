@@ -48,6 +48,7 @@ import org.telegram.ui.Components.LayoutHelper;
 import org.telegram.ui.Components.RecyclerListView;
 import org.telegram.ui.Components.SeekBarView;
 import org.telegram.ui.Components.UndoView;
+import org.telegram.utils.twidget.WidgetMedia;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -114,6 +115,7 @@ public class MomoChatSettingsActivity extends MomoSettingsBaseActivity implement
     private final AbstractConfigCell secretChatReqConfirmRow = cellGroup.appendCell(new ConfigCellTextCheck(MomoConfig.secretChatReqConfirm));
     private final AbstractConfigCell hideAIEditButtonRow = cellGroup.appendCell(new ConfigCellTextCheck(MomoConfig.hideAIEditButton));
     private final AbstractConfigCell hideMessageRegexRow = cellGroup.appendCell(new ConfigCellTextInput(null, MomoConfig.hideMessageRegex, null));
+    private final AbstractConfigCell blockWidgetMessagesRow = cellGroup.appendCell(new ConfigCellTextCheck(MomoConfig.blockWidgetMessages, LocaleController.getString(R.string.BlockWidgetMessagesDesc)));
     private final AbstractConfigCell dividerChat = cellGroup.appendCell(new ConfigCellDivider());
 
     // Interactions
@@ -372,6 +374,10 @@ public class MomoChatSettingsActivity extends MomoSettingsBaseActivity implement
                 MediaController.getInstance().recreateProximityWakeLock();
             } else if (key.equals(MomoConfig.disableStories.getKey())) {
                 tooltip.showWithAction(0, UndoView.ACTION_NEED_RESTART, null, null);
+            } else if (key.equals(MomoConfig.blockWidgetMessages.getKey())) {
+                if (MomoConfig.blockWidgetMessages.Bool()) {
+                    WidgetMedia.onKillSwitch();
+                }
             }
         };
 

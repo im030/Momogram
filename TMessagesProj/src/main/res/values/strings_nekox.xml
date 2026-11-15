@@ -386,4 +386,7 @@
     <string name="ShowTranslatedForwardSourceDetails">Include username and ID in forwarded source</string>
     <string name="TranslatedForwardSourceFormat">(Forwarded from %1$s, sent at %2$s)</string>
     <string name="TranslatedForwardSourceUnknown">Unknown sender</string>
+    <string name="BlockWidgetMessages">Block widget messages</string>
+    <string name="BlockWidgetMessagesDesc">Show widget messages as plain text and never run their code.</string>
+    <string name="WidgetMessageBlocked">(Widget message blocked)</string>
 </resources>

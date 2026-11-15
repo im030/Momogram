@@ -6,6 +6,7 @@ import android.os.Looper;
 import android.os.Trace;
 import android.view.Choreographer;
 
+import moe.hx030.momogram.MomoConfig;
 import org.json.JSONObject;
 import org.telegram.messenger.AppGlobalConfig;
 import org.telegram.messenger.LocaleController;
@@ -317,10 +318,11 @@ public final class WidgetSandboxSession {
     private static boolean foregroundWatched;
 
     /**
-     * The kill switch (AppGlobalConfig#widgetsDisabled): true when the config of any logged-in account turns
-     * widgets off. No native session is created then, so no widget code runs in the client. Any thread.
+     * The kill switch (AppGlobalConfig#widgetsDisabled or MomoConfig#blockWidgetMessages): true when widgets
+     * are off. No native session is created then, so no widget code runs in the client. Any thread.
      */
     public static boolean disabledByConfig() {
+        if (MomoConfig.blockWidgetMessages.Bool()) return true;
         for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
             if (UserConfig.getInstance(a).isClientActivated() && AppGlobalConfig.getInstance(a).widgetsDisabled.get()) {
                 return true;
