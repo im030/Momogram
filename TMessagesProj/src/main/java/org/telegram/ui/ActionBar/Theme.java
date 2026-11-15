@@ -2206,7 +2206,6 @@ public class Theme {
 
     private static final Object sync = new Object();
     public static Runnable wallpaperLoadTask;
-    private static int wallpaperLoadTaskId;
 
     public static final int ACTION_BAR_PHOTO_VIEWER_COLOR = 0x7f000000;
     public static final int ACTION_BAR_MEDIA_PICKER_COLOR = 0xff333333;
@@ -8152,30 +8151,7 @@ public class Theme {
     }
 
     public static void destroyResources() {
-        clearAnimatingColors();
-        wallpaperLoadTaskId++;
-        wallpaperLoadTask = null;
-        currentColor = 0;
-        serviceBitmap = null;
-        serviceBitmapShader = null;
-        serviceBitmapMatrix = null;
-        if (backgroundGradientDisposable != null) {
-            backgroundGradientDisposable.dispose();
-            backgroundGradientDisposable = null;
-        }
-        if (lastDrawableToBlur != null) {
-            lastDrawableToBlur.clear();
-            lastDrawableToBlur = null;
-        }
-        blurredBitmap = null;
-        fragmentContextViewWavesDrawable = null;
-        roundPlayDrawable = null;
-        chat_msgAudioVisualizeDrawable = null;
-        if (animatedOutVisualizerDrawables != null) {
-            animatedOutVisualizerDrawables.clear();
-            animatedOutVisualizerDrawables = null;
-        }
-        Arrays.fill(chat_status_drawables, null);
+
     }
 
     public static void reloadAllResources(Context context) {
@@ -9172,10 +9148,6 @@ public class Theme {
         animatingColors = animating ? new SparseIntArray() : null;
     }
 
-    public static void clearAnimatingColors() {
-        animatingColors = null;
-    }
-
     public static boolean isAnimatingColor() {
         return animatingColors != null;
     }
@@ -9377,7 +9349,6 @@ public class Theme {
         if (drawable == null) {
             return;
         }
-        drawable = mutateDrawable(drawable);
         if (drawable instanceof StatusDrawable) {
             ((StatusDrawable) drawable).setColor(color);
         } else if (drawable instanceof MsgClockDrawable) {
@@ -9467,7 +9438,6 @@ public class Theme {
                 } else {
                     state = getStateDrawable(drawable, 1);
                 }
-                state = mutateDrawable(state);
                 if (state instanceof ShapeDrawable) {
                     ((ShapeDrawable) state).getPaint().setColor(color);
                 } else {
@@ -9500,7 +9470,6 @@ public class Theme {
                 Drawable state;
                 if (selected) {
                     state = getStateDrawable(drawable, 0);
-                    state = mutateDrawable(state);
                     if (state instanceof ShapeDrawable) {
                         changed = ((ShapeDrawable) state).getPaint().getColor() != color || changed;
                         ((ShapeDrawable) state).getPaint().setColor(color);
@@ -9511,7 +9480,6 @@ public class Theme {
                 } else {
                     state = getStateDrawable(drawable, 2);
                 }
-                state = mutateDrawable(state);
                 if (state instanceof ShapeDrawable) {
                     changed = ((ShapeDrawable) state).getPaint().getColor() != color || changed;
                     ((ShapeDrawable) state).getPaint().setColor(color);
@@ -9531,7 +9499,6 @@ public class Theme {
             } else {
                 if (rippleDrawable.getNumberOfLayers() > 0) {
                     Drawable drawable1 = rippleDrawable.getDrawable(0);
-                    drawable1 = mutateDrawable(drawable1);
                     if (drawable1 instanceof ShapeDrawable) {
                         changed = ((ShapeDrawable) drawable1).getPaint().getColor() != color || changed;
                         ((ShapeDrawable) drawable1).getPaint().setColor(color);
@@ -9542,21 +9509,6 @@ public class Theme {
             }
         }
         return changed;
-    }
-
-    private static Drawable mutateDrawable(Drawable drawable) {
-        if (drawable == null) {
-            return null;
-        }
-        try {
-            Drawable mutated = drawable.mutate();
-            if (mutated != null) {
-                return mutated;
-            }
-        } catch (Throwable ignore) {
-
-        }
-        return drawable;
     }
 
     public static boolean isThemeWallpaperPublic() {
@@ -9610,7 +9562,6 @@ public class Theme {
         if (wallpaper != null) {
             return;
         }
-        final int taskId = ++wallpaperLoadTaskId;
         boolean defaultTheme = currentTheme.firstAccentIsDefault && currentTheme.currentAccentId == DEFALT_THEME_ACCENT_ID;
         File wallpaperFile;
         boolean wallpaperMotion;
@@ -9637,24 +9588,13 @@ public class Theme {
         } else {
             intensity = (int) (accent != null ? (accent.patternIntensity * 100) : currentTheme.patternIntensity);
         }
-        final ThemeInfo themeInfo = currentTheme;
-        final SparseIntArray colors = currentColors.clone();
-        final String wallpaperLink = themedWallpaperLink;
-        final int wallpaperFileOffset = themedWallpaperFileOffset;
-        final int phase = previousPhase;
-        final boolean previousThemeApplied = hasPreviousTheme;
-        final boolean applyingAccent = isApplyingAccent;
 
         TLRPC.Document finalWallpaperDocument = wallpaperDocument;
         if (async) {
             Utilities.themeQueue.postRunnable(wallpaperLoadTask = () -> {
-                BackgroundDrawableSettings settings = loadWallpaperInternal(themeInfo, colors, overrideWallpaper, wallpaperFile, wallpaperLink, wallpaperFileOffset, intensity, phase, previousThemeApplied, applyingAccent, wallpaperMotion, finalWallpaperDocument, defaultTheme);
+                Drawable drawable = loadWallpaperInternal(overrideWallpaper, wallpaperFile, intensity, wallpaperMotion, finalWallpaperDocument, defaultTheme);
                 AndroidUtilities.runOnUIThread(() -> {
-                    if (taskId != wallpaperLoadTaskId) {
-                        return;
-                    }
                     wallpaperLoadTask = null;
-                    Drawable drawable = applyLoadedWallpaper(settings, intensity);
                     createCommonChatResources();
                     if (!disallowChangeServiceMessageColor) {
                         applyChatServiceMessageColor(null, null, drawable);
@@ -9664,8 +9604,7 @@ public class Theme {
                 });
             });
         } else {
-            BackgroundDrawableSettings settings = loadWallpaperInternal(themeInfo, colors, overrideWallpaper, wallpaperFile, wallpaperLink, wallpaperFileOffset, intensity, phase, previousThemeApplied, applyingAccent, wallpaperMotion, finalWallpaperDocument, defaultTheme);
-            Drawable drawable = applyLoadedWallpaper(settings, intensity);
+            Drawable drawable = loadWallpaperInternal(overrideWallpaper, wallpaperFile, intensity, wallpaperMotion, finalWallpaperDocument, defaultTheme);
             createCommonChatResources();
             if (!disallowChangeServiceMessageColor) {
                 applyChatServiceMessageColor(null, null, drawable);
@@ -9675,14 +9614,14 @@ public class Theme {
         }
     }
 
-    private static BackgroundDrawableSettings loadWallpaperInternal(ThemeInfo themeInfo, SparseIntArray colors, OverrideWallpaperInfo overrideWallpaper, File wallpaperFile, String wallpaperLink, int wallpaperFileOffset, int intensity, int previousPhase, boolean hasPreviousTheme, boolean isApplyingAccent, boolean wallpaperMotion, TLRPC.Document finalWallpaperDocument, boolean defaultTheme) {
-        return createBackgroundDrawable(
-                themeInfo,
+    private static Drawable loadWallpaperInternal(OverrideWallpaperInfo overrideWallpaper, File wallpaperFile, int intensity, boolean wallpaperMotion, TLRPC.Document finalWallpaperDocument, boolean defaultTheme) {
+        BackgroundDrawableSettings settings = createBackgroundDrawable(
+                currentTheme,
                 overrideWallpaper,
-                colors,
+                currentColors,
                 wallpaperFile,
-                wallpaperLink,
-                wallpaperFileOffset,
+                themedWallpaperLink,
+                themedWallpaperFileOffset,
                 intensity,
                 previousPhase,
                 defaultTheme,
@@ -9692,17 +9631,14 @@ public class Theme {
                 finalWallpaperDocument,
                 false
         );
-    }
-
-    private static Drawable applyLoadedWallpaper(BackgroundDrawableSettings settings, int intensity) {
         isWallpaperMotion = settings.isWallpaperMotion != null ? settings.isWallpaperMotion : isWallpaperMotion;
         isPatternWallpaper = settings.isPatternWallpaper != null ? settings.isPatternWallpaper : isPatternWallpaper;
         isCustomTheme = settings.isCustomTheme != null ? settings.isCustomTheme : isCustomTheme;
         patternIntensity = intensity;
-        themedWallpaper = settings.themedWallpaper != null ? settings.themedWallpaper : themedWallpaper;
         wallpaper = settings.wallpaper != null ? settings.wallpaper : wallpaper;
         Drawable drawable = settings.wallpaper;
         calcBackgroundColor(drawable, 1);
+        applyChatServiceMessageColor();
         return drawable;
     }
 
