@@ -313,47 +313,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install cmake ninja-build -y || true
           ./run init libs wallet-engine
-  prisma:
-    name: Native Build (prisma)
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-        with:
-          submodules: recursive
-      - name: Fetch Status
-        run: git submodule status TMessagesProj/jni/third_party/libprisma > prisma_status
-      - name: Wallet Engine Cache
-        id: cache
-        uses: actions/cache@v5
-        with:
-          path: |
-            TMessagesProj/jni/prebuild/lib/arm64-v8a/libprisma.a
-            TMessagesProj/jni/prebuild/lib/armeabi-v7a/libprisma.a
-            TMessagesProj/jni/prebuild/lib/x86/libprisma.a
-            TMessagesProj/jni/prebuild/lib/x86_64/libprisma.a
-          key: ${{ hashFiles('prisma_status') }}
-      - name: Setup Android SDK Tools
-        uses: android-actions/setup-android@v3
-        if: steps.cache.outputs.cache-hit != 'true'
-        with:
-          packages: ''
-      - name: Install NDK
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          SDK_MANAGER=$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager
-          if [ ! -f "$SDK_MANAGER" ]; then
-            SDK_MANAGER=$ANDROID_HOME/tools/bin/sdkmanager
-          fi
-          yes | sudo $SDK_MANAGER --install "ndk;27.2.12479018" --sdk_root=${ANDROID_SDK_ROOT}
-          echo "sdk.dir=${ANDROID_HOME}" > local.properties
-          echo "ndk.dir=${ANDROID_HOME}/ndk/27.2.12479018" >> local.properties
-      - name: Native Build
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          sudo apt-get update
-          sudo apt-get install cmake ninja-build -y || true
-          ./run init libs prisma
   tdlib:
     name: Native Build (TDLib)
     runs-on: ubuntu-latest
@@ -421,7 +380,6 @@ jobs:
       - h264
       - wamr
       - wallet-engine
-      - prisma
     strategy:
       matrix:
         flavor:
@@ -533,16 +491,6 @@ jobs:
             TMessagesProj/jni/prebuild/lib/x86/libwallet_engine.a
             TMessagesProj/jni/prebuild/lib/x86_64/libwallet_engine.a
           key: ${{ hashFiles('we_status') }}
-      - name: Prisma Cache
-        uses: actions/cache@v5
-        if: steps.cache.outputs.cache-hit != 'true'
-        with:
-          path: |
-            TMessagesProj/jni/prebuild/lib/arm64-v8a/libprisma.a
-            TMessagesProj/jni/prebuild/lib/armeabi-v7a/libprisma.a
-            TMessagesProj/jni/prebuild/lib/x86/libprisma.a
-            TMessagesProj/jni/prebuild/lib/x86_64/libprisma.a
-          key: ${{ hashFiles('prisma_status') }}
       - name: Setup Android SDK Tools
         uses: android-actions/setup-android@v3
         if: steps.cache.outputs.cache-hit != 'true'
