@@ -10626,21 +10626,21 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
     private void setMapProvider(boolean isSecretChat) {
         if (isSecretChat) {
             if (SharedConfig.mapPreviewType == 0) {
-                currentMapProvider = 2;
+                location.currentMapProvider = 2;
             } else if (SharedConfig.mapPreviewType == 1) {
-                currentMapProvider = 1;
+                location.currentMapProvider = 1;
             } else if (SharedConfig.mapPreviewType == 3) {
-                currentMapProvider = 1;
+                location.currentMapProvider = 1;
             } else {
-                currentMapProvider = -1;
+                location.currentMapProvider = -1;
             }
         } else {
             if (MomoConfig.mapPreviewProvider.Int() == 0) {
-                currentMapProvider = 2;
+                location.currentMapProvider = 2;
             } else if (MomoConfig.mapPreviewProvider.Int() == 1) {
-                currentMapProvider = 1;
+                location.currentMapProvider = 1;
             } else {
-                currentMapProvider = -1;
+                location.currentMapProvider = -1;
             }
         }
     }

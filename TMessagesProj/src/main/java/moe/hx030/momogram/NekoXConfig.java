@@ -425,7 +425,7 @@ public class NekoXConfig {
         MediaDataController mediaDataController =  MediaDataController.getInstance(currentAccount);
         long lastPlayingMessageId = preferences.getLong(LAST_PLAYING_MSG_ID, -1L);
         Log.d("030-music", String.format("restore playback %d %d", dialogId, lastPlayingMessageId));
-        mediaDataController.loadMusic(dialogId, lastPlayingMessageId + 1, lastPlayingMessageId - 1);
+        mediaDataController.loadMusic(dialogId, 0, lastPlayingMessageId + 1, lastPlayingMessageId - 1);
     }
 
     public static long getLastMusicMessageId() {

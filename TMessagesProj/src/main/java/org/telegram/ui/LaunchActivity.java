@@ -266,7 +266,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.HashSet;
 
-<<<<<<< HEAD
 import kotlin.Unit;
 import kotlin.text.StringsKt;
 import moe.hx030.momogram.config.ConfigItem;

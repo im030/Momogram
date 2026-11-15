@@ -25,6 +25,7 @@ import androidx.annotation.RequiresApi;
 
 import org.intellij.lang.annotations.Language;
 import org.telegram.messenger.BuildConfig;
+import org.telegram.messenger.BuildVars;
 import org.telegram.messenger.utils.GradientProtectionDrawable;
 import org.telegram.ui.ActionBar.Theme;
 import org.telegram.utils.glass.source.GlassSourceColor;
@@ -292,7 +293,7 @@ public class GlassFadeBlurredDrawable extends GlassDrawable {
         final boolean supported = downsampledSource != null
                 && downsampledSource.isDownsampledSourceSupported()
                 && downsampledSource.getDownsample() > 0;
-        if (!supported && !inefficientRenderPathsAllowed && BuildConfig.DEBUG_PRIVATE_VERSION) {
+        if (!supported && !inefficientRenderPathsAllowed && BuildVars.DEBUG_PRIVATE_VERSION) {
             throw new IllegalStateException(
                     "GlassSource fallback is disabled because it uses an inefficient render path");
         }

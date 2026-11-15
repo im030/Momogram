@@ -4851,6 +4851,7 @@ public class ChatActivity extends BaseFragment implements
                         if (!MessagesController.isSupportUser(currentUser)) {
                             trackRedHeaderItem(headerItem.lazilyAddSubItem(report, R.drawable.msg_report, LocaleController.getString(R.string.ReportBot)), false).setColors(getThemedColor(Theme.key_text_RedRegular), getThemedColor(Theme.key_text_RedRegular));
                         }
+                        String blockStr = LocaleController.getString(MomoConfig.keepBlockedBotChatHistory.Bool() ? R.string.BlockBot : R.string.DeleteAndBlock);
                         trackRedHeaderItem(headerItem.lazilyAddSubItem(delete_chat, R.drawable.msg_block2, blockStr), false).setColors(getThemedColor(Theme.key_text_RedRegular), getThemedColor(Theme.key_text_RedRegular));
                         updateBotButtons();
                     } else {
@@ -14544,7 +14545,7 @@ public class ChatActivity extends BaseFragment implements
         int stringId = first || !firstAutoHintShown.get() ? R.string.AutoSendAfterSlowModeHint : R.string.AutoSendAfterSlowModeIgnoredHint;
         new Thread(()-> {
             try {
-                Thread.sleep(slowModeHint.getShowingDuration());
+                Thread.sleep(350);
             } catch (InterruptedException ignored) {}
             firstAutoHintShown.set(true);
         }).start();
@@ -38527,7 +38528,7 @@ public class ChatActivity extends BaseFragment implements
                     builder.addTitle(AndroidUtilities.formatDuration(timestamp, false));
                 } else {
                     String formattedUrl = Browser.formatUrlForDisplay(str, true);
-                    builder.setTitle(formattedUrl);
+                    builder.addTitle(formattedUrl);
                     builder.setTitleMultipleLines(true);
                 }
                 final int finalTimestamp = timestamp;
@@ -47373,7 +47374,7 @@ public class ChatActivity extends BaseFragment implements
                     if (currentChat != null) {
                         headerItem.lazilyAddSubItem(delete_chat, R.drawable.msg_leave, LocaleController.getString(R.string.DeleteAndExit));
                     } else if (currentUser != null && currentUser.bot) {
-                        trackRedHeaderItem(headerItem.lazilyAddSubItem(delete_chat, R.drawable.msg_block2, LocaleController.getString(MomoConfig.keepBlockedBotChatHistory.Bool() ? R.string.BlockBot : R.string.DeleteAndBlock))), false).setColors(getThemedColor(Theme.key_text_RedRegular), getThemedColor(Theme.key_text_RedRegular));
+                        trackRedHeaderItem(headerItem.lazilyAddSubItem(delete_chat, R.drawable.msg_block2, LocaleController.getString(MomoConfig.keepBlockedBotChatHistory.Bool() ? R.string.BlockBot : R.string.DeleteAndBlock)), false).setColors(getThemedColor(Theme.key_text_RedRegular), getThemedColor(Theme.key_text_RedRegular));
                     } else {
                         headerItem.lazilyAddSubItem(delete_chat, R.drawable.msg_delete, LocaleController.getString(R.string.DeleteChatUser));
                     }

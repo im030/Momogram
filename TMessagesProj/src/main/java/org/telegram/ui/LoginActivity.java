@@ -222,6 +222,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -3531,7 +3532,7 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
                 NotificationCenter.getInstance(currentAccount).removeObserver(this, NotificationCenter.configLoaded);
             }
             if (fpnvCancellationTokenSource != null) {
-                fpnvCancellationTokenSource.cancel();
+                // fpnvCancellationTokenSource.cancel();
                 fpnvCancellationTokenSource = null;
             }
             if (fpnvProgressDialog != null) {

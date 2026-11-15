@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
 
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.BuildConfig;
+import org.telegram.messenger.BuildVars;
 import org.telegram.ui.ActionBar.ActionBar;
 import org.telegram.ui.ActionBar.SimpleActionBar;
 import org.telegram.ui.ActionBar.Theme;
@@ -218,7 +219,7 @@ public class BaseFragmentSimpleGlass {
 
         setupHeader(contentView, actionBar, resourceProvider);
 
-        if (BuildConfig.DEBUG_PRIVATE_VERSION && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        if (BuildVars.DEBUG_PRIVATE_VERSION && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
              if (glassCaptureSourceCanvas != null) {
              //     contentView.addView(glassCaptureSourceCanvas.createDebugView(contentView.getContext()));
              }

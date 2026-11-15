@@ -167,7 +167,7 @@ public class DebugSettingsActivity extends UniversalFragment {
         if (!BuildVars.DEBUG_VERSION) {
             items.add(UItem.asCheck(ID_LOGS, getString(R.string.DebugMenuEnableLogs)).setChecked(BuildVars.LOGS_ENABLED));
         }
-        if (BuildVars.DEBUG_PRIVATE_VERSION || ApplicationLoader.isStandaloneBuild() || ApplicationLoader.isBetaBuild()) {
+        if (ApplicationLoader.isStandaloneBuild()) {
             items.add(UItem.asButton(ID_CHECK_APP_UPDATE, getString(R.string.DebugMenuCheckAppUpdate)));
         }
         if (BuildVars.DEBUG_PRIVATE_VERSION) {

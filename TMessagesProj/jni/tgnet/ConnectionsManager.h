@@ -88,7 +88,6 @@ public:
     void failNotRunningRequest(int32_t token);
     void receivedIntegrityCheckClassic(int32_t requestToken, std::string nonce, std::string token);
     void receivedCaptchaResult(int32_t requestToken, int32_t generation, std::string token);
-    void moveToDatacenter(uint32_t datacenterId);
 
 private:
     static void *ThreadProc(void *data);

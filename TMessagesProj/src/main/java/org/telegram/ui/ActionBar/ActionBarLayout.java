@@ -1804,7 +1804,7 @@ public class ActionBarLayout extends FrameLayout implements INavigationLayout, F
         }
         final BaseFragment lastFragmentForBar = fragmentsStack.get(fragmentsStack.size() - 1);
         if (!storyViewerAttached() && lastFragmentForBar.simpleActionBar != null && lastFragmentForBar.simpleActionBar.onBackPressed()) {
-            return;
+            return false;
         }
         if (sheetFragment != null && !sheetFragment.onBackPressed(true)) {
             return false;

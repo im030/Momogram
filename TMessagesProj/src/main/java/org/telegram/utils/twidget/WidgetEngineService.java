@@ -161,7 +161,7 @@ public final class WidgetEngineService extends Service {
         if (!WidgetSandboxNative.available()) throw new IllegalStateException("libtwidget is missing");
         long library = SystemClock.uptimeMillis() - start;
         // Before the first session: everything widget code could reach runs under it.
-        if (installSeccomp(SECCOMP_ENFORCE) == 0 && org.telegram.messenger.BuildConfig.DEBUG_PRIVATE_VERSION) seccompSelfTest();
+        if (installSeccomp(SECCOMP_ENFORCE) == 0 && org.telegram.messenger.BuildVars.DEBUG_PRIVATE_VERSION) seccompSelfTest();
         WidgetEngineBackend.Stats.start();
         Log.i(TAG, "engine up: " + (Build.VERSION.SDK_INT >= 24 ? start - android.os.Process.getStartUptimeMillis() : -1)
                 + " ms from fork to onCreate, library " + library + " ms, seccomp "

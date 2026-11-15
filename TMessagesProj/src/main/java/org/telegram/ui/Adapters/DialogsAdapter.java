@@ -1718,7 +1718,7 @@ public class DialogsAdapter extends RecyclerListView.SelectionAdapter implements
 
         hasChatlistHint = false;
         if (dialogsType == 7 || dialogsType == 8) {
-            filter = messagesController.selectedDialogFilter[dialogsType - 7];
+            // filter = messagesController.selectedDialogFilter[dialogsType - 7];
             if (filter != null && filter.isChatlist()) {
                 messagesController.checkChatlistFolderUpdate(filter.id, false);
                 TL_chatlists.TL_chatlists_chatlistUpdates updates = messagesController.getChatlistFolderUpdates(filter.id);

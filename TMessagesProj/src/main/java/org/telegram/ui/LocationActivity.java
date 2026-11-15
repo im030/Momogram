@@ -245,9 +245,6 @@ public class LocationActivity extends BaseFragment implements NotificationCenter
     private long selectedMarkerId = -1;
     private boolean showAllMode;
 
-
-    private AnimatorSet animatorSet;
-
     private AnimatorSet animatorSet;
 
     private boolean checkPermission = true;
@@ -2915,7 +2912,7 @@ public class LocationActivity extends BaseFragment implements NotificationCenter
     @Override
     public void onRequestPermissionsResultFragment(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == 30) {
-            openShareLiveLocation(false, askWithRadius);
+            openShareLiveLocation(false, 0);
         }
     }
 

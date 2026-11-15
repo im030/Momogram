@@ -17,7 +17,8 @@ foreach(source IN ITEMS Highlight.cpp Highlight.h LanguageTree.cpp LanguageTree.
     configure_file("${PRISMA_SOURCE_DIR}/libprisma/${source}"
         "${PRISMA_CORE_DIR}/${source}" COPYONLY)
 endforeach()
-foreach(source IN ITEMS Highlight.cpp Highlight.h SyntaxHighlighter.cpp SyntaxHighlighter.h)
+foreach(source IN ITEMS Highlight.cpp Highlight.h LanguageTree.cpp LanguageTree.h
+        SyntaxHighlighter.cpp SyntaxHighlighter.h TokenList.cpp TokenList.h)
     configure_file("${CMAKE_CURRENT_SOURCE_DIR}/libprisma/${source}"
         "${PRISMA_CORE_DIR}/${source}" COPYONLY)
 endforeach()

@@ -1060,10 +1060,8 @@ public class ThemeActivity extends BaseFragment implements NotificationCenter.No
 
         simpleActionBar.setBackButtonImage(R.drawable.ic_ab_back);
         if (currentType == THEME_TYPE_THEMES_BROWSER) {
+            SimpleActionBarMenu menu = simpleActionBar.createMenu();
             simpleActionBar.setTitle(getString(R.string.BrowseThemes));
-            SimpleActionBarMenu menu = simpleActionBar.createMenu();
-            simpleActionBar.setTitle(getString("BrowseThemes", R.string.BrowseThemes));
-            SimpleActionBarMenu menu = simpleActionBar.createMenu();
             sunDrawable = new RLottieDrawable(R.raw.sun, dp(28), dp(28), true, null);
             if (lastIsDarkTheme) {
                 sunDrawable.setCurrentFrame(sunDrawable.getFramesCount() - 1);
@@ -1074,7 +1072,7 @@ public class ThemeActivity extends BaseFragment implements NotificationCenter.No
             menuItem = menu.addItem(day_night_switch, sunDrawable);
         } else if (currentType == THEME_TYPE_BASIC) {
             simpleActionBar.setTitle(getString(R.string.ChatSettings));
-            SimpleActionBarMenu menu = actionBar.createMenu();
+            SimpleActionBarMenu menu = simpleActionBar.createMenu();
             menuItem = menu.addItem(0, R.drawable.ic_ab_other);
             menuItem.setContentDescription(getString(R.string.AccDescrMoreOptions));
             menuItem.addSubItem(share_theme, R.drawable.msg_share, getString(R.string.ShareTheme));

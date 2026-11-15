@@ -230,7 +230,7 @@ final class WidgetEngineBackend {
         private static long lastFonts, lastHits, lastRemote;
 
         static void start() {
-            if (!org.telegram.messenger.BuildConfig.DEBUG_PRIVATE_VERSION) return;
+            if (!org.telegram.messenger.BuildVars.DEBUG_PRIVATE_VERSION) return;
             Thread thread = new Thread(() -> {
                 while (true) {
                     try {
