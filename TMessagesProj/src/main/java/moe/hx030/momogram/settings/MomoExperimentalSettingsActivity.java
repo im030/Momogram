@@ -69,7 +69,7 @@ import moe.hx030.momogram.util.ReflectUtil;
 import moe.hx030.momogram.util.SessionsUtil;
 import moe.hx030.momogram.MomoConfig;
 import moe.hx030.momogram.NekoXConfig;
-import moe.hx030.momogram.database.NitritesKt;
+import moe.hx030.momogram.transtale.TranslateDb;
 import moe.hx030.momogram.transtale.Translator;
 import moe.hx030.momogram.transtale.source.FirefoxLocalTranslator;
 import moe.hx030.momogram.ui.PopupBuilder;
@@ -130,7 +130,7 @@ public class MomoExperimentalSettingsActivity extends MomoSettingsBaseActivity {
     private final AbstractConfigCell ignoreTranslatorCacheRow = cellGroup.appendCell(new ConfigCellTextCheck(MomoConfig.ignoreTranslatorCache));
     private final AbstractConfigCell clearTranslatorCacheRow = cellGroup.appendCell(new ConfigCellSelectBox(LocaleController.getString(R.string.ClearTranslatorCache), null, null,
             () -> AndroidUtilities.runOnUIThread(() -> {
-                NitritesKt.mkDatabase("translate_caches", true).close();
+                TranslateDb.clearCache();
                 TelegramUtil.restartApp(false);
             })));
     private final AbstractConfigCell shareApiIdsRow = cellGroup.appendCell(new ConfigCellSelectBox(LocaleController.getString(R.string.ShareCurrentKnownApiIds), null, null,

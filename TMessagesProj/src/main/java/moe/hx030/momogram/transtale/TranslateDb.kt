@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.os.Build
 import android.util.Log
+import androidx.core.content.edit
+import org.dizitart.no2.Nitrite
 import org.dizitart.no2.filters.FluentFilter
 import org.dizitart.no2.repository.ObjectRepository
 import org.telegram.messenger.LocaleController
@@ -14,42 +16,113 @@ import moe.hx030.momogram.utils.StrUtil
 import moe.hx030.momogram.utils.UIUtil
 import java.util.*
 import kotlin.collections.HashMap
-import androidx.core.content.edit
 
 class TranslateDb(val code: String) {
 
-    var conn: ObjectRepository<TransItem?>? = db?.getRepository(TransItem::class.java, code)
+    val conn: ObjectRepository<TransItem?>?
+        get() = db?.getRepository(TransItem::class.java, code)
 
     companion object {
 
-        val db = mkDatabase("translate_caches")
+        private const val RECOVERY_INTERVAL_MS = 5000L
+
+        @Volatile
+        var db: Nitrite? = mkDatabase("translate_caches")
+            private set
 
         val repo = HashMap<Locale, TranslateDb>()
-        val chat = db?.getRepository(ChatLanguage::class.java, "chat")
-        val ccTarget = db?.getRepository(ChatCCTarget::class.java, "opencc")
+
+        val chat: ObjectRepository<ChatLanguage>?
+            get() = db?.getRepository(ChatLanguage::class.java, "chat")
+
+        val ccTarget: ObjectRepository<ChatCCTarget>?
+            get() = db?.getRepository(ChatCCTarget::class.java, "opencc")
 
         lateinit var fallbackPrefs: SharedPreferences
+
+        private val recoverLock = Any()
+
+        @Volatile
+        private var lastRecovery = 0L
+
+        /**
+         * The translation cache is not critical. If the underlying Nitrite/MVStore
+         * database is corrupt it must never break the translation itself.
+         */
+        fun <T> runWithRecovery(block: () -> T): T? {
+            return try {
+                block()
+            } catch (t: Exception) {
+                t.message?.contains("Could not deserialize")?.let { if (!it) throw t }
+                Log.e(StrUtil.get030Tag(TranslateDb), "translate db error, rebuilding cache", t)
+                recover()
+                try {
+                    block()
+                } catch (t2: Exception) {
+                    Log.e(StrUtil.get030Tag(TranslateDb), "translate db still failing", t2)
+                    null
+                }
+            }
+        }
+
+        @JvmStatic
+        fun recover() {
+            if (Build.VERSION.SDK_INT < 26) return
+            synchronized(recoverLock) {
+                val now = System.currentTimeMillis()
+                if (now - lastRecovery < RECOVERY_INTERVAL_MS) return
+                lastRecovery = now
+                rebuildLocked()
+            }
+        }
+
+        @JvmStatic
+        fun clearCache() {
+            if (Build.VERSION.SDK_INT < 26) return
+            synchronized(recoverLock) {
+                lastRecovery = System.currentTimeMillis()
+                rebuildLocked()
+            }
+        }
+
+        private fun rebuildLocked() {
+            Log.w(StrUtil.get030Tag(TranslateDb), "rebuilding translate database")
+            runCatching { db?.close() }
+            db = null
+            repo.clear()
+            db = try {
+                mkDatabase("translate_caches", true)
+            } catch (t: Throwable) {
+                Log.e(StrUtil.get030Tag(TranslateDb), "failed to rebuild translate database", t)
+                null
+            }
+        }
 
         @JvmStatic
         fun getChatLanguage(chatId: Long, default: Locale): Locale? {
             if (Build.VERSION.SDK_INT < 26) return getChatLanguageFallback(chatId, default)
-            if (chat == null) return default
-            val cursor = chat.find(FluentFilter.where("chatId").eq(chatId))
-            cursor.forEach { return it.language.code2Locale }
-            return default
-//            return if (cursor.isEmpty) default else cursor.first().language.code2Locale
+            return runWithRecovery {
+                val repository = chat ?: return@runWithRecovery default
+                val cursor = repository.find(FluentFilter.where("chatId").eq(chatId))
+                var result = default
+                cursor.forEach { result = it.language.code2Locale }
+                result
+            } ?: default
         }
 
         @JvmStatic
         fun getChatLanguage(chatId: Long): ChatLanguage? {
-            if (chat == null) return null
             if (Build.VERSION.SDK_INT < 26) {
                 val loc = getChatLanguageFallback(chatId, null)
                 return ChatLanguage(chatId, loc?.locale2code, false)
             }
-            val cursor = chat.find(FluentFilter.where("chatId").eq(chatId))
-            cursor.forEach { return it }
-            return null
+            return runWithRecovery {
+                val repository = chat ?: return@runWithRecovery null
+                val cursor = repository.find(FluentFilter.where("chatId").eq(chatId))
+                var result: ChatLanguage? = null
+                cursor.forEach { result = it }
+                result
+            }
         }
 
         @JvmStatic
@@ -60,66 +133,72 @@ class TranslateDb(val code: String) {
 
         @JvmStatic
         fun saveChatLanguage(chatId: Long, locale: Locale) = UIUtil.runOnIoDispatcher {
-            if (chat == null) return@runOnIoDispatcher
             if (Build.VERSION.SDK_INT < 26) {
                 return@runOnIoDispatcher saveChatLanguageFallback(chatId, locale)
             }
             Log.d(StrUtil.get030Tag(TranslateDb), "saveLang: ${locale.locale2code}")
-            val lang = getChatLanguage(chatId)
-            val alwaysTranslateBeforeSend = lang?.alwaysTranslateBeforeSend
+            runWithRecovery {
+                val repository = chat ?: return@runWithRecovery
+                val lang = getChatLanguage(chatId)
+                val alwaysTranslateBeforeSend = lang?.alwaysTranslateBeforeSend
 
-            chat.update(ChatLanguage(chatId, locale.locale2code, alwaysTranslateBeforeSend == true), true)
-
+                repository.update(ChatLanguage(chatId, locale.locale2code, alwaysTranslateBeforeSend == true), true)
+            }
         }
 
         @JvmStatic
         fun saveChatLanguageFallback(chatId: Long, locale: Locale) = UIUtil.runOnIoDispatcher {
             Log.d(StrUtil.get030Tag(TranslateDb), "saveLang: ${locale.locale2code}")
-            val lang = getChatLanguage(chatId)
-
-            // chat.update(ChatLanguage(chatId, locale.locale2code, alwaysTranslateBeforeSend == true), true)
+            initFallbackPrefs()
             fallbackPrefs.edit { putString("chat_lang_$chatId", locale.locale2code) }
-
         }
 
         @JvmStatic
         fun getTranslateBeforeSend(chatId: Long): Boolean {
-            if (chat == null) return false
-            val cursor = chat.find(FluentFilter.where("chatId").eq(chatId))
-            cursor.forEach {
-                return it.alwaysTranslateBeforeSend
-            }
-            return false
+            return runWithRecovery {
+                val repository = chat ?: return@runWithRecovery false
+                val cursor = repository.find(FluentFilter.where("chatId").eq(chatId))
+                var result = false
+                cursor.forEach { result = it.alwaysTranslateBeforeSend }
+                result
+            } ?: false
         }
 
         @JvmStatic
         fun setTranslateBeforeSend(chatId: Long, value: Boolean) = UIUtil.runOnIoDispatcher {
-            if ((Build.VERSION.SDK_INT < 26) || (chat == null)) return@runOnIoDispatcher
-            val cursor = chat.find(FluentFilter.where("chatId").eq(chatId))
-            cursor.forEach {
-                it.alwaysTranslateBeforeSend = value
-                chat.update(it, true)
-                return@runOnIoDispatcher
+            if (Build.VERSION.SDK_INT < 26) return@runOnIoDispatcher
+            runWithRecovery {
+                val repository = chat ?: return@runWithRecovery
+                val cursor = repository.find(FluentFilter.where("chatId").eq(chatId))
+                var updated = false
+                cursor.forEach {
+                    it.alwaysTranslateBeforeSend = value
+                    repository.update(it, true)
+                    updated = true
+                }
+                if (!updated) repository.update(ChatLanguage(chatId, "en", value), true)
             }
-            chat.update(ChatLanguage(chatId, "en", value), true)
         }
 
         @JvmStatic
         fun getChatCCTarget(chatId: Long, default: String?): String? {
-            if ((Build.VERSION.SDK_INT < 26) || (ccTarget == null)) return null
-            val cursor = ccTarget.find(FluentFilter.where("chatId").eq(chatId))
-            cursor.forEach { return it as String? }
-            return default
-//            return ccTarget.find(FluentFilter.where("chatId").eq(chatId)).firstOrDefault()?.ccTarget
-//                    ?: default
-
+            if (Build.VERSION.SDK_INT < 26) return null
+            return runWithRecovery {
+                val repository = ccTarget ?: return@runWithRecovery default
+                val cursor = repository.find(FluentFilter.where("chatId").eq(chatId))
+                var result = default
+                cursor.forEach { result = it.ccTarget }
+                result
+            }
         }
 
         @JvmStatic
         fun saveChatCCTarget(chatId: Long, target: String) = UIUtil.runOnIoDispatcher {
-            if ((Build.VERSION.SDK_INT < 26) || (ccTarget == null)) return@runOnIoDispatcher
-            ccTarget.update(ChatCCTarget(chatId, target), true)
-
+            if (Build.VERSION.SDK_INT < 26) return@runOnIoDispatcher
+            runWithRecovery {
+                val repository = ccTarget ?: return@runWithRecovery
+                repository.update(ChatCCTarget(chatId, target), true)
+            }
         }
 
         @JvmStatic
@@ -151,14 +230,16 @@ class TranslateDb(val code: String) {
                 fallbackPrefs.edit { clear() }
             }
 
-            if (db == null) return
-            db.listRepositories()
-                    .filter { it  != "chat" }
-                    .map { db.getCollection(it) }
-                    .forEach { it.drop() }
+            if (Build.VERSION.SDK_INT < 26) return
+            runWithRecovery {
+                val database = db ?: return@runWithRecovery
+                database.listRepositories()
+                        .filter { it != "chat" }
+                        .map { database.getCollection(it) }
+                        .forEach { it.drop() }
 
-            repo.clear()
-
+                repo.clear()
+            }
         }
 
         @JvmStatic
@@ -171,24 +252,31 @@ class TranslateDb(val code: String) {
 
     fun clear() = synchronized(this) {
         if (Build.VERSION.SDK_INT < 26) return@synchronized
-        conn?.drop()
+        runWithRecovery { conn?.drop() }
     }
 
     fun contains(text: String): Boolean = synchronized(this) {
         if (Build.VERSION.SDK_INT < 26) return false
-        return (conn?.find(FluentFilter.where("text").eq(text))?.count() ?: 0) > 0
+        runWithRecovery {
+            (conn?.find(FluentFilter.where("text").eq(text))?.count() ?: 0) > 0
+        } ?: false
     }
 
-    fun save(text: String, trans: String) = synchronized<Unit>(this) {
-        if (Build.VERSION.SDK_INT < 26) return
-        conn?.update(TransItem(text, trans), true)
+    fun save(text: String, trans: String) {
+        synchronized(this) {
+            if (Build.VERSION.SDK_INT < 26) return
+            runWithRecovery { conn?.update(TransItem(text, trans), true) }
+        }
     }
 
     fun query(text: String): String? = synchronized(this) {
         if (MomoConfig.ignoreTranslatorCache.Bool() || Build.VERSION.SDK_INT < 26) return null
-        val cursor = conn?.find(FluentFilter.where("text").eq(text))
-        cursor?.forEach { return it?.trans }
-        return null // conn.find(FluentFilter.where("text").eq(text)).firstOrDefault()?.trans
+        runWithRecovery {
+            val cursor = conn?.find(FluentFilter.where("text").eq(text))
+            var result: String? = null
+            cursor?.forEach { result = it?.trans }
+            result
+        }
     }
 
 }
