@@ -56,6 +56,9 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.core.graphics.ColorUtils;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.telegram.messenger.AndroidUtilities;
@@ -200,6 +203,11 @@ public class ActionBar extends FrameLayout implements FactorAnimator.Target, The
     public ActionBar(Context context, Theme.ResourcesProvider resourcesProvider) {
         super(context);
         this.resourcesProvider = resourcesProvider;
+        ViewCompat.setOnApplyWindowInsetsListener(this, (v, insets) -> {
+            actionModeStatusBarInset = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top;
+            requestLayout();
+            return insets;
+        });
         setOnClickListener(v -> {
             if (isSearchFieldVisible()) {
                 return;
@@ -1002,7 +1010,7 @@ public class ActionBar extends FrameLayout implements FactorAnimator.Target, The
             ThemeBind.backgroundColor(actionMode, Theme.key_actionBarActionModeDefault, resourcesProvider);
         }
         addView(actionMode, indexOfChild(backButtonImageView));
-        actionMode.setPadding(0, occupyStatusBar ? AndroidUtilities.statusBarHeight : 0, 0, 0);
+        actionMode.setPadding(0, getActionModeTopPadding(), 0, 0);
         FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) actionMode.getLayoutParams();
         layoutParams.height = LayoutHelper.MATCH_PARENT;
         layoutParams.width = LayoutHelper.MATCH_PARENT;
@@ -1059,10 +1067,23 @@ public class ActionBar extends FrameLayout implements FactorAnimator.Target, The
         showActionMode(animated, null, null, null, null, null, 0);
     }
 
+    boolean actionModeInsetsInitialized = false;
     public void showActionMode(boolean animated, View extraView, View showingView, View[] hidingViews,
                                boolean[] hideView, View translationView, int translation) {
         if (actionMode == null || actionModeVisible) {
             return;
+        }
+        if (!actionModeInsetsInitialized) {
+            ViewCompat.setOnApplyWindowInsetsListener(actionMode, (v, insets) -> {
+                Insets statusBars = insets.getInsets(
+                        WindowInsetsCompat.Type.statusBars()
+                );
+                actionModeStatusBarInset = statusBars.top;
+                v.setPadding(v.getPaddingLeft(), getActionModeTopPadding(), v.getPaddingRight(), v.getPaddingBottom());
+                return insets;
+            });
+            actionModeInsetsInitialized = true;
+            ViewCompat.requestApplyInsets(actionMode);
         }
         actionModeVisible = true;
         checkMenuItemsWidth();
@@ -1619,6 +1640,17 @@ public class ActionBar extends FrameLayout implements FactorAnimator.Target, The
 
     private int additionalTextLeft;
 
+    private int actionModeStatusBarInset = -1;
+
+    int getActionModeTopPadding() {
+        return occupyStatusBar ? Math.max(actionModeStatusBarInset, AndroidUtilities.statusBarHeight) : 0;
+    }
+
+    @Override
+    public int getMenuTopInset() {
+        return getActionModeTopPadding();
+    }
+
     public void setAdditionalTextLeft(int x) {
         additionalTextLeft = x;
     }
@@ -1637,7 +1669,7 @@ public class ActionBar extends FrameLayout implements FactorAnimator.Target, The
             layoutParams.height = AndroidUtilities.statusBarHeight;
         }
         if (actionMode != null) {
-            actionMode.setPadding(0, occupyStatusBar ? AndroidUtilities.statusBarHeight : 0, 0, 0);
+            actionMode.setPadding(0, getActionModeTopPadding(), 0, 0);
         }
         ignoreLayoutRequest = false;
 
@@ -2028,7 +2060,7 @@ public class ActionBar extends FrameLayout implements FactorAnimator.Target, The
     public void setOccupyStatusBar(boolean value) {
         occupyStatusBar = value;
         if (actionMode != null) {
-            actionMode.setPadding(0, occupyStatusBar ? AndroidUtilities.statusBarHeight : 0, 0, 0);
+            actionMode.setPadding(0, getActionModeTopPadding(), 0, 0);
         }
     }
 

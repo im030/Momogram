@@ -555,7 +555,8 @@ public class SimpleActionBarMenuOverlay extends FrameLayout {
     /** The top of a menu growing down out of the button: it rises by the host's value, staying on the screen. */
     private int getContentTop() {
         final int top = (int) startRect.top;
-        return Math.max(Math.min(top, 0), top - bar.getMenuRise());
+        final int safeTop = bar.getMenuTopInset();
+        return Math.max(safeTop, top - bar.getMenuRise());
     }
 
     /** The glass of the menu button in this view: the whole menu pill when the button is its only item. */
@@ -573,7 +574,8 @@ public class SimpleActionBarMenuOverlay extends FrameLayout {
 
     /** The position of {@code view} in this overlay: the positions of both summed up to their common root. */
     private void computeOffset(View view) {
-        if (ViewPositionWatcher.computeRectInParent(view, this, offsetRect)) {
+        final boolean computed = ViewPositionWatcher.computeRectInParent(view, this, offsetRect);
+        if (computed) {
             offset[0] = offsetRect.left;
             offset[1] = offsetRect.top;
         } else {

@@ -74,6 +74,11 @@ public interface MenuOverlayHost {
         return false;
     }
 
+    /** Top edge available to a menu that opens below a header. */
+    default int getMenuTopInset() {
+        return 0;
+    }
+
     /** Whether the button the menu grows out of is on glass; without it the menu's glass appears as it grows (a bare icon). */
     default boolean hasButtonGlass() {
         return true;
