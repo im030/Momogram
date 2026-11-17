@@ -22113,6 +22113,9 @@ public class ChatActivity extends BaseFragment implements
 
         @Override
         public boolean isHardwarePlayer(int index) { return false; }
+
+        @Override
+        public MessageObject getMessageObject() { return messageObject; }
     }
 
     private class ChatArticlePhotoViewerProvider extends PhotoViewer.EmptyPhotoViewerProvider {

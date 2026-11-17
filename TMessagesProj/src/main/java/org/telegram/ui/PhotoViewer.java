@@ -2186,6 +2186,10 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
         void updateSlideshowCell(TL_iv.PageBlock currentPageBlock);
         Object getParentObject();
         boolean isHardwarePlayer(int index);
+
+        default MessageObject getMessageObject() {
+            return null;
+        }
     }
 
     private Rect hitRect = new Rect();
@@ -5330,14 +5334,12 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                         }
                     }
                 } else if (id == gallery_menu_showinchat || id == gallery_menu_reply) {
-                    if (currentMessageObject == null) {
+                    final MessageObject targetMessage = currentMessageObject != null ? currentMessageObject : (pageBlocksAdapter != null ? pageBlocksAdapter.getMessageObject() : null);
+                    if (targetMessage == null) {
                         return;
                     }
                     Bundle args = new Bundle();
-                    long dialogId = currentDialogId;
-                    if (currentMessageObject != null) {
-                        dialogId = currentMessageObject.getDialogId();
-                    }
+                    long dialogId = targetMessage.getDialogId();
                     if (DialogObject.isEncryptedDialog(dialogId)) {
                         args.putInt("enc_id", DialogObject.getEncryptedChatId(dialogId));
                     } else if (DialogObject.isUserDialog(dialogId)) {
@@ -5350,9 +5352,9 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                         }
                         args.putLong("chat_id", -dialogId);
                     }
-                    args.putInt("message_id", currentMessageObject.getId());
+                    args.putInt("message_id", targetMessage.getId());
                     if (id == gallery_menu_reply) {
-                        args.putInt("reply_to", currentMessageObject.getId());
+                        args.putInt("reply_to", targetMessage.getId());
                     }
                     NotificationCenter.getInstance(currentAccount).postNotificationName(NotificationCenter.closeChats);
                     if (parentActivity instanceof LaunchActivity) {
@@ -15465,7 +15467,31 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
             }
             menuItem.hideSubItem(gallery_menu_translate);
             menuItem.hideSubItem(gallery_menu_hide_translation);
-            allowShare = !MessagesController.getInstance(currentAccount).isPeerNoForwards(currentDialogId) && (currentMessageObject == null || !currentMessageObject.hasRevealedExtendedMedia());
+            final MessageObject pageBlocksMessageObject = pageBlocksAdapter.getMessageObject();
+            final boolean pageBlocksNoForwards = pageBlocksMessageObject != null && MessagesController.getInstance(currentAccount).isPeerNoForwards(pageBlocksMessageObject.getDialogId());
+            allowShare = !pageBlocksNoForwards;
+            if (allowShare) {
+                menuItem.showSubItem(gallery_menu_share);
+            } else {
+                menuItem.hideSubItem(gallery_menu_share);
+            }
+            if (pageBlocksMessageObject != null && !pageBlocksMessageObject.isQuickReply() && !pageBlocksMessageObject.isSponsored()) {
+                menuItem.showSubItem(gallery_menu_showinchat);
+                boolean canWrite = true;
+                final long dialogId = pageBlocksMessageObject.getDialogId();
+                if (dialogId < 0) {
+                    TLRPC.Chat chat = MessagesController.getInstance(currentAccount).getChat(-dialogId);
+                    canWrite = ChatObject.canWriteToChat(chat);
+                }
+                if (canWrite) {
+                    menuItem.showSubItem(gallery_menu_reply);
+                } else {
+                    menuItem.hideSubItem(gallery_menu_reply);
+                }
+            } else {
+                menuItem.hideSubItem(gallery_menu_showinchat);
+                menuItem.hideSubItem(gallery_menu_reply);
+            }
             TL_iv.PageBlock pageBlock = pageBlocksAdapter.get(switchingToIndex);
             caption = pageBlocksAdapter.getCaption(switchingToIndex);
             isVideo = pageBlocksAdapter.isVideo(switchingToIndex);
@@ -15514,8 +15540,8 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                         title = getString(R.string.AttachPhoto);
                     }
                 }
-                galleryButton.setVisibility(View.VISIBLE);
-                galleryGap.setVisibility(View.VISIBLE);
+                galleryButton.setVisibility(allowShare ? View.VISIBLE : View.GONE);
+                galleryGap.setVisibility(allowShare ? View.VISIBLE : View.GONE);
                 menuItem.hideSubItem(gallery_menu_savegif);
                 menuItem.checkHideMenuItem();
             }
