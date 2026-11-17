@@ -39293,6 +39293,26 @@ public class ChatActivity extends BaseFragment implements
         fileRefClipboard.clear();
         for (int i = 0; i < msgs.size(); ++i) {
             MessageObject msg = msgs.get(i);
+            final TL_iv.RichMessage richMessage = msg.messageOwner != null ? msg.messageOwner.rich_message : null;
+            if (richMessage != null) {
+                if (richMessage.photos != null) {
+                    for (int a = 0; a < richMessage.photos.size(); ++a) {
+                        TLRPC.Photo photo = richMessage.photos.get(a);
+                        if (photo instanceof TLRPC.TL_photo) {
+                            fileRefClipboard.add(new FileRefClipboardItem((TLRPC.TL_photo) photo));
+                        }
+                    }
+                }
+                if (richMessage.documents != null) {
+                    for (int a = 0; a < richMessage.documents.size(); ++a) {
+                        TLRPC.Document document = richMessage.documents.get(a);
+                        if (document instanceof TLRPC.TL_document) {
+                            fileRefClipboard.add(new FileRefClipboardItem((TLRPC.TL_document) document));
+                        }
+                    }
+                }
+                continue;
+            }
             TLRPC.Document doc = msg.getDocument();
             if (doc instanceof TLRPC.TL_document) {
                 fileRefClipboard.add(new FileRefClipboardItem((TLRPC.TL_document) doc));
@@ -49171,6 +49191,12 @@ public class ChatActivity extends BaseFragment implements
                 if ((selectedObject.type == MessageObject.TYPE_TEXT || selectedObject.type == MessageObject.TYPE_ARTICLE || selectedObject.isDice() || selectedObject.isAnimatedEmoji() || selectedObject.isAnimatedEmojiStickers() || getMessageCaption(selectedObject, selectedObjectGroup) != null) && (!noforwardsOrPaidMedia || isEphemeral) && !selectedObject.sponsoredCanReport) {
                     items.add(LocaleController.getString(R.string.Copy));
                     options.add(OPTION_COPY);
+                    icons.add(R.drawable.baseline_content_copy_24);
+                }
+                final TL_iv.RichMessage richMessage = selectedObject.messageOwner != null ? selectedObject.messageOwner.rich_message : null;
+                if (richMessage != null && (!richMessage.photos.isEmpty() || !richMessage.documents.isEmpty()) && MomoConfig.showCopyFileRef.Bool() && (!noforwardsOrPaidMedia || isEphemeral) && !selectedObject.isSponsored() && !options.contains(OPTION_COPY_REF)) {
+                    items.add(LocaleController.getString(R.string.CopyFileRef));
+                    options.add(OPTION_COPY_REF);
                     icons.add(R.drawable.baseline_content_copy_24);
                 }
                 if (!isThreadChat() && chatMode != MODE_SCHEDULED && currentChat != null && primaryMessage != null && (currentChat.has_link || primaryMessage.hasReplies()) && currentChat.megagroup && primaryMessage.canViewThread()) {
