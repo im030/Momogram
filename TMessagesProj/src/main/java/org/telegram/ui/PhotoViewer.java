@@ -348,6 +348,7 @@ import moe.hx030.momogram.transtale.TranslatorKt;
 import moe.hx030.momogram.ui.BottomBuilder;
 import moe.hx030.momogram.utils.AlertUtil;
 import moe.hx030.momogram.utils.ProxyUtil;
+import moe.hx030.momogram.utils.RichMessageForwardHelper;
 import moe.hx030.momogram.utils.StrUtil;
 
 @SuppressLint("WrongConstant")
@@ -5407,24 +5408,26 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                     prepareSegmentImage();
                     ContentPreviewViewer.getInstance().setStickerSetForCustomSticker(null);
                 } else if (id == gallery_menu_send || id == gallery_menu_send_noquote) {
-                    if (currentMessageObject == null || !(parentActivity instanceof LaunchActivity)) {
+                    final MessageObject forwardingObject = currentMessageObject != null ? currentMessageObject :
+                            (pageBlocksAdapter != null ? pageBlocksAdapter.getMessageObject() : null);
+                    if (forwardingObject == null || !(parentActivity instanceof LaunchActivity)) {
                         return;
                     }
                     boolean isChannel = false;
-                    if (!currentMessageObject.scheduled) {
-                        long dialogId = currentMessageObject.getDialogId();
+                    if (!forwardingObject.scheduled) {
+                        long dialogId = forwardingObject.getDialogId();
                         if (DialogObject.isChatDialog(dialogId)) {
                             TLRPC.Chat chat = MessagesController.getInstance(currentAccount).getChat(-dialogId);
                             isChannel = ChatObject.isChannelAndNotMegaGroup(chat);
                         }
                     }
-                    ((LaunchActivity) parentActivity).switchToAccount(currentMessageObject.currentAccount, true);
+                    ((LaunchActivity) parentActivity).switchToAccount(forwardingObject.currentAccount, true);
                     ArrayList<MessageObject> msgs = new ArrayList<>(1);
-                    MessageObject.GroupedMessages group = parentChatActivity != null ? parentChatActivity.getGroup(currentMessageObject.getGroupId()) : null;
+                    MessageObject.GroupedMessages group = parentChatActivity != null ? parentChatActivity.getGroup(forwardingObject.getGroupId()) : null;
                     if (group != null) {
                         msgs.addAll(group.messages);
                     } else {
-                        msgs.add(currentMessageObject);
+                        msgs.add(forwardingObject);
                     }
 
                     if (isChannel && msgs.size() <= 1) {
@@ -5444,7 +5447,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                                 .setDialogButtonColorKey(Theme.key_voipgroup_listeningText)
                                 .setNegativeButton((photos ? getString(R.string.ThisPhoto) : getString(R.string.ThisMedia)), (di, a) -> {
                                     ArrayList<MessageObject> singleMessage = new ArrayList<>(1);
-                                    singleMessage.add(currentMessageObject);
+                                    singleMessage.add(forwardingObject);
                                     showForward(singleMessage, id == gallery_menu_send_noquote);
                                 })
                                 .setPositiveButton(photos ? LocaleController.formatPluralString("AllNPhotos", msgs.size()) : LocaleController.formatPluralString("AllNMedia", msgs.size()), (di, a) -> {
@@ -5471,7 +5474,7 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                         args.putInt("dialogsType", DialogsActivity.DIALOGS_TYPE_FORWARD);
                         DialogsActivity fragment = new DialogsActivity(args);
                         final ArrayList<MessageObject> fmessages = new ArrayList<>();
-                        fmessages.add(currentMessageObject);
+                        fmessages.add(forwardingObject);
                         final ChatActivity parentChatActivityFinal = parentChatActivity;
                         fragment.setDelegate((fragment1, dids, message, param, notify, scheduleDate, scheduleRepeatPeriod, topicsFragment) -> {
                             if (dids.size() > 1 || dids.get(0).dialogId == UserConfig.getInstance(currentAccount).getClientUserId() || message != null) {
@@ -5481,6 +5484,9 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                                         SendMessagesHelper.getInstance(currentAccount).sendMessage(SendMessagesHelper.SendMessageParams.of(message.toString(), did, null, null, null, true, null, null, null, true, 0, 0, null, false));
                                     }
                                     if (id == gallery_menu_send_noquote) {
+                                        if (RichMessageForwardHelper.trySend(currentAccount, fmessages, did, true, 0, 0, null, 0, null, null)) {
+                                            continue;
+                                        }
                                         //MessageHelper.getInstance(currentAccount).processForwardFromMyName(fmessages, did, true, 0);
                                         SendMessagesHelper.getInstance(currentAccount).sendMessage(fmessages, did, true, false, true, 0, 0);
                                     } else {
@@ -8639,6 +8645,9 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
                         SendMessagesHelper.getInstance(currentAccount).sendMessage(SendMessagesHelper.SendMessageParams.of(message.toString(), did, null, null, null, true, null, null, null, notify, scheduleDate, 0, null, false));
                     }
                     if (noQuote) {
+                        if (RichMessageForwardHelper.trySend(currentAccount, fmessages, did, notify, scheduleDate, 0, null, 0, null, null)) {
+                            continue;
+                        }
                         //MessageHelper.getInstance(currentAccount).processForwardFromMyName(fmessages, did, true, 0);
                         SendMessagesHelper.getInstance(currentAccount).sendMessage(fmessages, did, true, false, notify, scheduleDate, 0);
                     } else {
@@ -15470,6 +15479,13 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
             final MessageObject pageBlocksMessageObject = pageBlocksAdapter.getMessageObject();
             final boolean pageBlocksNoForwards = pageBlocksMessageObject != null && MessagesController.getInstance(currentAccount).isPeerNoForwards(pageBlocksMessageObject.getDialogId());
             allowShare = !pageBlocksNoForwards;
+            if (pageBlocksMessageObject != null && pageBlocksMessageObject.canForwardMessage() && !pageBlocksNoForwards) {
+                setItemVisible(sendNoQuoteItem, true, false);
+                setItemVisible(sendItem, true, false);
+            } else {
+                setItemVisible(sendNoQuoteItem, false, false);
+                setItemVisible(sendItem, false, false);
+            }
             if (allowShare) {
                 menuItem.showSubItem(gallery_menu_share);
             } else {

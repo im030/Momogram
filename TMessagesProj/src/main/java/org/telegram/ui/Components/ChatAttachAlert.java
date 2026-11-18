@@ -6561,7 +6561,7 @@ public class ChatAttachAlert extends BottomSheet implements NotificationCenter.N
                     } else if (position == richButton) {
                         attachButton.setTextAndIcon(LAYOUT_TYPE_RICH, getString(R.string.AttachArticle), GlassTabView.TabAnimation.ARTICLE);
                         attachButton.setTag(LAYOUT_TYPE_RICH);
-                        needPremium = !MessagesController.getInstance(currentAccount).storyEntitiesAllowed();
+                        needPremium = !MessagesController.getInstance(currentAccount).storyEntitiesAllowed() && !UserConfig.isBot(currentAccount);
                     }
                     attachButton.glassTabView.setCounter(err ? "!" : null, err, false);
                     attachButton.glassTabView.setPremiumBadge(needPremium && !UserConfig.getInstance(currentAccount).isPremium());

@@ -5433,6 +5433,11 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
                 if (isFinalGroupMedia) {
                     delayedMessage.finalGroupMessage = newMsg.id;
                 }
+                if (sendMessageParams.messageObjectsListener != null) {
+                    ArrayList<MessageObject> objArr = new ArrayList<>(1);
+                    objArr.add(newMsgObj);
+                    sendMessageParams.messageObjectsListener.accept(objArr);
+                }
             }
 
             if (BuildVars.LOGS_ENABLED) {

@@ -417,6 +417,7 @@ import moe.hx030.momogram.transtale.Translator;
 import moe.hx030.momogram.utils.AlertUtil;
 import moe.hx030.momogram.utils.PGPUtil;
 import moe.hx030.momogram.utils.ProxyUtil;
+import moe.hx030.momogram.utils.RichMessageForwardHelper;
 import moe.hx030.momogram.utils.TelegramUtil;
 import moe.hx030.momogram.utils.UrlUtil;
 
@@ -15880,6 +15881,11 @@ public class ChatActivity extends BaseFragment implements
         if (!checkSlowModeAlert()) {
             return;
         }
+        if (noForwardQuote && fromMyName && RichMessageForwardHelper.trySend(currentAccount, arrayList, dialog_id,
+                notify, scheduleDate, 0, getThreadMessage(), getSendMonoForumPeerId(), getMessageChatSendParams(),
+                getSendMessageSuggestionParams())) {
+            return;
+        }
         if ((scheduleDate != 0) == (chatMode == MODE_SCHEDULED)) {
             waitingForSendingMessageLoad = true;
             if (chatAdapter != null) {
@@ -15899,6 +15905,11 @@ public class ChatActivity extends BaseFragment implements
     // This method is used to forward messages to Saved Messages, or to multi Dialogs
     private void forwardMessages(ArrayList<MessageObject> arrayList, boolean fromMyName, boolean notify, int scheduleDate, long did, long monoForumPeerId) {
         if (arrayList == null || arrayList.isEmpty()) {
+            return;
+        }
+        if (noForwardQuote && fromMyName && RichMessageForwardHelper.trySend(currentAccount, arrayList,
+                did == 0 ? dialog_id : did, notify, scheduleDate, 0, null, monoForumPeerId, null,
+                getSendMessageSuggestionParams())) {
             return;
         }
         if ((scheduleDate != 0) == (chatMode == MODE_SCHEDULED)) {
