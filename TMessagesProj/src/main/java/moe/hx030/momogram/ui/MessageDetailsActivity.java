@@ -84,7 +84,11 @@ public class MessageDetailsActivity extends BaseFragment implements Notification
     private static final int MAX_COLLECTION_ITEMS = 512;
     private static final int MAX_ARRAY_ITEMS = 256;
     private static final int MAX_MAP_ENTRIES = 1024;
-    private static final int MAX_OBJECT_FIELDS = 65535;
+    private static final int MAX_OBJECT_FIELDS = 1024;
+    private static final int MAX_TOTAL_NODES = 20000;
+    private static final int MAX_TOTAL_CHARS = 2 * 1024 * 1024;
+    private static final int MAX_STRING_LENGTH = 16 * 1024;
+    private static final int MAX_BYTE_ARRAY_LENGTH = 64 * 1024;
 
     private RecyclerListView listView;
     private ListAdapter listAdapter;
@@ -462,7 +466,7 @@ public class MessageDetailsActivity extends BaseFragment implements Notification
             String generatedPrettyJson = generatedJson;
             String generatedPrettyJsonHead = generatedJson;
             try {
-                Object safeCopy = buildSafeCopy(obj, Collections.newSetFromMap(new IdentityHashMap<>()), 0, MAX_SERIALIZE_DEPTH);
+                Object safeCopy = buildSafeCopy(obj, new SafeCopyContext(), 0, MAX_SERIALIZE_DEPTH);
                 generatedJson = gson.toJson(safeCopy);
                 generatedPrettyJson = prettyGson.toJson(safeCopy);
                 String[] spl = generatedPrettyJson.split("\n");
@@ -470,11 +474,15 @@ public class MessageDetailsActivity extends BaseFragment implements Notification
                 for (int i = 0; i < Math.min(3, spl.length); ++i) sb.append(spl[i]).append("\n");
                 sb.append("...");
                 generatedPrettyJsonHead = sb.toString();
-            } catch (Exception e) {
-                generatedJson += (", " + e.getMessage());
+            } catch (Throwable t) {
+                generatedJson += (", " + t.getMessage());
                 generatedPrettyJson = generatedJson;
                 generatedPrettyJsonHead = generatedPrettyJson;
-                FileLog.e(e);
+                if (t instanceof OutOfMemoryError) {
+                    Log.e("030-json", "Failed to serialize message details", t);
+                } else {
+                    FileLog.e(t);
+                }
             }
             final String finalJson = generatedJson;
             final String finalPrettyJson = generatedPrettyJson;
@@ -487,27 +495,62 @@ public class MessageDetailsActivity extends BaseFragment implements Notification
                     listAdapter.notifyItemChanged(rawRow);
                 }
             });
-        } catch (Exception e) {
-            FileLog.e(e);
+        } catch (Throwable t) {
+            FileLog.e(t);
         }
     }
 
     private String safeToJson(Object obj) {
         try {
-            Object safeCopy = buildSafeCopy(obj, Collections.newSetFromMap(new IdentityHashMap<>()), 0, Math.min(4, MAX_SERIALIZE_DEPTH));
+            Object safeCopy = buildSafeCopy(obj, new SafeCopyContext(), 0, Math.min(4, MAX_SERIALIZE_DEPTH));
             return gson.toJson(safeCopy);
         } catch (Throwable t) {
             return "[ERROR:" + t.getClass().getSimpleName() + "]";
         }
     }
 
-    private Object buildSafeCopy(Object obj, Set<Object> visited, int depth, int maxDepth) {
+    private static class SafeCopyContext {
+        final Set<Object> visited = Collections.newSetFromMap(new IdentityHashMap<>());
+        int nodes;
+        long chars;
+        boolean exhausted;
+
+        boolean consumeNode() {
+            if (exhausted) return false;
+            if (++nodes > MAX_TOTAL_NODES) {
+                exhausted = true;
+                return false;
+            }
+            return true;
+        }
+
+        boolean consumeChars(int count) {
+            if (exhausted) return false;
+            chars += count;
+            if (chars > MAX_TOTAL_CHARS) {
+                exhausted = true;
+                return false;
+            }
+            return true;
+        }
+    }
+
+    private Object buildSafeCopy(Object obj, SafeCopyContext ctx, int depth, int maxDepth) {
         if (obj == null) return null;
+        if (!ctx.consumeNode()) return "[TRUNCATED]";
+        if (ctx.visited.contains(obj)) return "[REFERENCE]";
         if (depth > maxDepth) return "[MAX_DEPTH]";
-        if (visited.contains(obj)) return "[CIRCULAR]";
 
         // Primitives and strings
-        if (obj instanceof String || obj instanceof Number || obj instanceof Boolean || obj instanceof Character) {
+        if (obj instanceof String) {
+            String str = (String) obj;
+            if (str.length() > MAX_STRING_LENGTH) {
+                str = str.substring(0, MAX_STRING_LENGTH) + "[TRUNCATED:" + str.length() + "]";
+            }
+            if (!ctx.consumeChars(str.length())) return "[TRUNCATED]";
+            return str;
+        }
+        if (obj instanceof Number || obj instanceof Boolean || obj instanceof Character) {
             return obj;
         }
         if (obj instanceof Enum<?>) {
@@ -516,13 +559,22 @@ public class MessageDetailsActivity extends BaseFragment implements Notification
         if (obj instanceof Class<?>) {
             return ((Class<?>) obj).getName();
         }
+        if (obj instanceof byte[]) {
+            byte[] bytes = (byte[]) obj;
+            if (bytes.length > MAX_BYTE_ARRAY_LENGTH) {
+                return "[BYTES:" + bytes.length + "]";
+            }
+            if (!ctx.consumeChars((int) ((long) bytes.length * 2))) return "[TRUNCATED]";
+            return bytes;
+        }
         if (shouldSummarizeObject(obj)) {
             return summarizeObject(obj);
         }
 
+        ctx.visited.add(obj);
+
         // Collections
         if (obj instanceof Collection<?>) {
-            visited.add(obj);
             Collection<?> col = (Collection<?>) obj;
             List<Object> copy = new ArrayList<>(Math.min(col.size(), MAX_COLLECTION_ITEMS) + 1);
             int index = 0;
@@ -531,16 +583,15 @@ public class MessageDetailsActivity extends BaseFragment implements Notification
                     copy.add("[TRUNCATED:" + col.size() + "]");
                     break;
                 }
-                copy.add(buildSafeCopy(item, visited, depth + 1, maxDepth));
+                copy.add(buildSafeCopy(item, ctx, depth + 1, maxDepth));
+                if (ctx.exhausted) break;
                 index++;
             }
-            visited.remove(obj);
             return copy;
         }
 
         // Maps
         if (obj instanceof Map<?, ?>) {
-            visited.add(obj);
             Map<Object, Object> copy = new LinkedHashMap<>();
             int index = 0;
             for (Map.Entry<?, ?> entry : ((Map<?, ?>) obj).entrySet()) {
@@ -550,31 +601,29 @@ public class MessageDetailsActivity extends BaseFragment implements Notification
                 }
                 Object key = entry.getKey();
                 Object value = entry.getValue();
-                copy.put(buildSafeCopy(key, visited, depth + 1, maxDepth),
-                        buildSafeCopy(value, visited, depth + 1, maxDepth));
+                copy.put(buildSafeCopy(key, ctx, depth + 1, maxDepth),
+                        buildSafeCopy(value, ctx, depth + 1, maxDepth));
+                if (ctx.exhausted) break;
                 index++;
             }
-            visited.remove(obj);
             return copy;
         }
 
         // Arrays
         if (obj.getClass().isArray()) {
-            visited.add(obj);
             int len = Array.getLength(obj);
             List<Object> copy = new ArrayList<>(Math.min(len, MAX_ARRAY_ITEMS) + 1);
             for (int i = 0; i < Math.min(len, MAX_ARRAY_ITEMS); i++) {
-                copy.add(buildSafeCopy(Array.get(obj, i), visited, depth + 1, maxDepth));
+                copy.add(buildSafeCopy(Array.get(obj, i), ctx, depth + 1, maxDepth));
+                if (ctx.exhausted) break;
             }
             if (len > MAX_ARRAY_ITEMS) {
                 copy.add("[TRUNCATED:" + len + "]");
             }
-            visited.remove(obj);
             return copy;
         }
 
         // Fallback: arbitrary object
-        visited.add(obj);
         Map<String, Object> copy = new LinkedHashMap<>();
         Class<?> cls = obj.getClass();
         int fieldCount = 0;
@@ -585,25 +634,30 @@ public class MessageDetailsActivity extends BaseFragment implements Notification
             Field[] fields = cls.getDeclaredFields();
             for (Field f : fields) {
                 if (Modifier.isStatic(f.getModifiers())) continue; // skip static
+                String fieldName = f.getName();
+                if (fieldName.equals("parentRichText") ||
+                        fieldName.equals("networkType") ||
+                        fieldName.equals("disableFree")) {
+                    continue;
+                }
                 if (fieldCount >= MAX_OBJECT_FIELDS) {
                     copy.put("[TRUNCATED_FIELDS]", cls.getName());
-                    visited.remove(obj);
                     return copy;
                 }
                 f.setAccessible(true);
                 try {
                     Object value = f.get(obj);
-                    copy.put(f.getName(), buildSafeCopy(value, visited, depth + 1, maxDepth));
+                    copy.put(fieldName, buildSafeCopy(value, ctx, depth + 1, maxDepth));
+                    if (ctx.exhausted) return copy;
                 } catch (IllegalAccessException e) {
-                    copy.put(f.getName(), "[ACCESS_ERROR]");
+                    copy.put(fieldName, "[ACCESS_ERROR]");
                 } catch (Throwable t) {
-                    copy.put(f.getName(), "[ERROR:" + t.getClass().getSimpleName() + "]");
+                    copy.put(fieldName, "[ERROR:" + t.getClass().getSimpleName() + "]");
                 }
                 fieldCount++;
             }
             cls = cls.getSuperclass();
         }
-        visited.remove(obj);
         return copy;
     }
 
