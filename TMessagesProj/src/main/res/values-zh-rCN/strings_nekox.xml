@@ -191,13 +191,13 @@
     <string name="ShowSelfInsteadOfSavedMessages">收藏夹显示为本人对话</string>
     <string name="DisableCustomWallpaperUser">禁用私聊自定义背景图</string>
     <string name="DisableCustomWallpaperChannel">禁用频道自定义背景图</string>
-    <string name="FasterReconnectHack">自动开关代理以快速重新连接</string>
+    <string name="FasterReconnectHack">重启代理开关以快速恢复连接</string>
     <string name="UnsupportedProxy">不支持的代理</string>
     <string name="FasterReconnectHackAbout">只在良好的网路环境下工作.</string>
     <string name="CustomApiId">自定义 API ID</string>
     <string name="CustomApiHash">自定义 API hash</string>
     <string name="AllowDupLogin">允许重复登入同一账号</string>
-    <string name="AllowDupLoginInfo">重复登入账号将导致各种问题, 请务必在事后登出重复的账号后重新启动本应用.</string>
+    <string name="AllowDupLoginInfo">重复登入账号将导致各种问题, 请务必即时登出重复的账号并重启本应用</string>
     <string name="UseOldAppName">使用旧版应用名称 (NekoX)</string>
     <string name="UseOldAppNameDesc">修改此设置将自动返回桌面,并重设图标</string>
     <string name="HideChannelBottomNotiToggle">隐藏频道底部通知开关</string>
@@ -305,7 +305,7 @@
     <string name="MaliciousClientSessionWarning">发现可能运行在未知客户端的活动会话：</string>
     <string name="BufferCleaner">使用缓冲区清理工具释放内存</string>
     <string name="BufferCleanerDesc">更好地缓解内存泄漏，可能降低性能并产生Bug</string>
-    <string name="DisableEmbeddedPlayer">禁用嵌入式web视频播放器组件</string>
+    <string name="DisableEmbeddedPlayer">禁用内置的web视频播放器组件</string>
     <string name="AutoDismissJoinReqDesc">自动拒绝已注销及资料简介或昵称含关键字的用户</string>
     <string name="AutoDismissReqRegex">设置关键字拒绝申请规则</string>
     <string name="AutoDismissUseOpenCC">使用 OpenCC 检测简体中文和繁体中文</string>
@@ -314,7 +314,7 @@
     <string name="AutoReqStats">已自动拒绝%1$d名用户，忽略%2$d名用户</string>
     <string name="AutoReqStatsBanned">已自动拒绝%1$d名用户</string>
     <string name="AutoReqStatsDismissed">已自动忽略%1$d名用户</string>
-    <string name="AutoDismissJoinReq">自动拒绝/忽略加入请求</string>
+    <string name="AutoDismissJoinReq">自动拒绝/忽略加入申请</string>
     <string name="HideProfileRating">隐藏用户活跃度等级</string>
     <string name="UseEmojiForEdited">已编辑的消息显示铅笔符号</string>
     <string name="MomoPaymentWarning">付款方式未经测试，因此不确保你的资金安全，如有必要建议使用官方客户端</string>
@@ -362,4 +362,17 @@
     <string name="HigherMinimumMenuHeight">更高的弹出菜单最小高度</string>
     <string name="HideFAB">隐藏聊天列表中的悬浮按钮</string>
     <string name="HideMessageSideButtons">隐藏消息旁边的侧边按钮</string>
+    <string name="ConfirmBamHammerName">封禁%1$s并删除该账户的所有消息，同时举报垃圾信息？</string>
+    <string name="CantOpenProfile">无法打开目标用户的个人资料</string>
+    <string name="AntiSpamSettings">反垃圾邮件</string>
+    <string name="AutoDismissSuggestedChats">在社区聊天中自动关闭聊天建议功能</string>
+    <string name="AutoDismissSuggestedChatsByRule">以上规则</string>
+    <string name="DebugWarning">启用此类调试选项可能会引发意料之外的问题，是否继续？</string>
+    <string name="DeleteAfterSend">发送后删除</string>
+    <string name="SwipeLoopChatFilter">在聊天文件夹列表的首项或末项处滑动时，实现循环跳转</string>
+    <string name="ConfirmTranslateBeforeSend">是否在发送前对当前聊天内容启用翻译？连续点击此处 10 次即可跳过倒计时。</string>
+    <string name="TriggerFilterForAllStoredChats">针对所有已缓存的聊天触发加入请求过滤器</string>
+    <string name="DisableNumRounding">禁用成员数量舍入</string>
+    <string name="DisableNumRoundingWithCommas">添加数量分隔符</string>
+    <string name="NumRounding">成员数量舍入</string>
 </resources>
