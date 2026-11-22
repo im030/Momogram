@@ -49223,7 +49223,7 @@ public class ChatActivity extends BaseFragment implements
                     icons.add(R.drawable.baseline_forum_24);
                     items.add(LocaleController.getString(R.string.ViewInChat));
                 }
-                if (!isEphemeral && !selectedObject.isSponsored() && chatMode != MODE_SCHEDULED && ChatObject.isChannel(currentChat) && (!ChatObject.isMonoForum(currentChat) || ChatObject.canManageMonoForum(currentAccount, currentChat)) && selectedObject.getDialogId() != mergeDialogId) {
+                if (!isEphemeral && !selectedObject.isSponsored() && chatMode != MODE_SCHEDULED && (!ChatObject.isMonoForum(currentChat) || ChatObject.canManageMonoForum(currentAccount, currentChat)) && selectedObject.getDialogId() != mergeDialogId) {
                     items.add(LocaleController.getString(R.string.CopyLink));
                     options.add(ChatObject.isChannel(currentChat) ? OPTION_COPY_LINK : nkbtn_copy_link_in_pm);
                     icons.add(R.drawable.baseline_link_24);
