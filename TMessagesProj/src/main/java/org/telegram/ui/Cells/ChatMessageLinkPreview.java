@@ -949,7 +949,11 @@ class ChatMessageLinkPreview {
                             }
                         } else if (webPage != null) {
                             if (cell.delegate != null) {
-                                cell.delegate.didPressWebPage(cell, webPage, webPage.url, MessageObject.getMedia(cell.currentMessageObject.messageOwner).safe);
+                                if (cell.drawPhotoImage && cell.photoImage.isInsideImage(x, y)) {
+                                    cell.delegate.didPressImage(cell, cell.lastTouchX, cell.lastTouchY, true);
+                                } else {
+                                    cell.delegate.didPressWebPage(cell, webPage, webPage.url, MessageObject.getMedia(cell.currentMessageObject.messageOwner).safe);
+                                }
                             } else {
                                 Browser.openUrl(cell.getContext(), webPage.url);
                             }
