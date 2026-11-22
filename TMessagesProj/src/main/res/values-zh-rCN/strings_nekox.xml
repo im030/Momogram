@@ -112,7 +112,7 @@
     <string name="ShareMyKey">分享我的公钥</string>
     <string name="DisableVibration">禁用振动</string>
     <string name="IgnoreContentRestrictions">忽略内容限制</string>
-    <string name="SendCommentAfterForward">转发后发送评论</string>
+    <string name="SendCommentAfterForward">转发消息后发送评论</string>
     <string name="UnpinMessageX">解除消息置顶</string>
     <string name="UnpinMessagesAll">解除置顶所有消息</string>
     <string name="DismissForYourself">暂时对自己隐藏</string>
@@ -141,8 +141,8 @@
     <string name="SetPinnedSuffix">(置顶)</string>
     <string name="UnpinSticker">取消置顶</string>
     <string name="PinSticker">置顶</string>
-    <string name="EnableStickerPinTip">此功能仍在开发中，云同步可能无法正常工作。</string>
-    <string name="EnableStickerPinAbout">固定贴纸并在添加新贴纸时与云同步。 \n与 \"禁用收藏夹和最近\" 配对。</string>
+    <string name="EnableStickerPinTip">此功能仍在开发中，云同步可能不生效</string>
+    <string name="EnableStickerPinAbout">置顶贴纸和添加新贴纸时上传云端同步。 \n与 \"禁用收藏夹和最近使用\" 配对。</string>
     <string name="EnableStickerPin">启用贴纸集置顶</string>
     <string name="AppLinkFDroid">F-Droid</string>
     <string name="UsePersiancalendar">使用伊朗历</string>
@@ -239,10 +239,10 @@
     <string name="VideoBitrateToggled">通过多次点击切换码率，再次点击可切换回原设置</string>
     <string name="PositionLeft">左侧</string>
     <string name="PositionRight">右侧</string>
-    <string name="RecentChatFolderSize">最近打开的对话最大数量</string>
+    <string name="RecentChatFolderSize">最近打开的对话数量上限</string>
     <string name="CustomStatusInfo">这是一个自定义状态。加入 Momogram 聊天来申请一个吧！</string>
     <string name="MemLeak">内存泄漏</string>
-    <string name="MemLeakInfo">天啊！内存泄漏啦！（当前内存占用：%1$.2f MB）要重启应用吗？\n\n注：您可以在【通用设置】中关闭此提醒</string>
+    <string name="MemLeakInfo">检测到内存泄露达%1$.2fMB，是否重启应用？\n\n注：您可以在【通用设置】中关闭此提醒</string>
     <string name="CheckMemLeak">当应用占用内存异常时提示重启</string>
     <string name="AlwaysLabelAnonAdmin">始终在聊天中标记匿名管理员</string>
     <string name="WhisperLocal">Whisper（本地模型）</string>
@@ -254,7 +254,7 @@
     <string name="DeleteUnusedWhisperModel">删除未使用的 Whisper 模型</string>
     <string name="WhisperModelInUse">本地 Whisper 模型正在运行，已忽略该操作</string>
     <string name="WhisperModelRemoved">已删除本地 Whisper 模型</string>
-    <string name="MemLeakThreshold">内存使用阈值</string>
+    <string name="MemLeakThreshold">内存使用上限</string>
     <string name="ResetSettings">重置设置</string>
     <string name="ResetSettingsDesc">重置设置（API密钥和自定义别名除外）？\n除非您已提前备份设置，否则此操作将无法撤销！</string>
     <string name="KeepSamePositionOnNewMsg">在其他会话发送新消息时保持当前滚动位置</string>
@@ -269,7 +269,7 @@
     <string name="IgnoreTranslatorCache">忽略翻译缓存</string>
     <string name="TranslationUnavailable">官方翻译不可用，正在使用替代的 Google API</string>
     <string name="GrantMediaPermission">授予媒体权限</string>
-    <string name="IgnoreTopicTabView">强制传统话题视图</string>
+    <string name="IgnoreTopicTabView">强制使用传统话题列表</string>
     <string name="NoPreloadTrackIfRepeatOne">单曲循环时不预加载下一首</string>
     <string name="AutoTestProxy">自动检查代理网络状态</string>
     <string name="RandomizeFilenameOnSend">随机重命名发送的文件</string>
@@ -344,7 +344,7 @@
     <string name="TranslatorInstanceNote">在线搜索公共终端或自行搭建，不兼容自动翻译功能</string>
     <string name="RecentChats">最近对话</string>
     <string name="TrimCOTFromTranslateResult">隐藏翻译结果中以[COT]开头的思考过程</string>
-    <string name="DebugAntiSpam">调试反垃圾邮件</string>
+    <string name="DebugAntiSpam">调试反垃圾消息</string>
     <string name="EnableAvatarBlur">启用头像模糊</string>
     <string name="KeepVoteCountAfterRetractVote">撤回投票后保留票数</string>
     <string name="AIDLOnLaunch">启动时绑定 AIDL 服务</string>
@@ -364,15 +364,16 @@
     <string name="HideMessageSideButtons">隐藏消息旁边的侧边按钮</string>
     <string name="ConfirmBamHammerName">封禁%1$s并删除该账户的所有消息，同时举报垃圾信息？</string>
     <string name="CantOpenProfile">无法打开目标用户的个人资料</string>
-    <string name="AntiSpamSettings">反垃圾邮件</string>
+    <string name="AntiSpamSettings">反垃圾消息</string>
     <string name="AutoDismissSuggestedChats">在社区聊天中自动关闭聊天建议功能</string>
     <string name="AutoDismissSuggestedChatsByRule">以上规则</string>
     <string name="DebugWarning">启用此类调试选项可能会引发意料之外的问题，是否继续？</string>
     <string name="DeleteAfterSend">发送后删除</string>
-    <string name="SwipeLoopChatFilter">在聊天文件夹列表的首项或末项处滑动时，实现循环跳转</string>
+    <string name="SwipeLoopChatFilter">循环切换聊天文件夹的首末页</string>
     <string name="ConfirmTranslateBeforeSend">是否在发送前对当前聊天内容启用翻译？连续点击此处 10 次即可跳过倒计时。</string>
     <string name="TriggerFilterForAllStoredChats">针对所有已缓存的聊天触发加入请求过滤器</string>
     <string name="DisableNumRounding">禁用成员数量舍入</string>
     <string name="DisableNumRoundingWithCommas">添加数量分隔符</string>
     <string name="NumRounding">成员数量舍入</string>
+    <string name="ApplyAutoModToJoinMsgs">以上拒绝规则对加入消息生效</string>
 </resources>
