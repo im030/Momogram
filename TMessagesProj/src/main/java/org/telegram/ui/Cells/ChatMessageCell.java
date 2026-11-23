@@ -275,6 +275,7 @@ import moe.hx030.momogram.NekoXConfig;
 import moe.hx030.momogram.helpers.WhisperHelper;
 import moe.hx030.momogram.parts.PollTransUpdates;
 import moe.hx030.momogram.util.ArrayUtil;
+import moe.hx030.momogram.utils.EnvUtil;
 
 public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate, ImageReceiver.ImageReceiverDelegate,
         DownloadController.FileDownloadProgressListener, TextSelectionHelper.SelectableView,
@@ -23565,6 +23566,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
         } else if (event.getAction() == MotionEvent.ACTION_HOVER_EXIT) {
             currentFocusedVirtualView = -1;
         }
+        if (EnvUtil.checkIsWaydroid()) return true; // bandaid: ignore
         return super.dispatchHoverEvent(event);
     }
 
