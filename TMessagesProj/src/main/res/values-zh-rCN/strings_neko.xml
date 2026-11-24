@@ -127,7 +127,7 @@
     <string name="DontSendGreetingSticker">不要发送问候贴纸</string>
     <string name="hideGroupSticker">隐藏群组贴纸</string>
     <string name="hideSendAsChannel">隐藏以频道身份发送</string>
-    <string name="showSpoilersDirectly">直接显示剧透信息</string>
+    <string name="showSpoilersDirectly">直接显示剧透消息</string>
     <string name="SaveToDownloadCount_zero">正在保存%1$d个文件到下载</string>
     <string name="SaveToDownloadCount_one">正在保存%1$d个文件到下载</string>
     <string name="SaveToDownloadCount_two">正在保存%1$d个文件到下载</string>
@@ -155,13 +155,13 @@
     <string name="DisableSendReadStories">隐身模式浏览动态</string>
     <string name="ViewStats">统计数据</string>
     <string name="NoFilesFoundInfo">当前目录中没有与 **%1$s** 相符的内容</string>
-    <string name="DebugMenuEnablePauseMusic">启用录制时暂停播放媒体</string>
+    <string name="DebugMenuEnablePauseMusic">录制时自动暂停媒体播放</string>
     <string name="FileUploadLimit">文件大小必须小于 %1$s</string>
-    <string name="AutoSendMessageIfBlockedBySlowMode">在限速解除后自动发送消息</string>
+    <string name="AutoSendMessageIfBlockedBySlowMode">慢速模式结束后自动发送消息</string>
     <string name="UnofficialApp">非官方应用</string>
     <string name="SearchRecentFiles">搜索最近的文件</string>
-    <string name="AutoSendAfterSlowModeIgnoredHint">已存在待传送的消息.</string>
-    <string name="AutoSendAfterSlowModeHint">已安排在限速计时后发送</string>
+    <string name="AutoSendAfterSlowModeIgnoredHint">消息正在排队发送中，已忽略此请求</string>
+    <string name="AutoSendAfterSlowModeHint">将在慢速模式结束后发送</string>
     <string name="AutoSendMessageIfBlockedBySlowModeDesc">只支持单一文字/贴图/GIF, 不支持其他媒体或文件</string>
     <string name="ProviderTelegramAPI">Telegram API</string>
     <string name="ConfirmToSendCommand">您确定要送出指令吗?</string>
@@ -191,7 +191,7 @@
     <string name="PreferredTranslateTargetLang">仅在列表中显示特定的目标翻译语言</string>
     <string name="AlwaysUseSpoilerForMediaDesc">将对话 ID 使用逗号分隔, ex: chat_id1,chat_id2…</string>
     <string name="AlwaysUseSpoilerForMedia">在特定对话为所有媒体启用防剧透隐藏</string>
-    <string name="ShowForwardTimestampInPopupMenu">在弹出菜单显示转发消息的原始发送时间</string>
+    <string name="ShowForwardTimestampInPopupMenu">在转发的消息菜单显示原消息发送时间</string>
     <string name="BlacklistUrlQueryAdd">参数黑名单</string>
     <string name="OverrideSettingHint">&lt;键&gt; &lt;值&gt;</string>
     <string name="OverrideSettingFloat">修改浮点数</string>
@@ -201,7 +201,7 @@
     <string name="ChatListFontSizeFollowChat">聊天列表使用消息字体大小</string>
     <string name="HideOriginalTextAfterTranslate">翻译后隐藏原始文本</string>
     <string name="SearchByMessageType">按消息类别搜索消息</string>
-    <string name="TranslateBeforeSend">传送前翻译</string>
+    <string name="TranslateBeforeSend">发送消息前进行翻译</string>
     <string name="Blacklist">加入黑名单</string>
     <string name="SearchBlacklistRevert">取消搜索隐藏的对话</string>
     <string name="ReplyAsQuoteByDefault">默认以引用方式回复消息</string>
@@ -218,7 +218,7 @@
     <string name="justOneEmoji">仅选取</string>
     <string name="NoFilesInfo">这个目录是空的</string>
     <string name="NoFilesFound">查无文件</string>
-    <string name="DebugMenuDisablePauseMusic">停用录制时暂停播放媒体</string>
+    <string name="DebugMenuDisablePauseMusic">录制时不中断媒体播放</string>
     <string name="UploadImage">上传图片</string>
     <string name="AccDescrShowKeyboard">显示键盘</string>
     <string name="UpgradeGroup">升级为超级群组</string>
@@ -228,7 +228,7 @@
     <string name="DontShareNumberWhenAddContactByDefault">添加联系人时自动取消勾选分享号码</string>
     <string name="UseCustomProviderForAutoTranslate">自动翻译时使用自定义翻译服务</string>
     <string name="DontAutoPlayNextMessage">不要自动播放下一个语音消息</string>
-    <string name="MarqueeForLongChatTitles">为较长聊天标题使用卷动效果</string>
+    <string name="MarqueeForLongChatTitles">轮播显示较长的对话名称</string>
     <string name="BlacklistedQuery">已将选取的参数加入黑名单</string>
     <string name="BlacklistedQueryAllAdded">选取链接内的所有参数都已加入黑名单.</string>
     <string name="BlacklistedQueryRemoved">已将解除选取的参数从黑名单移除.</string>
@@ -238,7 +238,7 @@
     <string name="NoTextToTranslate">没有可翻译的文字 :(</string>
     <string name="AlwaysDisableSafeBrowsingInWebView">停用 Google 安全浏览</string>
     <string name="AlwaysShowBotCommandButton">始终显示机器人指令按钮</string>
-    <string name="ShowEditTimestampInPopupMenu">在弹出菜单显示编辑时间</string>
+    <string name="ShowEditTimestampInPopupMenu">在消息菜单显示编辑时间</string>
     <string name="AlwaysHideBotCommandButton">始终隐藏机器人指令按钮</string>
     <string name="DisableBirthdayReminder">停用联系人生日提醒</string>
     <string name="ForceAllowChooseBrowser">打开链接时手动选择浏览器</string>
@@ -259,7 +259,7 @@
     <string name="CleanupLeftoversDetail">清理非使用中的缓存路径及上传用的缓存.</string>
     <string name="CleanupLeftoversResults">释放了 %1$.2f KB 的空间.</string>
     <string name="CleanupLeftoversResultsMB">释放了 %1$.2f MB 的空间.</string>
-    <string name="AlwaysTranslateBeforeSend">总是送出前翻译</string>
+    <string name="AlwaysTranslateBeforeSend">默认发送前翻译</string>
     <string name="CopySticker">复制贴纸</string>
     <string name="CopyPhotoSticker">复制图像贴纸</string>
     <string name="ChooseBestVideoQualityByDefault">默认使用最高画质预览视频</string>
