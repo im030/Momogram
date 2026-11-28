@@ -275,7 +275,6 @@ import moe.hx030.momogram.NekoXConfig;
 import moe.hx030.momogram.helpers.WhisperHelper;
 import moe.hx030.momogram.parts.PollTransUpdates;
 import moe.hx030.momogram.util.ArrayUtil;
-import moe.hx030.momogram.utils.EnvUtil;
 
 public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate, ImageReceiver.ImageReceiverDelegate,
         DownloadController.FileDownloadProgressListener, TextSelectionHelper.SelectableView,
@@ -23540,7 +23539,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
     }
 
     @Override
-    public boolean onHoverEvent(MotionEvent event) {
+    public boolean dispatchHoverEvent(MotionEvent event) {
         RichWidgetBlock widget = widgetBlock();
         if (widget != null && event.isFromSource(InputDevice.SOURCE_MOUSE)) {
             // A mouse over the widget: its :hover and cursor (the touch path's coordinates, checkRichLayoutMotionEvent).
@@ -23566,7 +23565,6 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
         } else if (event.getAction() == MotionEvent.ACTION_HOVER_EXIT) {
             currentFocusedVirtualView = -1;
         }
-        if (EnvUtil.checkIsWaydroid()) return true; // bandaid: ignore
         return super.dispatchHoverEvent(event);
     }
 
